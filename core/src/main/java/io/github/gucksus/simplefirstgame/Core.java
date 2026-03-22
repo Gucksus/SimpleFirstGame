@@ -44,6 +44,27 @@ public class Core extends ApplicationAdapter {
         draw();
     }
 
+    private void input() {
+
+    }
+
+    private void logic() {
+
+    }
+
+    private void draw() {
+        ScreenUtils.clear(Color.BLACK);
+        viewport.apply();
+        batch.setProjectionMatrix(viewport.getCamera().combined);
+
+        batch.begin();
+
+        backgroundSprite.draw(batch);
+        shipSprite.draw(batch);
+
+        batch.end();
+    }
+
     @Override
     public void dispose() {
         batch.dispose();

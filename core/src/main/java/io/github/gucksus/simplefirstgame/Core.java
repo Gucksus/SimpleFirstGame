@@ -39,10 +39,9 @@ public class Core extends ApplicationAdapter {
 
     @Override
     public void render() {
-        ScreenUtils.clear(Color.BLACK);
-        batch.begin();
-
-        batch.end();
+        input();
+        logic();
+        draw();
     }
 
     @Override

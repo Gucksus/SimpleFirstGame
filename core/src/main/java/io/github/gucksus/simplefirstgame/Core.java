@@ -24,6 +24,8 @@ public class Core extends ApplicationAdapter {
     Sprite backgroundSprite;
     FitViewport viewport;
     Array <Bulletlv1> bulletlv1Array;
+    float bulletTimer = 1f;
+    float fireRate = .2f;
 
     @Override
     public void create() {
@@ -82,15 +84,20 @@ public class Core extends ApplicationAdapter {
     }
 
     private void bulletSpawn() {
-        // Maybe this line will be buggy.
-        float iniX = shipSprite.getX() + shipSprite.getWidth() / 2;
-        float iniY = shipSprite.getY() + shipSprite.getHeight();
-        bulletlv1Array.add(new Bulletlv1(bulletlv1Texture, iniX, iniY));
+        if (bulletTimer >= fireRate) {
+            float iniX = shipSprite.getX() + shipSprite.getWidth() / 2;
+            float iniY = shipSprite.getY() + shipSprite.getHeight();
+            bulletlv1Array.add(new Bulletlv1(bulletlv1Texture, iniX, iniY));
+            bulletTimer = 0;
+        }
     }
 
     private void bulletLogic() {
+        float delta = Gdx.graphics.getDeltaTime();
+        bulletTimer += delta;
+
         for (Bulletlv1 bullet: bulletlv1Array) {
-            bullet.update(Gdx.graphics.getDeltaTime());
+            bullet.update(delta);
         }
     }
 

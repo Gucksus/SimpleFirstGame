@@ -17,25 +17,32 @@ import io.github.gucksus.simplefirstgame.entities.Enemylv1;
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
 public class Core extends ApplicationAdapter {
     // Declare variables.
+    // Different background textures.
     Texture backgroundTextureNo0;
     Texture backgroundTextureNo1;
     Texture backgroundTextureNo2;
+    // Entities textures.
     Texture shipTexture;
     Texture bulletlv1Texture;
     Texture enemyLv1Texture;
+    // Sprites.
     private SpriteBatch batch;
     Sprite shipSprite;
     Sprite[] backgroundSprites;
     FitViewport viewport;
     Array <Bulletlv1> bulletlv1Array;
+    // This timer accounts for how long since last bullet.
     float bulletTimer = 1f;
+    // How fast the spawn rate of the bullets.
     float fireRate = .2f;
+    // Background scrolling speed.
     float backgroundSpeed = 3f;
     Enemylv1 loneEnemylv1;
 
     @Override
     public void create() {
         // Adds texture.
+        // Background has 3 sprites for scrolling effect.
         backgroundSprites = new Sprite[3];
         backgroundTextureNo0 = new Texture("background1.png");
         backgroundTextureNo1 = new Texture("background2.png");
@@ -81,7 +88,7 @@ public class Core extends ApplicationAdapter {
         draw();
     }
 
-    private void input() {
+    private void input() { // Inputs for the ship.
         float speed = 6f;
         float delta = Gdx.graphics.getDeltaTime();
 
@@ -109,11 +116,13 @@ public class Core extends ApplicationAdapter {
             background.translateY(-backgroundSpeed * delta);
         }
 
-        // find the highest sprite's Y
+        /*How does this work:
+        * As a background sprite go entirely below the screen, it looks for the highest sprite and then put the off-screen sprite
+        * on top.*/
         float highestY = backgroundSprites[0].getY();
         int highestIdx = 0;
         int outOfScreenIdx = -1;
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 3; i++) { // The for is for both looking for the off-screen and the highest sprite.
             if (backgroundSprites[i].getY() > highestY) {
                 highestY = backgroundSprites[i].getY();
                 highestIdx = i;
@@ -121,12 +130,12 @@ public class Core extends ApplicationAdapter {
             if (backgroundSprites[i].getY() + backgroundSprites[i].getHeight() < 0)
                 outOfScreenIdx = i;
         }
-        if (outOfScreenIdx != -1)
+        if (outOfScreenIdx != -1) // If there is a sprite that off-screen.
             backgroundSprites[outOfScreenIdx].setY(highestY + backgroundSprites[highestIdx].getHeight());
     }
 
     private void bulletSpawn() {
-        if (bulletTimer >= fireRate) {
+        if (bulletTimer >= fireRate) { // If the timer exceeds the time interval, it will spawn a bullet and resets back to 0.
             float iniX = shipSprite.getX() + shipSprite.getWidth() / 2;
             float iniY = shipSprite.getY() + shipSprite.getHeight();
             bulletlv1Array.add(new Bulletlv1(bulletlv1Texture, iniX, iniY));
@@ -134,7 +143,7 @@ public class Core extends ApplicationAdapter {
         }
     }
 
-    private void bulletLogic() {
+    private void bulletLogic() { // Update position for all the bullets.
         float delta = Gdx.graphics.getDeltaTime();
         bulletTimer += delta;
 
@@ -147,10 +156,10 @@ public class Core extends ApplicationAdapter {
         loneEnemylv1.moveWeirdly(Gdx.graphics.getDeltaTime());
     }
 
-    private void clampLogic() {
+    private void clampLogic() { // Clamp logic for the ship.
         float worldHeight = viewport.getWorldHeight();
         float worldWidth = viewport.getWorldWidth();
-
+        // Here i set so that the ship can go off-screen a quarter of its width.
         shipSprite.setX(MathUtils.clamp(shipSprite.getX(), -(shipSprite.getWidth()/4), worldWidth - shipSprite.getWidth() / 4 * 3));
         shipSprite.setY(MathUtils.clamp(shipSprite.getY(), 0, worldHeight - shipSprite.getHeight()));
     }

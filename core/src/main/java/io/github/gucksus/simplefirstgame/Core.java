@@ -12,6 +12,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import io.github.gucksus.simplefirstgame.entities.Bulletlv1;
+import io.github.gucksus.simplefirstgame.entities.Enemylv1;
 
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
 public class Core extends ApplicationAdapter {
@@ -21,6 +22,7 @@ public class Core extends ApplicationAdapter {
     Texture backgroundTextureNo2;
     Texture shipTexture;
     Texture bulletlv1Texture;
+    Texture enemyLv1Texture;
     private SpriteBatch batch;
     Sprite shipSprite;
     Sprite[] backgroundSprites;
@@ -29,6 +31,7 @@ public class Core extends ApplicationAdapter {
     float bulletTimer = 1f;
     float fireRate = .2f;
     float backgroundSpeed = 3f;
+    Enemylv1 loneEnemylv1;
 
     @Override
     public void create() {
@@ -39,6 +42,7 @@ public class Core extends ApplicationAdapter {
         backgroundTextureNo2 = new Texture("background3.png");
         shipTexture = new Texture("ShipSprite.png");
         bulletlv1Texture = new Texture("bullet_texture.png");
+        enemyLv1Texture = new Texture("enemylv1.png");
 
         // Initialize sprites.
         shipSprite = new Sprite(shipTexture);
@@ -56,6 +60,7 @@ public class Core extends ApplicationAdapter {
         batch = new SpriteBatch();
         viewport = new FitViewport(8,11);
         bulletlv1Array = new Array<>();
+        loneEnemylv1 = new Enemylv1(enemyLv1Texture, 4f, 10f);
         backgroundSprites[0].setY(viewport.getWorldHeight());
         backgroundSprites[2].setY(-viewport.getWorldHeight());
     }
@@ -72,6 +77,7 @@ public class Core extends ApplicationAdapter {
         backgroundUpdate();
         clampLogic();
         bulletLogic();
+        enemyLv1Logic();
         draw();
     }
 
@@ -116,7 +122,7 @@ public class Core extends ApplicationAdapter {
                 outOfScreenIdx = i;
         }
         if (outOfScreenIdx != -1)
-            backgroundSprites[outOfScreenIdx].setY(backgroundSprites[highestIdx].getY() + backgroundSprites[highestIdx].getHeight());
+            backgroundSprites[outOfScreenIdx].setY(highestY + backgroundSprites[highestIdx].getHeight());
     }
 
     private void bulletSpawn() {
@@ -135,6 +141,10 @@ public class Core extends ApplicationAdapter {
         for (Bulletlv1 bullet: bulletlv1Array) {
             bullet.update(delta);
         }
+    }
+
+    private void enemyLv1Logic() {
+        loneEnemylv1.moveWeirdly(Gdx.graphics.getDeltaTime());
     }
 
     private void clampLogic() {
@@ -157,7 +167,9 @@ public class Core extends ApplicationAdapter {
         for (Sprite background: backgroundSprites) {
             background.draw(batch);
         }
+
         shipSprite.draw(batch);
+        loneEnemylv1.selfSprite.draw(batch);
 
         for (Bulletlv1 bulletlv1: bulletlv1Array) {
             bulletlv1.bulletSelfSprite.draw(batch);

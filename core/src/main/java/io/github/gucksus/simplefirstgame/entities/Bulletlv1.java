@@ -10,7 +10,7 @@ public class Bulletlv1 {
 
     public Bulletlv1(Texture texture, float iniX, float iniY) {
         bulletSelfSprite = new Sprite(texture);
-        bulletSelfSprite.setSize(1, 1);
+        bulletSelfSprite.setSize(.5f, .5f);
         bulletSelfSprite.setCenterX(iniX);
         bulletSelfSprite.setY(iniY);
     }

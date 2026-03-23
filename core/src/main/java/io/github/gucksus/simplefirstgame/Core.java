@@ -83,8 +83,8 @@ public class Core extends ApplicationAdapter {
 
     private void bulletSpawn() {
         // Maybe this line will be buggy.
-        float iniX = shipSprite.getX();
-        float iniY = shipSprite.getY();
+        float iniX = shipSprite.getX() + shipSprite.getWidth() / 2;
+        float iniY = shipSprite.getY() + shipSprite.getHeight();
         bulletlv1Array.add(new Bulletlv1(bulletlv1Texture, iniX, iniY));
     }
 

@@ -6,13 +6,12 @@ import com.badlogic.gdx.math.MathUtils;
 
 public class Enemylv1 {
     public final float health = 1f;
-    public final float speedY = .5f;
+    public final float speedY = .3f;
     final float amplitude = 2f;
     final float frequency = 2f;
     float timer = 0;
     public Sprite selfSprite;
     float initialX;
-    boolean isMovingRight;
 
     public Enemylv1(Texture texture, float iniX, float iniY) {
         selfSprite = new Sprite(texture);

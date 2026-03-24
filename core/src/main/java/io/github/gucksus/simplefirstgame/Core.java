@@ -80,11 +80,13 @@ public class Core extends ApplicationAdapter {
 
     @Override
     public void render() {
+        // In case delta jump too high.
+        float delta = Math.min(Gdx.graphics.getDeltaTime(), 1/55f);
         input();
-        backgroundUpdate();
+        backgroundUpdate(delta);
         clampLogic();
-        bulletLogic();
-        enemyLv1Logic();
+        bulletLogic(delta);
+        enemyLv1Logic(delta);
         draw();
     }
 
@@ -109,11 +111,10 @@ public class Core extends ApplicationAdapter {
         }
     }
 
-    private void backgroundUpdate() {
-        float delta = Gdx.graphics.getDeltaTime();
+    private void backgroundUpdate(float delta) {
 
         for (Sprite background : backgroundSprites) {
-            background.translateY(-backgroundSpeed * delta);
+            background.translateY(-delta * backgroundSpeed);
         }
 
         /*How does this work:
@@ -143,8 +144,7 @@ public class Core extends ApplicationAdapter {
         }
     }
 
-    private void bulletLogic() { // Update position for all the bullets.
-        float delta = Gdx.graphics.getDeltaTime();
+    private void bulletLogic(float delta) { // Update position for all the bullets.
         bulletTimer += delta;
 
         for (Bulletlv1 bullet: bulletlv1Array) {
@@ -152,14 +152,14 @@ public class Core extends ApplicationAdapter {
         }
     }
 
-    private void enemyLv1Logic() {
-        loneEnemylv1.moveWeirdly(Gdx.graphics.getDeltaTime());
+    private void enemyLv1Logic(float delta) {
+        loneEnemylv1.moveWeirdly(delta);
     }
 
     private void clampLogic() { // Clamp logic for the ship.
         float worldHeight = viewport.getWorldHeight();
         float worldWidth = viewport.getWorldWidth();
-        // Here i set so that the ship can go off-screen a quarter of its width.
+        // Here I set so that the ship can go off-screen a quarter of its width.
         shipSprite.setX(MathUtils.clamp(shipSprite.getX(), -(shipSprite.getWidth()/4), worldWidth - shipSprite.getWidth() / 4 * 3));
         shipSprite.setY(MathUtils.clamp(shipSprite.getY(), 0, worldHeight - shipSprite.getHeight()));
     }

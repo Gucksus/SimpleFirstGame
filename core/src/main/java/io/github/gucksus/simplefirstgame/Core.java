@@ -14,6 +14,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import io.github.gucksus.simplefirstgame.entities.BasicBullet;
+import io.github.gucksus.simplefirstgame.entities.Bullet;
 import io.github.gucksus.simplefirstgame.entities.PopcornEnemy;
 import io.github.gucksus.simplefirstgame.tools.ScrollingBackground;
 
@@ -22,25 +23,31 @@ public class Core extends ApplicationAdapter {
     // Declare variables.
     // Entities textures.
     Texture shipTexture;
+    Texture basicBulletTexture;
+    Texture popcornEnemyTexture;
     Rectangle shipHurtbox;
     // Sprites.
     private SpriteBatch batch;
     Sprite shipSprite;
     FitViewport viewport;
-    Array <BasicBullet> bulletlv1Array;
+    Array <Bullet> bulletArray;
     // This timer accounts for how long since last bullet.
-    float bulletTimer = 1f;
+    float bulletTimer = .2f;
     // How fast the spawn rate of the bullets.
     float fireRate = .2f;
     ScrollingBackground scrollingBackground;
     ShapeRenderer shapeRenderer;
+    PopcornEnemy popcornEnemy;
 
     @Override
     public void create() {
         // Adds texture.
+        popcornEnemyTexture = new Texture("enemylv1.png");
         shipTexture = new Texture("ShipSprite.png");
+        basicBulletTexture = new Texture("bullet_texture.png");
 
         // Initialize sprites.
+        popcornEnemy = new PopcornEnemy(popcornEnemyTexture, 4, 11);
         shipSprite = new Sprite(shipTexture);
         shipHurtbox = new Rectangle(4, 0, 1, 1);
         shipSprite.setSize(1, 1);
@@ -49,7 +56,7 @@ public class Core extends ApplicationAdapter {
         // Initialize sprite batch and viewport.
         batch = new SpriteBatch();
         viewport = new FitViewport(8,11);
-        bulletlv1Array = new Array<>();
+        bulletArray = new Array<>();
         shapeRenderer = new ShapeRenderer();
         scrollingBackground = new ScrollingBackground(viewport.getWorldWidth(), viewport.getWorldHeight());
     }
@@ -66,8 +73,9 @@ public class Core extends ApplicationAdapter {
         float delta = Math.min(Gdx.graphics.getDeltaTime(), 1/55f);
         input();
         scrollingBackground.backgroundUpdate(delta);
+        popcornEnemy.update(delta);
+        bulletUpdate(delta);
         clampLogic();
-        bulletLogic(delta);
         draw();
     }
 
@@ -88,25 +96,19 @@ public class Core extends ApplicationAdapter {
             shipSprite.translateY(-speed * delta);
         }
         if (Gdx.input.isKeyPressed(Input.Keys.J)) {
-            bulletSpawn();
+            if (bulletTimer >= fireRate) { // If the timer exceeds the time interval, it will spawn a bullet and resets back to 0.
+                float iniX = shipSprite.getX() + shipSprite.getWidth() / 2;
+                float iniY = shipSprite.getY() + shipSprite.getHeight();
+                bulletArray.add(new BasicBullet(basicBulletTexture , iniX, iniY));
+                bulletTimer = 0;
+            }
         }
-
         shipHurtbox.setPosition(shipSprite.getX(), shipSprite.getY());
     }
 
-    private void bulletSpawn() {
-        if (bulletTimer >= fireRate) { // If the timer exceeds the time interval, it will spawn a bullet and resets back to 0.
-            float iniX = shipSprite.getX() + shipSprite.getWidth() / 2;
-            float iniY = shipSprite.getY() + shipSprite.getHeight();
-            bulletlv1Array.add(new BasicBullet(iniX, iniY));
-            bulletTimer = 0;
-        }
-    }
-
-    private void bulletLogic(float delta) { // Update position for all the bullets.
+    private void bulletUpdate(float delta) {
         bulletTimer += delta;
-
-        for (BasicBullet bullet: bulletlv1Array) {
+        for (Bullet bullet: bulletArray) {
             bullet.update(delta);
         }
     }
@@ -144,22 +146,23 @@ public class Core extends ApplicationAdapter {
         }
 
         shipSprite.draw(batch);
-        loneEnemylv1.selfSprite.draw(batch);
 
-        for (BasicBullet basicBullet : bulletlv1Array) {
-            basicBullet.selfSprite.draw(batch);
+        for (Bullet basicBullet : bulletArray) {
+            basicBullet.sprite.draw(batch);
         }
+
+        popcornEnemy.sprite.draw(batch);
 
         batch.end();
 
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
 
-        drawHitbox(loneEnemylv1.hitbox);
-        for (BasicBullet bullet: bulletlv1Array){
+        for (Bullet bullet: bulletArray){
             drawHitbox(bullet.hitbox);
         }
         drawHurtbox(shipHurtbox);
-        drawHurtbox(loneEnemylv1.hurtbox);
+        drawHitbox(popcornEnemy.hitbox);
+        drawHurtbox(popcornEnemy.hurtbox);
 
         shapeRenderer.end();
 

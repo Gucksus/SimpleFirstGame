@@ -20,8 +20,7 @@ import io.github.gucksus.simplefirstgame.tools.ScrollingBackground;
 
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
 public class Core extends ApplicationAdapter {
-    // Declare variables.
-    // Entities textures.
+    // Declare textures.
     Texture shipTexture;
     Texture basicBulletTexture;
     Texture popcornEnemyTexture;
@@ -36,6 +35,7 @@ public class Core extends ApplicationAdapter {
     // How fast the spawn rate of the bullets.
     float fireRate = .2f;
     ScrollingBackground scrollingBackground;
+    // This is for drawing hitbox and hurtbox.
     ShapeRenderer shapeRenderer;
     PopcornEnemy popcornEnemy;
 
@@ -55,9 +55,9 @@ public class Core extends ApplicationAdapter {
 
         // Initialize sprite batch and viewport.
         batch = new SpriteBatch();
+        shapeRenderer = new ShapeRenderer();
         viewport = new FitViewport(8,11);
         bulletArray = new Array<>();
-        shapeRenderer = new ShapeRenderer();
         scrollingBackground = new ScrollingBackground(viewport.getWorldWidth(), viewport.getWorldHeight());
     }
 
@@ -76,6 +76,8 @@ public class Core extends ApplicationAdapter {
         popcornEnemy.update(delta);
         bulletUpdate(delta);
         clampLogic();
+        // Update hurtbox position for the ship.
+        shipHurtbox.setPosition(shipSprite.getX(), shipSprite.getY());
         draw();
     }
 
@@ -103,10 +105,9 @@ public class Core extends ApplicationAdapter {
                 bulletTimer = 0;
             }
         }
-        shipHurtbox.setPosition(shipSprite.getX(), shipSprite.getY());
     }
 
-    private void bulletUpdate(float delta) {
+    private void bulletUpdate(float delta) { // Update position for bullets.
         bulletTimer += delta;
         for (Bullet bullet: bulletArray) {
             bullet.update(delta);
@@ -121,12 +122,12 @@ public class Core extends ApplicationAdapter {
         shipSprite.setY(MathUtils.clamp(shipSprite.getY(), 0, worldHeight - shipSprite.getHeight()));
     }
 
-    private void drawHitbox(Rectangle hitbox) {
+    private void drawHitbox(Rectangle hitbox) { // Draw hitboxes using a shape renderer.
         shapeRenderer.setColor(Color.GREEN);
         shapeRenderer.rect(hitbox.x, hitbox.y, hitbox.width, hitbox.height);
     }
 
-    private void drawHurtbox(Rectangle hurtbox) {
+    private void drawHurtbox(Rectangle hurtbox) { // Draw hurtbox the same as draw hitbox.
         shapeRenderer.setColor(Color.RED);
         shapeRenderer.rect(hurtbox.x, hurtbox.y, hurtbox.width, hurtbox.height);
     }
@@ -140,17 +141,13 @@ public class Core extends ApplicationAdapter {
 
         batch.begin();
 
-        // Draw background and ship.
         for (Sprite background: scrollingBackground.backgroundSprites) {
             background.draw(batch);
         }
-
         shipSprite.draw(batch);
-
         for (Bullet basicBullet : bulletArray) {
             basicBullet.sprite.draw(batch);
         }
-
         popcornEnemy.sprite.draw(batch);
 
         batch.end();

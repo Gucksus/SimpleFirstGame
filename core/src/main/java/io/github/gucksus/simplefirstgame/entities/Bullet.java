@@ -13,7 +13,8 @@ public abstract class Bullet {
     public Rectangle hitbox;
     public float bulletFireRate;
     float hitboxOffsetX;
-
+    // This constructor initializes width, height, sprite, initial position and neglect everything else. Therefore,
+    // you have to add it in the subclass.
     public Bullet(Texture texture, float iniX, float iniY, float width, float height) {
         this.width = width;
         this.height = height;

@@ -23,6 +23,8 @@ public abstract class Enemy {
     float hurtboxOffsetX;
     float hurtboxOffsetY;
 
+    // This constructor initializes width, height, sprite, initial position and neglect everything else. Therefore,
+    // you have to add it in the subclass.
     public Enemy(Texture texture, float iniX, float iniY, float width, float height) {
         this.width = width;
         this.height = height;

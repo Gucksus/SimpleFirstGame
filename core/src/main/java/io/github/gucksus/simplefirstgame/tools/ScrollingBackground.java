@@ -50,7 +50,7 @@ public class ScrollingBackground {
             if (backgroundSprites[i].getY() + backgroundSprites[i].getHeight() < 0)
                 outOfScreenIdx = i;
         }
-        if (outOfScreenIdx != -1) // If there is a sprite that off-screen.
+        if (outOfScreenIdx != -1) // If there IS a sprite that off-screen.
             backgroundSprites[outOfScreenIdx].setY(highestY + backgroundSprites[highestIdx].getHeight());
     }
 }

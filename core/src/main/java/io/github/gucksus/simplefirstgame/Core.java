@@ -22,7 +22,7 @@ public class Core extends ApplicationAdapter {
     // Declare variables.
     // Entities textures.
     Texture shipTexture;
-    Rectangle shipHitbox;
+    Rectangle shipHurtbox;
     // Sprites.
     private SpriteBatch batch;
     Sprite shipSprite;
@@ -43,7 +43,7 @@ public class Core extends ApplicationAdapter {
 
         // Initialize sprites.
         shipSprite = new Sprite(shipTexture);
-        shipHitbox = new Rectangle(4, 0, 1, 1);
+        shipHurtbox = new Rectangle(4, 0, 1, 1);
         shipSprite.setSize(1, 1);
         shipSprite.setCenterX(4);
 
@@ -94,7 +94,7 @@ public class Core extends ApplicationAdapter {
             bulletSpawn();
         }
 
-        shipHitbox.setPosition(shipSprite.getX(), shipSprite.getY());
+        shipHurtbox.setPosition(shipSprite.getX(), shipSprite.getY());
     }
 
     private void bulletSpawn() {
@@ -122,7 +122,13 @@ public class Core extends ApplicationAdapter {
     }
 
     private void drawHitbox(Rectangle hitbox) {
+        shapeRenderer.setColor(Color.GREEN);
         shapeRenderer.rect(hitbox.x, hitbox.y, hitbox.width, hitbox.height);
+    }
+
+    private void drawHurtbox(Rectangle hurtbox) {
+        shapeRenderer.setColor(Color.RED);
+        shapeRenderer.rect(hurtbox.x, hurtbox.y, hurtbox.width, hurtbox.height);
     }
 
     private void draw() {
@@ -150,12 +156,12 @@ public class Core extends ApplicationAdapter {
 
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
 
-        shapeRenderer.setColor(Color.GREEN);
         drawHitbox(loneEnemylv1.hitbox);
-        drawHitbox(shipHitbox);
         for (Bulletlv1 bullet: bulletlv1Array){
             drawHitbox(bullet.hitbox);
         }
+        drawHurtbox(shipHurtbox);
+        drawHurtbox(loneEnemylv1.hurtbox);
 
         shapeRenderer.end();
 

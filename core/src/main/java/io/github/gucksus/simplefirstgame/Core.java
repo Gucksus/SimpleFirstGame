@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
@@ -38,6 +39,7 @@ public class Core extends ApplicationAdapter {
     // Background scrolling speed.
     float backgroundSpeed = 3f;
     Enemylv1 loneEnemylv1;
+    ShapeRenderer shapeRenderer;
 
     @Override
     public void create() {
@@ -67,9 +69,10 @@ public class Core extends ApplicationAdapter {
         batch = new SpriteBatch();
         viewport = new FitViewport(8,11);
         bulletlv1Array = new Array<>();
-        loneEnemylv1 = new Enemylv1(enemyLv1Texture, 4f, 10f);
+        loneEnemylv1 = new Enemylv1(4f, 10f);
         backgroundSprites[0].setY(viewport.getWorldHeight());
         backgroundSprites[2].setY(-viewport.getWorldHeight());
+        shapeRenderer = new ShapeRenderer();
     }
 
     @Override
@@ -169,6 +172,7 @@ public class Core extends ApplicationAdapter {
         ScreenUtils.clear(Color.BLACK);
         viewport.apply();
         batch.setProjectionMatrix(viewport.getCamera().combined);
+        shapeRenderer.setProjectionMatrix(viewport.getCamera().combined);
 
         batch.begin();
 
@@ -185,6 +189,14 @@ public class Core extends ApplicationAdapter {
         }
 
         batch.end();
+
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+
+        shapeRenderer.setColor(Color.GREEN);
+        shapeRenderer.rect(loneEnemylv1.hitbox.x, loneEnemylv1.hitbox.y, loneEnemylv1.hitbox.width, loneEnemylv1.hitbox.height);
+
+        shapeRenderer.end();
+
     }
 
     @Override

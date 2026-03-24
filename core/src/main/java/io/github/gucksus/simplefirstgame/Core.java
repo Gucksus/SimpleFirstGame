@@ -15,40 +15,30 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import io.github.gucksus.simplefirstgame.entities.Bulletlv1;
 import io.github.gucksus.simplefirstgame.entities.Enemylv1;
+import io.github.gucksus.simplefirstgame.tools.ScrollingBackground;
 
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
 public class Core extends ApplicationAdapter {
     // Declare variables.
-    // Different background textures.
-    Texture backgroundTextureNo0;
-    Texture backgroundTextureNo1;
-    Texture backgroundTextureNo2;
     // Entities textures.
     Texture shipTexture;
     Rectangle shipHitbox;
     // Sprites.
     private SpriteBatch batch;
     Sprite shipSprite;
-    Sprite[] backgroundSprites;
     FitViewport viewport;
     Array <Bulletlv1> bulletlv1Array;
     // This timer accounts for how long since last bullet.
     float bulletTimer = 1f;
     // How fast the spawn rate of the bullets.
     float fireRate = .2f;
-    // Background scrolling speed.
-    float backgroundSpeed = 3f;
+    ScrollingBackground scrollingBackground;
     Enemylv1 loneEnemylv1;
     ShapeRenderer shapeRenderer;
 
     @Override
     public void create() {
         // Adds texture.
-        // Background has 3 sprites for scrolling effect.
-        backgroundSprites = new Sprite[3];
-        backgroundTextureNo0 = new Texture("background1.png");
-        backgroundTextureNo1 = new Texture("background2.png");
-        backgroundTextureNo2 = new Texture("background3.png");
         shipTexture = new Texture("ShipSprite.png");
 
         // Initialize sprites.
@@ -56,22 +46,14 @@ public class Core extends ApplicationAdapter {
         shipHitbox = new Rectangle(4, 0, 1, 1);
         shipSprite.setSize(1, 1);
         shipSprite.setCenterX(4);
-        backgroundSprites[0] = new Sprite(backgroundTextureNo0);
-        backgroundSprites[1] = new Sprite(backgroundTextureNo1);
-        backgroundSprites[2] = new Sprite(backgroundTextureNo2);
-        // Height is 22 because the background is supposed to be twice the size to create infinity effect.
-        backgroundSprites[0].setSize(8, 11);
-        backgroundSprites[1].setSize(8, 11);
-        backgroundSprites[2].setSize(8, 11);
 
         // Initialize sprite batch and viewport.
         batch = new SpriteBatch();
         viewport = new FitViewport(8,11);
         bulletlv1Array = new Array<>();
         loneEnemylv1 = new Enemylv1(4f, 10f);
-        backgroundSprites[0].setY(viewport.getWorldHeight());
-        backgroundSprites[2].setY(-viewport.getWorldHeight());
         shapeRenderer = new ShapeRenderer();
+        scrollingBackground = new ScrollingBackground(viewport.getWorldWidth(), viewport.getWorldHeight());
     }
 
     @Override
@@ -85,10 +67,10 @@ public class Core extends ApplicationAdapter {
         // In case delta jump too high.
         float delta = Math.min(Gdx.graphics.getDeltaTime(), 1/55f);
         input();
-        backgroundUpdate(delta);
+        scrollingBackground.backgroundUpdate(delta);
         clampLogic();
+        loneEnemylv1.moveWeirdly(delta);
         bulletLogic(delta);
-        enemyLv1Logic(delta);
         draw();
     }
 
@@ -115,30 +97,6 @@ public class Core extends ApplicationAdapter {
         shipHitbox.setPosition(shipSprite.getX(), shipSprite.getY());
     }
 
-    private void backgroundUpdate(float delta) {
-
-        for (Sprite background : backgroundSprites) {
-            background.translateY(-delta * backgroundSpeed);
-        }
-
-        /*How does this work:
-        * As a background sprite go entirely below the screen, it looks for the highest sprite and then put the off-screen sprite
-        * on top.*/
-        float highestY = backgroundSprites[0].getY();
-        int highestIdx = 0;
-        int outOfScreenIdx = -1;
-        for (int i = 0; i < 3; i++) { // The for is for both looking for the off-screen and the highest sprite.
-            if (backgroundSprites[i].getY() > highestY) {
-                highestY = backgroundSprites[i].getY();
-                highestIdx = i;
-            }
-            if (backgroundSprites[i].getY() + backgroundSprites[i].getHeight() < 0)
-                outOfScreenIdx = i;
-        }
-        if (outOfScreenIdx != -1) // If there is a sprite that off-screen.
-            backgroundSprites[outOfScreenIdx].setY(highestY + backgroundSprites[highestIdx].getHeight());
-    }
-
     private void bulletSpawn() {
         if (bulletTimer >= fireRate) { // If the timer exceeds the time interval, it will spawn a bullet and resets back to 0.
             float iniX = shipSprite.getX() + shipSprite.getWidth() / 2;
@@ -150,14 +108,9 @@ public class Core extends ApplicationAdapter {
 
     private void bulletLogic(float delta) { // Update position for all the bullets.
         bulletTimer += delta;
-
         for (Bulletlv1 bullet: bulletlv1Array) {
             bullet.update(delta);
         }
-    }
-
-    private void enemyLv1Logic(float delta) {
-        loneEnemylv1.moveWeirdly(delta);
     }
 
     private void clampLogic() { // Clamp logic for the ship.
@@ -182,7 +135,7 @@ public class Core extends ApplicationAdapter {
         batch.begin();
 
         // Draw background and ship.
-        for (Sprite background: backgroundSprites) {
+        for (Sprite background: scrollingBackground.backgroundSprites) {
             background.draw(batch);
         }
 

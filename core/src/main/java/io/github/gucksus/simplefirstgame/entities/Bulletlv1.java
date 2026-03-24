@@ -5,13 +5,14 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Rectangle;
 
 public class Bulletlv1 {
-    final float speed = 5f;
-//    final float damage = 1;
+    final float speed = 10f;
+    final float damage = 1;
     public Sprite selfSprite;
     Texture bulletlv1Texture;
     public Rectangle hitbox;
     float bulletWidth = .5f;
     float bulletHeight = .5f;
+    public float bulletFireRate = .2f;
 
     public Bulletlv1(float iniX, float iniY) {
         bulletlv1Texture = new Texture("bullet_texture.png");

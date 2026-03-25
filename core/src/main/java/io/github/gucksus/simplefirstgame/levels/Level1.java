@@ -1,9 +1,6 @@
 package io.github.gucksus.simplefirstgame.levels;
 
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Batch;
-import io.github.gucksus.simplefirstgame.entities.Enemy;
-import com.badlogic.gdx.utils.Array;
 import io.github.gucksus.simplefirstgame.entities.PopcornEnemy;
 
 public class Level1 extends Level {
@@ -18,13 +15,8 @@ public class Level1 extends Level {
         enemyArray.add(new PopcornEnemy(texture, iniX, iniY));
     }
 
+    @Override
     public void enemySpawn() {
         popcornEnemySpawn(popcornEnemyTexture ,4, 8);
-    }
-
-    public void enemyUpdate(float delta) {
-        for (Enemy enemy: enemyArray) {
-            enemy.update(delta);
-        }
     }
 }

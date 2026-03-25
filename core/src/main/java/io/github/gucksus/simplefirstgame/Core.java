@@ -80,10 +80,13 @@ public class Core extends ApplicationAdapter {
     public void render() {
         // In case delta jump too high.
         float delta = Math.min(Gdx.graphics.getDeltaTime(), 1/55f);
+
         input();
         clampLogic();
         scrollingBackground.backgroundUpdate(delta);
         bulletUpdate(delta);
+        hitboxAndHurtboxLogic();
+        currentLevel.enemyUpdateRemoval();
         // Update hurtbox position for the ship.
         shipHurtbox.setPosition(shipSprite.getX(), shipSprite.getY());
         draw();
@@ -145,6 +148,20 @@ public class Core extends ApplicationAdapter {
     private void drawHurtbox(Rectangle hurtbox) { // Draw hurtbox the same as draw hitbox.
         shapeRenderer.setColor(Color.RED);
         shapeRenderer.rect(hurtbox.x, hurtbox.y, hurtbox.width, hurtbox.height);
+    }
+
+    private void hitboxAndHurtboxLogic() {
+        Array<Enemy> enemyArray = currentLevel.enemyArray;
+        for (int bulletIdx = bulletArray.size - 1; bulletIdx >= 0; bulletIdx--){
+            for (int enemyIdx = enemyArray.size - 1; enemyIdx >= 0; enemyIdx--){
+                Enemy currentEnemy = enemyArray.get(enemyIdx);
+                Bullet currentBullet = bulletArray.get(bulletIdx);
+                if (currentBullet.hitbox.overlaps(currentEnemy.hurtbox)) {
+                    currentEnemy.health -= currentBullet.damage;
+                    bulletArray.removeIndex(bulletIdx);
+                }
+            }
+        }
     }
 
     private void draw() {

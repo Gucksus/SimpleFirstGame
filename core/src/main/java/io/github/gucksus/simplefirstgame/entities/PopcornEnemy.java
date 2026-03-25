@@ -20,7 +20,7 @@ public class PopcornEnemy extends Enemy {
     }
 
     @Override
-    public void update(float delta) {
+    public void updatePosition(float delta) {
         timer += delta;
 
         float newX = initialX + MathUtils.sin(timer * frequency) * amplitude;

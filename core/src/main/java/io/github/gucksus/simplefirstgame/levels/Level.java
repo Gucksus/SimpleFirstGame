@@ -17,8 +17,15 @@ public abstract class Level {
 
     }
 
-    public void enemyUpdate(float delta) {
-
+    public void enemyUpdateRemoval() {
+        for (Enemy enemy: enemyArray) {
+            enemy.updateStatus();
+        }
+        for (int i = enemyArray.size - 1; i >= 0; --i) {
+            if (enemyArray.get(i).isDead){
+                enemyArray.removeIndex(i);
+            }
+        }
     }
 
     public void draw(Batch batch) {

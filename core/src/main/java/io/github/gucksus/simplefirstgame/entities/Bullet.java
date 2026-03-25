@@ -6,7 +6,7 @@ import com.badlogic.gdx.math.Rectangle;
 
 public abstract class Bullet {
     float speed;
-    float damage;
+    public float damage;
     float width;
     float height;
     public Sprite sprite;

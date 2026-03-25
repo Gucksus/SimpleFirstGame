@@ -21,6 +21,7 @@ public abstract class Enemy {
     float hitboxOffsetY;
     float hurtboxOffsetX;
     float hurtboxOffsetY;
+    public boolean isDead = false;
 
     // This constructor initializes width, height, sprite, initial position and neglect everything else. Therefore,
     // you have to add it in the subclass.
@@ -33,8 +34,13 @@ public abstract class Enemy {
         initialX = iniX;
     }
 
-    public void update(float delta) {
-        sprite.translateX(-speedX * delta);
-        sprite.translateY(speedY * delta);
+    public void updatePosition(float delta){
+
+    }
+
+    public void updateStatus() {
+        if (health <= 0) {
+            isDead = true;
+        }
     }
 }

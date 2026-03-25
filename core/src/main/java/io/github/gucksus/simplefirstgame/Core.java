@@ -16,7 +16,6 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import io.github.gucksus.simplefirstgame.entities.BasicBullet;
 import io.github.gucksus.simplefirstgame.entities.Bullet;
 import io.github.gucksus.simplefirstgame.entities.Enemy;
-import io.github.gucksus.simplefirstgame.entities.PopcornEnemy;
 import io.github.gucksus.simplefirstgame.levels.Level;
 import io.github.gucksus.simplefirstgame.levels.Level1;
 import io.github.gucksus.simplefirstgame.tools.ScrollingBackground;
@@ -36,6 +35,8 @@ public class Core extends ApplicationAdapter {
     float bulletTimer = .2f;
     // How fast the spawn rate of the bullets.
     float fireRate = .2f;
+    float worldHeight;
+    float worldWidth;
     ScrollingBackground scrollingBackground;
     // Levels.
     Level currentLevel;
@@ -59,6 +60,8 @@ public class Core extends ApplicationAdapter {
         batch = new SpriteBatch();
         shapeRenderer = new ShapeRenderer();
         viewport = new FitViewport(8,11);
+        worldHeight = viewport.getWorldHeight();
+        worldWidth = viewport.getWorldWidth();
         bulletArray = new Array<>();
         scrollingBackground = new ScrollingBackground(viewport.getWorldHeight());
         // Level can be changed by changing currentLevel to desired level.
@@ -116,6 +119,13 @@ public class Core extends ApplicationAdapter {
         bulletTimer += delta;
         for (Bullet bullet: bulletArray) {
             bullet.update(delta);
+        }
+
+        for (int i = bulletArray.size - 1; i >= 0; i--) {
+            Sprite currentBulletSprite = bulletArray.get(i).sprite;
+            if (currentBulletSprite.getY() > worldHeight) {
+                bulletArray.removeIndex(i);
+            }
         }
     }
 

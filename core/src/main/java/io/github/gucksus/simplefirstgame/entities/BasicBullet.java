@@ -8,8 +8,9 @@ public class BasicBullet extends Bullet {
         super(texture, iniX, iniY, .5f, .5f);
         speed = 10f;
         damage = .5f;
-        bulletFireRate = .2f;
+        fireRate = .05f;
         hitboxOffsetX = width / 16 * 5;
         hitbox = new Rectangle(iniX + hitboxOffsetX, iniY, width / 16 * 6, height / 16 * 10);
+        maxBulletOnScreen = 10;
     }
 }

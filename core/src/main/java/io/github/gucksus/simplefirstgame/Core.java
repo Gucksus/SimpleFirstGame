@@ -2,42 +2,28 @@ package io.github.gucksus.simplefirstgame;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
-import io.github.gucksus.simplefirstgame.entities.BasicBullet;
 import io.github.gucksus.simplefirstgame.entities.Bullet;
 import io.github.gucksus.simplefirstgame.entities.Enemy;
+import io.github.gucksus.simplefirstgame.entities.MainShip;
 import io.github.gucksus.simplefirstgame.levels.Level;
 import io.github.gucksus.simplefirstgame.levels.Level1;
 import io.github.gucksus.simplefirstgame.tools.ScrollingBackground;
 
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
 public class Core extends ApplicationAdapter {
-    // Declare textures.
-    Texture shipTexture;
-    Texture basicBulletTexture;
-    Rectangle shipHurtbox;
     // Sprites.
     private SpriteBatch batch;
-    Sprite shipSprite;
     FitViewport viewport;
-    Array <Bullet> bulletArray;
-    // This timer accounts for how long since last bullet.
-    float bulletTimer = .2f;
-    // How fast the spawn rate of the bullets.
-    float fireRate = .2f;
     float worldHeight;
     float worldWidth;
     ScrollingBackground scrollingBackground;
+    MainShip mainShip;
     // Levels.
     Level currentLevel;
     Level1 level1;
@@ -46,24 +32,14 @@ public class Core extends ApplicationAdapter {
 
     @Override
     public void create() {
-        // Adds texture.
-        shipTexture = new Texture("ShipSprite.png");
-        basicBulletTexture = new Texture("bullet_texture.png");
-
-        // Initialize sprites.
-        shipSprite = new Sprite(shipTexture);
-        shipHurtbox = new Rectangle(4, 0, 1, 1);
-        shipSprite.setSize(1, 1);
-        shipSprite.setCenterX(4);
-
         // Initialize sprite batch and viewport.
         batch = new SpriteBatch();
         shapeRenderer = new ShapeRenderer();
         viewport = new FitViewport(8,11);
         worldHeight = viewport.getWorldHeight();
         worldWidth = viewport.getWorldWidth();
-        bulletArray = new Array<>();
         scrollingBackground = new ScrollingBackground(viewport.getWorldHeight());
+        mainShip = new MainShip(4, 0, 1, 1, .5f);
         // Level can be changed by changing currentLevel to desired level.
         level1 = new Level1();
         currentLevel = level1;
@@ -81,76 +57,15 @@ public class Core extends ApplicationAdapter {
         // In case delta jump too high.
         float delta = Math.min(Gdx.graphics.getDeltaTime(), 1/55f);
 
-        input();
-        clampLogic();
+        mainShip.update(delta, worldWidth, worldHeight);
         scrollingBackground.backgroundUpdate(delta);
-        bulletUpdate(delta);
         hitboxAndHurtboxLogic();
         currentLevel.enemyUpdateRemoval();
-        // Update hurtbox position for the ship.
-        shipHurtbox.setPosition(shipSprite.getX(), shipSprite.getY());
         draw();
     }
 
-    private void input() { // Inputs for the ship.
-        float speed = 6f;
-        float delta = Gdx.graphics.getDeltaTime();
-
-        if (Gdx.input.isKeyPressed(Input.Keys.A)) {
-            shipSprite.translateX(-speed * delta);
-        }
-        if (Gdx.input.isKeyPressed(Input.Keys.D)) {
-            shipSprite.translateX(speed * delta);
-        }
-        if (Gdx.input.isKeyPressed(Input.Keys.W)) {
-            shipSprite.translateY(speed * delta);
-        }
-        if (Gdx.input.isKeyPressed(Input.Keys.S)) {
-            shipSprite.translateY(-speed * delta);
-        }
-        if (Gdx.input.isKeyPressed(Input.Keys.J)) {
-            if (bulletTimer >= fireRate) { // If the timer exceeds the time interval, it will spawn a bullet and resets back to 0.
-                float iniX = shipSprite.getX() + shipSprite.getWidth() / 2;
-                float iniY = shipSprite.getY() + shipSprite.getHeight();
-                bulletArray.add(new BasicBullet(basicBulletTexture , iniX, iniY));
-                bulletTimer = 0;
-            }
-        }
-    }
-
-    private void bulletUpdate(float delta) { // Update position for bullets.
-        bulletTimer += delta;
-        for (Bullet bullet: bulletArray) {
-            bullet.update(delta);
-        }
-
-        for (int i = bulletArray.size - 1; i >= 0; i--) {
-            Sprite currentBulletSprite = bulletArray.get(i).sprite;
-            if (currentBulletSprite.getY() > worldHeight) {
-                bulletArray.removeIndex(i);
-            }
-        }
-    }
-
-    private void clampLogic() { // Clamp logic for the ship.
-        float worldHeight = viewport.getWorldHeight();
-        float worldWidth = viewport.getWorldWidth();
-        // Here I set so that the ship can go off-screen a quarter of its width.
-        shipSprite.setX(MathUtils.clamp(shipSprite.getX(), -(shipSprite.getWidth()/4), worldWidth - shipSprite.getWidth() / 4 * 3));
-        shipSprite.setY(MathUtils.clamp(shipSprite.getY(), 0, worldHeight - shipSprite.getHeight()));
-    }
-
-    private void drawHitbox(Rectangle hitbox) { // Draw hitboxes using a shape renderer.
-        shapeRenderer.setColor(Color.GREEN);
-        shapeRenderer.rect(hitbox.x, hitbox.y, hitbox.width, hitbox.height);
-    }
-
-    private void drawHurtbox(Rectangle hurtbox) { // Draw hurtbox the same as draw hitbox.
-        shapeRenderer.setColor(Color.RED);
-        shapeRenderer.rect(hurtbox.x, hurtbox.y, hurtbox.width, hurtbox.height);
-    }
-
     private void hitboxAndHurtboxLogic() {
+        Array<Bullet> bulletArray = mainShip.bulletArray;
         Array<Enemy> enemyArray = currentLevel.enemyArray;
         for (int bulletIdx = bulletArray.size - 1; bulletIdx >= 0; bulletIdx--){
             for (int enemyIdx = enemyArray.size - 1; enemyIdx >= 0; enemyIdx--){
@@ -174,24 +89,16 @@ public class Core extends ApplicationAdapter {
         batch.begin();
 
         scrollingBackground.draw(batch);
-        shipSprite.draw(batch);
         currentLevel.draw(batch);
-        for (Bullet basicBullet : bulletArray) {
-            basicBullet.sprite.draw(batch);
-        }
+        mainShip.draw(batch);
 
         batch.end();
 
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
 
-        for (Bullet bullet: bulletArray){
-            drawHitbox(bullet.hitbox);
-        }
-        drawHurtbox(shipHurtbox);
-        for (Enemy enemy: level1.enemyArray){
-            drawHitbox(enemy.hitbox);
-            drawHurtbox(enemy.hurtbox);
-        }
+        mainShip.drawShipHurtbox(shapeRenderer);
+        mainShip.drawBulletHitbox(shapeRenderer);
+        currentLevel.drawEnemyHitboxAndHurtBox(shapeRenderer);
 
         shapeRenderer.end();
 

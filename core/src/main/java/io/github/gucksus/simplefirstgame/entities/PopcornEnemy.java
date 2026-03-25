@@ -7,7 +7,7 @@ import com.badlogic.gdx.math.Rectangle;
 public class PopcornEnemy extends Enemy {
     public PopcornEnemy(Texture texture, float iniX, float iniY) {
         super(texture, iniX, iniY, 1, 1);
-        health = 1f;
+        health = 10f;
         speedY = .3f;
         amplitude = 2f;
         frequency = 2f;

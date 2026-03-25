@@ -18,7 +18,6 @@ public abstract class Level {
     }
 
     public void enemySpawn() {
-
     }
 
     public void enemyUpdateRemoval() {

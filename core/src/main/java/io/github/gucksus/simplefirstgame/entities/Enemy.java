@@ -35,7 +35,6 @@ public abstract class Enemy {
     }
 
     public void updatePosition(float delta){
-
     }
 
     public void updateStatus() {

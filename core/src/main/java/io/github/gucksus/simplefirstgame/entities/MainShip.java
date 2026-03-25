@@ -11,6 +11,7 @@ import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.Null;
 
 public class MainShip {
     Texture shipTexture;
@@ -23,10 +24,15 @@ public class MainShip {
     float shipSpeed = 6f;
     Bullet currentBullet;
     float timerSinceLastShot;
+    public short lives = 3;
+    public float timerSinceLastDamage;
+    public float invulnerableDuration = 1f;
+    public boolean isDead = false;
 
     public MainShip(float centerX, float iniY, float width, float height, float hurtboxRadius) {
         this.width = width;
         this.height = height;
+        timerSinceLastDamage = invulnerableDuration;
         shipTexture = new Texture("ShipSprite.png");
         basicBulletTexture = new Texture("bullet_texture.png");
         shipSprite = new Sprite(shipTexture);
@@ -40,6 +46,7 @@ public class MainShip {
 
     public void update(float delta, float worldWidth, float worldHeight) {
         timerSinceLastShot += delta;
+        timerSinceLastDamage += delta;
         input(delta);
         clampLogic(worldWidth, worldHeight);
         // Update hurtbox position for the ship.
@@ -90,7 +97,9 @@ public class MainShip {
     }
 
     public void draw(Batch batch) {
-        shipSprite.draw(batch);
+        if (!isDead) {
+            shipSprite.draw(batch);
+        }
         for (Bullet basicBullet : bulletArray) {
             basicBullet.sprite.draw(batch);
         }

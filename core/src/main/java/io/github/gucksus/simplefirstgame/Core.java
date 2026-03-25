@@ -5,6 +5,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
@@ -67,9 +68,16 @@ public class Core extends ApplicationAdapter {
     private void hitboxAndHurtboxLogic() {
         Array<Bullet> bulletArray = mainShip.bulletArray;
         Array<Enemy> enemyArray = currentLevel.enemyArray;
-        for (int bulletIdx = bulletArray.size - 1; bulletIdx >= 0; bulletIdx--){
-            for (int enemyIdx = enemyArray.size - 1; enemyIdx >= 0; enemyIdx--){
-                Enemy currentEnemy = enemyArray.get(enemyIdx);
+        for (int enemyIdx = enemyArray.size - 1; enemyIdx >= 0; enemyIdx--){
+            Enemy currentEnemy = enemyArray.get(enemyIdx);
+            if (Intersector.overlaps(mainShip.shipHurtbox, currentEnemy.hitbox) && mainShip.timerSinceLastDamage > mainShip.invulnerableDuration){
+                mainShip.lives -= 1;
+                if (mainShip.lives == 0){
+                    mainShip.isDead = true;
+                }
+                mainShip.timerSinceLastDamage = 0;
+            }
+            for (int bulletIdx = bulletArray.size - 1; bulletIdx >= 0; bulletIdx--){
                 Bullet currentBullet = bulletArray.get(bulletIdx);
                 if (currentBullet.hitbox.overlaps(currentEnemy.hurtbox)) {
                     currentEnemy.health -= currentBullet.damage;

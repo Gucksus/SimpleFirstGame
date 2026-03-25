@@ -24,7 +24,7 @@ public class MainShip {
     float shipSpeed = 6f;
     Bullet currentBullet;
     float timerSinceLastShot;
-    public short lives = 3;
+    public short lives = 1;
     public float timerSinceLastDamage;
     public float invulnerableDuration = 1f;
     public boolean isDead = false;

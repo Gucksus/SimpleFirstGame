@@ -17,7 +17,7 @@ public abstract class Level {
         debugRenderer = new DebugRenderer();
     }
 
-    public void enemySpawn() {
+    public void enemySpawn(float delta, float worldWidth, float worldHeight) {
     }
 
     public void enemyUpdateRemoval() {
@@ -28,6 +28,12 @@ public abstract class Level {
             if (enemyArray.get(i).isDead){
                 enemyArray.removeIndex(i);
             }
+        }
+    }
+
+    public void enemyUpdatePosition(float delta) {
+        for (Enemy enemy: enemyArray) {
+            enemy.updatePosition(delta);
         }
     }
 

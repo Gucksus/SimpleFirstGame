@@ -40,11 +40,10 @@ public class Core extends ApplicationAdapter {
         worldHeight = viewport.getWorldHeight();
         worldWidth = viewport.getWorldWidth();
         scrollingBackground = new ScrollingBackground(viewport.getWorldHeight());
-        mainShip = new MainShip(4, 0, 1, 1, .5f);
+        mainShip = new MainShip(4, 0, 1, 1, .1f);
         // Level can be changed by changing currentLevel to desired level.
         level1 = new Level1();
         currentLevel = level1;
-        currentLevel.enemySpawn();
     }
 
     @Override
@@ -57,11 +56,12 @@ public class Core extends ApplicationAdapter {
     public void render() {
         // In case delta jump too high.
         float delta = Math.min(Gdx.graphics.getDeltaTime(), 1/55f);
-
+        currentLevel.enemySpawn(delta, worldWidth, worldHeight);
+        currentLevel.enemyUpdateRemoval();
+        currentLevel.enemyUpdatePosition(delta);
         mainShip.update(delta, worldWidth, worldHeight);
         scrollingBackground.backgroundUpdate(delta);
         hitboxAndHurtboxLogic();
-        currentLevel.enemyUpdateRemoval();
         draw();
     }
 

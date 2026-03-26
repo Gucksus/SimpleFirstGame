@@ -7,7 +7,7 @@ import com.badlogic.gdx.math.Rectangle;
 public class PopcornEnemy extends Enemy {
     public PopcornEnemy(Texture texture, float iniX, float iniY) {
         super(texture, iniX, iniY, 1, 1);
-        health = 1f;
+        health = .3f;
         speedY = .3f;
         amplitude = 2f;
         frequency = 2f;
@@ -17,18 +17,5 @@ public class PopcornEnemy extends Enemy {
         hurtboxOffsetY = height / 32 * 7;
         hitbox = new Rectangle(iniX + hitboxOffsetX, iniY + hitboxOffsetY, width / 32 * 20f, height / 32 * 16);
         hurtbox = new Rectangle(iniX + hurtboxOffsetX, iniY + hurtboxOffsetY, width / 32 * 26, height / 32 * 15);
-    }
-
-    @Override
-    public void updatePosition(float delta) {
-        timer += delta;
-
-        float newX = initialX + MathUtils.sin(timer * frequency) * amplitude;
-
-        float newY = sprite.getY() - speedY * delta;
-
-        hitbox.setPosition(newX + hitboxOffsetX, newY + hitboxOffsetY);
-        hurtbox.setPosition(newX + hurtboxOffsetX, newY + hurtboxOffsetY);
-        sprite.setPosition(newX, newY);
     }
 }

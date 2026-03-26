@@ -44,6 +44,7 @@ public class Core extends ApplicationAdapter {
         // Level can be changed by changing currentLevel to desired level.
         level1 = new Level1();
         currentLevel = level1;
+        currentLevel.enemySpawn(Gdx.graphics.getDeltaTime(), worldWidth, worldHeight);
     }
 
     @Override
@@ -57,8 +58,7 @@ public class Core extends ApplicationAdapter {
         // In case delta jump too high.
         float delta = Math.min(Gdx.graphics.getDeltaTime(), 1/55f);
         currentLevel.enemySpawn(delta, worldWidth, worldHeight);
-        currentLevel.enemyUpdateRemoval();
-        currentLevel.enemyUpdatePosition(delta);
+
         mainShip.update(delta, worldWidth, worldHeight);
         scrollingBackground.backgroundUpdate(delta);
         hitboxAndHurtboxLogic();
@@ -67,7 +67,7 @@ public class Core extends ApplicationAdapter {
 
     private void hitboxAndHurtboxLogic() {
         Array<Bullet> bulletArray = mainShip.bulletArray;
-        Array<Enemy> enemyArray = currentLevel.enemyArray;
+        Array<Enemy> enemyArray = currentLevel.activeEnemies;
         for (int enemyIdx = enemyArray.size - 1; enemyIdx >= 0; enemyIdx--){
             Enemy currentEnemy = enemyArray.get(enemyIdx);
             if (Intersector.overlaps(mainShip.shipHurtbox, currentEnemy.hitbox) && mainShip.timerSinceLastDamage > mainShip.invulnerableDuration){
@@ -79,7 +79,7 @@ public class Core extends ApplicationAdapter {
             }
             for (int bulletIdx = bulletArray.size - 1; bulletIdx >= 0; bulletIdx--){
                 Bullet currentBullet = bulletArray.get(bulletIdx);
-                if (currentBullet.hitbox.overlaps(currentEnemy.hurtbox)) {
+                if (currentBullet.hitbox.overlaps(currentEnemy.hurtbox) && !currentEnemy.isInvulnerable) {
                     currentEnemy.health -= currentBullet.damage;
                     bulletArray.removeIndex(bulletIdx);
                 }

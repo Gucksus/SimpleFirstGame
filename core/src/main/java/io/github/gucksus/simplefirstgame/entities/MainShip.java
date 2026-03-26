@@ -10,8 +10,8 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.Null;
 
 public class MainShip {
     Texture shipTexture;
@@ -28,6 +28,7 @@ public class MainShip {
     public float timerSinceLastDamage;
     public float invulnerableDuration = 1f;
     public boolean isDead = false;
+    Vector2 directionDifferenceMultiplier;
 
     public MainShip(float centerX, float iniY, float width, float height, float hurtboxRadius) {
         this.width = width;
@@ -39,9 +40,10 @@ public class MainShip {
         shipSprite.setSize(1, 1);
         shipSprite.setCenterX(centerX);
         shipSprite.setY(iniY);
-        shipHurtbox = new Circle(centerX, iniY + height / 2, hurtboxRadius);
+        shipHurtbox = new Circle(centerX, iniY + height / 2.5f, hurtboxRadius);
         bulletArray = new Array<>();
         currentBullet = new BasicBullet(basicBulletTexture, 69, 69);
+        directionDifferenceMultiplier = new Vector2();
     }
 
     public void update(float delta, float worldWidth, float worldHeight) {
@@ -50,23 +52,24 @@ public class MainShip {
         input(delta);
         clampLogic(worldWidth, worldHeight);
         // Update hurtbox position for the ship.
-        shipHurtbox.setPosition(shipSprite.getX() + width / 2, shipSprite.getY() + height / 2);
+        shipHurtbox.setPosition(shipSprite.getX() + width / 2, shipSprite.getY() + height / 2.5f);
         updateBullet(delta, worldHeight);
     }
 
     private void input(float delta) {
-        if (Gdx.input.isKeyPressed(Input.Keys.A)) {
-            shipSprite.translateX(-shipSpeed * delta);
-        }
-        if (Gdx.input.isKeyPressed(Input.Keys.D)) {
-            shipSprite.translateX(shipSpeed * delta);
-        }
-        if (Gdx.input.isKeyPressed(Input.Keys.W)) {
-            shipSprite.translateY(shipSpeed * delta);
-        }
-        if (Gdx.input.isKeyPressed(Input.Keys.S)) {
-            shipSprite.translateY(-shipSpeed * delta);
-        }
+        float dx = 0;
+        float dy = 0;
+
+        if (Gdx.input.isKeyPressed(Input.Keys.A)) dx -= 1;
+        if (Gdx.input.isKeyPressed(Input.Keys.D)) dx += 1;
+        if (Gdx.input.isKeyPressed(Input.Keys.W)) dy += 1;
+        if (Gdx.input.isKeyPressed(Input.Keys.S)) dy -= 1;
+
+        directionDifferenceMultiplier.set(dx, dy).nor();
+
+        shipSprite.translateX(directionDifferenceMultiplier.x * shipSpeed * delta);
+        shipSprite.translateY(directionDifferenceMultiplier.y * shipSpeed * delta);
+
         if (Gdx.input.isKeyPressed(Input.Keys.J)) {
             if (bulletArray.size < currentBullet.maxBulletOnScreen && timerSinceLastShot >= currentBullet.fireRate) { // If the amount of bullet on screen is smaller than max amount, then allow shooting.
                 float iniX = shipSprite.getX() + shipSprite.getWidth() / 2;
@@ -107,7 +110,7 @@ public class MainShip {
 
     public void drawShipHurtbox(ShapeRenderer shapeRenderer) {
         shapeRenderer.setColor(Color.RED);
-        shapeRenderer.circle(shipHurtbox.x, shipHurtbox.y, shipHurtbox.radius, 32);
+        shapeRenderer.circle(shipHurtbox.x, shipHurtbox.y, shipHurtbox.radius, 12);
     }
 
     public void drawBulletHitbox(ShapeRenderer shapeRenderer) {

@@ -7,19 +7,17 @@ import io.github.gucksus.simplefirstgame.entities.PopcornEnemy;
 import io.github.gucksus.simplefirstgame.waves.Wave;
 
 public class Level1 extends Level {
+    PopcornEnemy popcornEnemy;
 
     public Level1() {
         super();
         popcornEnemyTexture = new Texture("enemylv1.png");
+        popcornEnemy = new PopcornEnemy(popcornEnemyTexture, 69, 69);
     }
 
-    public void popcornEnemySpawn(Texture texture ,float iniX, float iniY) {
-        activeEnemies.add(new PopcornEnemy(popcornEnemyTexture, iniX, iniY));
-    }
-
-    private void addPopcornEnemiesIntoWave(Wave wave, float startX, float startY) {
+    private void addPopcornEnemiesIntoWave(Wave wave) {
         for (int i = 0; i < wave.totalEnemies; i++) {
-            Enemy enemy = new PopcornEnemy(popcornEnemyTexture, startX, startY);
+            Enemy enemy = new PopcornEnemy(popcornEnemyTexture, wave.startX, wave.startY);
             wave.waveEnemyArray.add(enemy);
             activeEnemies.add(enemy);
         }
@@ -27,15 +25,23 @@ public class Level1 extends Level {
 
     @Override
     public void enemySpawn(float delta, float worldWidth, float worldHeight) {
-        waveArray.add(new Wave(activeEnemies, 5));
-        addPopcornEnemiesIntoWave(waveArray.first(), 0, 10);
+        waveArray.add(new Wave(activeEnemies, 10, .4f, -3, 9.5f));
+        waveArray.add(new Wave(activeEnemies, 10, .4f, 0, 12));
+        Wave A1 = waveArray.first();
+        Wave A2 = waveArray.peek();
+        addPopcornEnemiesIntoWave(A1);
+        addPopcornEnemiesIntoWave(A2);
 
-        waveArray.first().moveStraight(0, 10, 3, 3, 3, delta, 1f);
+        float currentDuration = 2f;
+        A1.moveStraight(3f - popcornEnemy.width / 2, 1.5f, currentDuration, delta);
+        A2.moveStraight(5.2f, 5, currentDuration, delta);
         Timer.schedule(new Timer.Task() {
             @Override
             public void run() {
-                waveArray.first().moveStraight(3, 3, 0, 10, 3, delta, 1f);
+                A1.moveStraight(A1.startX, 11, 2.5f, delta);
+                A2.moveStraight(A2.startX, 14.5f, 2.5f, delta);
             }
-        }, 3f);
+        }, currentDuration);
+        currentDuration = 2.5f;
     }
 }

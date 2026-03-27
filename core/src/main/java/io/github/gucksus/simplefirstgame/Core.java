@@ -57,7 +57,7 @@ public class Core extends ApplicationAdapter {
     public void render() {
         // In case delta jump too high.
         float delta = Math.min(Gdx.graphics.getDeltaTime(), 1/55f);
-        currentLevel.waveUpdate(delta);
+        currentLevel.waveUpdate(delta, worldWidth, worldHeight);
         mainShip.update(delta, worldWidth, worldHeight);
         scrollingBackground.backgroundUpdate(delta);
         hitboxAndHurtboxLogic();

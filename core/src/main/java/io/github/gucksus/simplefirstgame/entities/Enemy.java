@@ -14,8 +14,8 @@ public abstract class Enemy {
     float initialX;
     public Rectangle hitbox;
     public Rectangle hurtbox;
-    float width;
-    float height;
+    public float width;
+    public float height;
     float hitboxOffsetX;
     float hitboxOffsetY;
     float hurtboxOffsetX;
@@ -77,6 +77,9 @@ public abstract class Enemy {
     public void updateStatus() {
         if (health <= 0) {
             isDead = true;
+            isInvisible = true;
+            isInvulnerable = true;
         }
     }
+
 }

@@ -1,6 +1,7 @@
 package io.github.gucksus.simplefirstgame.waves;
 
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Timer;
 import io.github.gucksus.simplefirstgame.entities.Enemy;
@@ -19,15 +20,14 @@ public class Wave {
         popcornEnemyTexture = new Texture("enemylv1.png");
     }
 
-    public void enemyUpdateRemoval() {
+    public void enemyUpdateRemoval(float worldWidth, float worldHeight) {
         for (Enemy enemy: waveEnemyArray) {
             enemy.updateStatus();
         }
         for (int i = waveEnemyArray.size - 1; i >= 0; --i) {
-            if (waveEnemyArray.get(i).isDead){
-                activeEnemyArray.removeValue(waveEnemyArray.get(i), true);
-                waveEnemyArray.removeIndex(i);
-                totalEnemies--;
+            Enemy enemy = waveEnemyArray.get(i);
+            if (enemy.isDead){
+                activeEnemyArray.removeValue(enemy, true);
             }
         }
     }
@@ -38,15 +38,17 @@ public class Wave {
         waveEnemyArray.first().nextFrameYDifference = (endY - startY) / duration * delta;
         for (int i = 1; i < waveEnemyArray.size; i++) {
             final int idx = i;
-            Timer.schedule(new Timer.Task() {
-                @Override
-                public void run() {
-                    Enemy enemy = waveEnemyArray.get(idx);
-                    enemy.isMoving = true;
-                    enemy.nextFrameXDifference = (endX - startX) / duration * delta;
-                    enemy.nextFrameYDifference = (endY - startY) / duration * delta;
-                }
-            }, i * interval);
+            if (!waveEnemyArray.get(i).isDead){
+                Timer.schedule(new Timer.Task() {
+                    @Override
+                    public void run() {
+                        Enemy enemy = waveEnemyArray.get(idx);
+                        enemy.isMoving = true;
+                        enemy.nextFrameXDifference = (endX - startX) / duration * delta;
+                        enemy.nextFrameYDifference = (endY - startY) / duration * delta;
+                    }
+                }, i * interval);
+            }
         }
     }
 

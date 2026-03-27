@@ -8,10 +8,11 @@ import io.github.gucksus.simplefirstgame.waves.Wave;
 
 public class Level1 extends Level {
     PopcornEnemy popcornEnemy;
+    Texture popcornEnemyTexture;
 
     public Level1() {
         super();
-        popcornEnemyTexture = new Texture("enemylv1.png");
+        popcornEnemyTexture = new Texture("popcornEnemy.png");
         popcornEnemy = new PopcornEnemy(popcornEnemyTexture, 69, 69);
     }
 

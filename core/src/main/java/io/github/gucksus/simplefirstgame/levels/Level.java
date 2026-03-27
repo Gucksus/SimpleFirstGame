@@ -12,7 +12,6 @@ public abstract class Level {
     public boolean isLevelCompleted = false;
     public float lvTimer = 0;
     DebugRenderer debugRenderer;
-    Texture popcornEnemyTexture;
     public Array<Enemy> activeEnemies;
     public Array<Wave> waveArray;
 

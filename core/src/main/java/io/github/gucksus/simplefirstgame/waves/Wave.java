@@ -7,7 +7,6 @@ import io.github.gucksus.simplefirstgame.entities.Enemy;
 
 
 public class Wave {
-    Texture popcornEnemyTexture;
     protected Array <Enemy> activeEnemyArray;
     public Array <Enemy> waveEnemyArray;
     public int totalEnemies;
@@ -20,7 +19,6 @@ public class Wave {
         this.activeEnemyArray = activeEnemyArray;
         waveEnemyArray = new Array<>();
         this.totalEnemies = totalEnemies;
-        popcornEnemyTexture = new Texture("enemylv1.png");
         this.interval = interval;
         this.startX = startX;
         this.startY = startY;

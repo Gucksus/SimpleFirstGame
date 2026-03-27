@@ -35,7 +35,7 @@ public class MainShip {
         this.height = height;
         timerSinceLastDamage = invulnerableDuration;
         shipTexture = new Texture("ShipSprite.png");
-        basicBulletTexture = new Texture("bullet_texture.png");
+        basicBulletTexture = new Texture("basicBullet.png");
         shipSprite = new Sprite(shipTexture);
         shipSprite.setSize(1, 1);
         shipSprite.setCenterX(centerX);

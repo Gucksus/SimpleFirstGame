@@ -4,8 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.MathUtils;
@@ -28,7 +27,11 @@ public class MainShip {
     public float timerSinceLastDamage;
     public float invulnerableDuration = 1f;
     public boolean isDead = false;
+    public boolean isInAnimation;
     Vector2 directionDifferenceMultiplier;
+    Animation <TextureRegion> spinAnimation;
+    Texture spinAnimationSheet;
+    float stateTime;
 
     public MainShip(float centerX, float iniY, float width, float height, float hurtboxRadius) {
         this.width = width;
@@ -36,7 +39,15 @@ public class MainShip {
         timerSinceLastDamage = invulnerableDuration;
         shipTexture = new Texture("ShipSprite.png");
         basicBulletTexture = new Texture("basicBullet.png");
-        shipSprite = new Sprite(shipTexture);
+        spinAnimationSheet = new Texture("ship_sprite_animation_sheet.png");
+
+        TextureRegion[][] temp = TextureRegion.split(spinAnimationSheet, spinAnimationSheet.getWidth() / 8, spinAnimationSheet.getHeight());
+        TextureRegion[] spinFrames = new TextureRegion[8];
+        System.arraycopy(temp[0], 0, spinFrames, 0, 8);
+
+        spinAnimation = new Animation<TextureRegion>(0.1f, spinFrames);
+
+        shipSprite = new Sprite(spinFrames[0]);
         shipSprite.setSize(1, 1);
         shipSprite.setCenterX(centerX);
         shipSprite.setY(iniY);
@@ -81,6 +92,10 @@ public class MainShip {
                 timerSinceLastShot = 0;
             }
         }
+
+        if (Gdx.input.isKeyPressed(Input.Keys.L) && !isInAnimation) {
+            isInAnimation = true;
+        }
     }
 
     private void updateBullet(float delta, float worldHeight) {
@@ -96,9 +111,15 @@ public class MainShip {
         }
     }
 
-    public void draw(Batch batch) {
-        if (!isDead) {
+    public void draw(Batch batch, float delta) {
+        if (!isDead && !isInAnimation) {
             shipSprite.draw(batch);
+        }
+        if (!isDead && isInAnimation) {
+            stateTime += delta;
+
+            TextureRegion currentFrame = spinAnimation.getKeyFrame(stateTime, false);
+             batch.draw(currentFrame, shipSprite.getX(), shipSprite.getY(), 1, 1);
         }
         for (Bullet basicBullet : bulletArray) {
             basicBullet.sprite.draw(batch);
@@ -114,5 +135,10 @@ public class MainShip {
         Rectangle currentBulletHitbox = currentBullet.hitbox;
         shapeRenderer.setColor(Color.GREEN);
         shapeRenderer.rect(currentBulletHitbox.x, currentBulletHitbox.y, currentBulletHitbox.width, currentBulletHitbox.height);
+    }
+
+    public void dispose() {
+        shipTexture.dispose();
+        basicBulletTexture.dispose();
     }
 }

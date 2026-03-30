@@ -11,7 +11,9 @@ public abstract class Bullet {
     float height;
     public Sprite sprite;
     public Rectangle hitbox;
+    // This is because of the bullet sprite contains unnecessary pixels on the sides.
     float hitboxOffsetX;
+    // Limit the amount of bullet that can be on screen. This is a mechanic in shmups.
     int maxBulletOnScreen;
      public float fireRate;
     // This constructor initializes width, height, sprite, initial position and neglect everything else. Therefore,
@@ -25,6 +27,7 @@ public abstract class Bullet {
         sprite.setY(iniY);
     }
 
+    // Update the position of the sprite and also hitbox.
     public void update(float delta){
         sprite.translateY(delta * speed);
         hitbox.setPosition(sprite.getX() + hitboxOffsetX, sprite.getY());

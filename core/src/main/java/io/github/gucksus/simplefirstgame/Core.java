@@ -95,9 +95,11 @@ public class Core extends ApplicationAdapter {
 
         batch.begin();
 
+        batch.disableBlending();
         scrollingBackground.draw(batch);
+        batch.enableBlending();
         currentLevel.draw(batch);
-        mainShip.draw(batch);
+        mainShip.draw(batch, Gdx.graphics.getDeltaTime());
 
         batch.end();
 
@@ -114,5 +116,8 @@ public class Core extends ApplicationAdapter {
     @Override
     public void dispose() {
         batch.dispose();
+        shapeRenderer.dispose();
+        mainShip.dispose();
+        level1.dispose();
     }
 }

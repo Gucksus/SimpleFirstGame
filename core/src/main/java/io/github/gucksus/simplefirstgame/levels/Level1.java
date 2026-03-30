@@ -45,4 +45,8 @@ public class Level1 extends Level {
         }, currentDuration);
         currentDuration = 2.5f;
     }
+
+    public void dispose() {
+        popcornEnemyTexture.dispose();
+    }
 }

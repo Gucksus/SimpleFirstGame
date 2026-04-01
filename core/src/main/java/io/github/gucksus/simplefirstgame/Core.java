@@ -40,7 +40,7 @@ public class Core extends ApplicationAdapter {
         worldHeight = viewport.getWorldHeight();
         worldWidth = viewport.getWorldWidth();
         scrollingBackground = new ScrollingBackground(viewport.getWorldHeight());
-        mainShip = new MainShip(4, 0, 1, 1, .1f);
+        mainShip = new MainShip(4, 0, 2, 2, .1f);
         // Level can be changed by changing currentLevel to desired level.
         level1 = new Level1();
         currentLevel = level1;
@@ -57,7 +57,7 @@ public class Core extends ApplicationAdapter {
     public void render() {
         // In case delta jump too high.
         float delta = Math.min(Gdx.graphics.getDeltaTime(), 1/55f);
-        currentLevel.waveUpdate(delta, worldWidth, worldHeight);
+//        currentLevel.waveUpdate(delta, worldWidth, worldHeight);
         mainShip.update(delta, worldWidth, worldHeight);
         scrollingBackground.backgroundUpdate(delta);
         hitboxAndHurtboxLogic();

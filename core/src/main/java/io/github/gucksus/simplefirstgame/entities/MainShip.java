@@ -39,16 +39,16 @@ public class MainShip {
         timerSinceLastDamage = invulnerableDuration;
         shipTexture = new Texture("ShipSprite.png");
         basicBulletTexture = new Texture("basicBullet.png");
-        spinAnimationSheet = new Texture("ship_sprite_animation_sheet.png");
+        spinAnimationSheet = new Texture("ship_sprite_animation1.png");
 
-        TextureRegion[][] temp = TextureRegion.split(spinAnimationSheet, spinAnimationSheet.getWidth() / 8, spinAnimationSheet.getHeight());
-        TextureRegion[] spinFrames = new TextureRegion[8];
-        System.arraycopy(temp[0], 0, spinFrames, 0, 8);
+        TextureRegion[][] temp = TextureRegion.split(spinAnimationSheet, spinAnimationSheet.getWidth() / 11, spinAnimationSheet.getHeight());
+        TextureRegion[] spinFrames = new TextureRegion[11];
+        System.arraycopy(temp[0], 0, spinFrames, 0, 11);
 
-        spinAnimation = new Animation<TextureRegion>(0.1f, spinFrames);
+        spinAnimation = new Animation<>(0.1f, spinFrames);
 
         shipSprite = new Sprite(spinFrames[0]);
-        shipSprite.setSize(1, 1);
+        shipSprite.setSize(width, height);
         shipSprite.setCenterX(centerX);
         shipSprite.setY(iniY);
         shipHurtbox = new Circle(centerX, iniY + height / 2.5f, hurtboxRadius);
@@ -119,7 +119,8 @@ public class MainShip {
             stateTime += delta;
 
             TextureRegion currentFrame = spinAnimation.getKeyFrame(stateTime, false);
-             batch.draw(currentFrame, shipSprite.getX(), shipSprite.getY(), 1, 1);
+             batch.draw(currentFrame, shipSprite.getX(), shipSprite.getY(), width, height);
+
         }
         for (Bullet basicBullet : bulletArray) {
             basicBullet.sprite.draw(batch);
@@ -140,5 +141,6 @@ public class MainShip {
     public void dispose() {
         shipTexture.dispose();
         basicBulletTexture.dispose();
+        spinAnimationSheet.dispose();
     }
 }

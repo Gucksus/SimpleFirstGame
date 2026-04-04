@@ -13,6 +13,8 @@ public abstract class Level {
     DebugRenderer debugRenderer;
     public Array<Enemy> activeEnemies;
     public Array<Wave> waveArray;
+    public boolean isLevelStarted;
+    public float delta = 1;
 
     public Level() {
         debugRenderer = new DebugRenderer();
@@ -20,7 +22,7 @@ public abstract class Level {
         waveArray = new Array<>();
     }
 
-    public abstract void enemySpawn(float delta, float worldWidth, float worldHeight);
+    public abstract void enemySpawn(float worldWidth, float worldHeight);
 
     public void draw(Batch batch) {
         for (Enemy enemy : activeEnemies)
@@ -36,6 +38,11 @@ public abstract class Level {
         }
     }
 
+    public void update (float delta, float worldWidth, float worldHeight) {
+        updateDelta(delta);
+        waveUpdate(delta, worldWidth, worldHeight);
+    }
+
     public void waveUpdate(float delta, float worldWidth, float worldHeight) {
         for (int i = waveArray.size - 1; i >= 0; i--) {
             Wave wave = waveArray.get(i);
@@ -48,6 +55,17 @@ public abstract class Level {
             if (wave.waveUpdateRemoval(worldWidth, worldHeight)) {
                 waveArray.removeIndex(i);
             }
+        }
+    }
+
+    public void updateDelta (float delta) {
+        this.delta = delta;
+    }
+
+    public void startLevelIfHaveNotStarted (float delta, float worldWidth, float worldHeight) {
+        if (!this.isLevelStarted && Math.abs(this.delta - delta) <= .001f) {
+            this.enemySpawn(worldWidth, worldHeight);
+            this.isLevelStarted = true;
         }
     }
 }

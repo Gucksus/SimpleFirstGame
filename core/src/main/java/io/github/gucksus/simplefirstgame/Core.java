@@ -44,7 +44,6 @@ public class Core extends ApplicationAdapter {
         // Level can be changed by changing currentLevel to desired level.
         level1 = new Level1();
         currentLevel = level1;
-        currentLevel.enemySpawn(1/60f, worldWidth, worldHeight);
     }
 
     @Override
@@ -56,8 +55,9 @@ public class Core extends ApplicationAdapter {
     @Override
     public void render() {
         // In case delta jump too high.
-        float delta = Math.min(Gdx.graphics.getDeltaTime(), 1/55f);
-//        currentLevel.waveUpdate(delta, worldWidth, worldHeight);
+        float delta = Gdx.graphics.getDeltaTime();
+        currentLevel.startLevelIfHaveNotStarted(delta, worldWidth, worldHeight);
+        currentLevel.update(delta, worldWidth, worldHeight);
         mainShip.update(delta, worldWidth, worldHeight);
         scrollingBackground.backgroundUpdate(delta);
         hitboxAndHurtboxLogic();
@@ -89,6 +89,7 @@ public class Core extends ApplicationAdapter {
     private void draw() {
         // Clear the screen and get ready for the next frame.
         ScreenUtils.clear(Color.BLACK);
+        float delta = Math.min(Gdx.graphics.getDeltaTime(), 1/55f);
         viewport.apply();
         batch.setProjectionMatrix(viewport.getCamera().combined);
         shapeRenderer.setProjectionMatrix(viewport.getCamera().combined);
@@ -96,10 +97,11 @@ public class Core extends ApplicationAdapter {
         batch.begin();
 
         batch.disableBlending();
-        scrollingBackground.draw(batch);
+//        scrollingBackground.draw(batch);
+        scrollingBackground.draw(batch, delta);
         batch.enableBlending();
         currentLevel.draw(batch);
-        mainShip.draw(batch, Gdx.graphics.getDeltaTime());
+        mainShip.draw(batch, delta);
 
         batch.end();
 
@@ -119,5 +121,6 @@ public class Core extends ApplicationAdapter {
         shapeRenderer.dispose();
         mainShip.dispose();
         level1.dispose();
+        scrollingBackground.dispose();
     }
 }

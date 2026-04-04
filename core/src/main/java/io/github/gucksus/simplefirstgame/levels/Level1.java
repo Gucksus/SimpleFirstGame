@@ -25,7 +25,7 @@ public class Level1 extends Level {
     }
 
     @Override
-    public void enemySpawn(float delta, float worldWidth, float worldHeight) {
+    public void enemySpawn(float worldWidth, float worldHeight) {
         waveArray.add(new Wave(activeEnemies, 7, .4f, -3, 9.5f));
         waveArray.add(new Wave(activeEnemies, 7, .4f, -1, 9.5f));
         Wave A1 = waveArray.first();

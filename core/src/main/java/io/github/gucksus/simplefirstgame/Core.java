@@ -59,7 +59,7 @@ public class Core extends ApplicationAdapter {
         currentLevel.startLevelIfHaveNotStarted(delta, worldWidth, worldHeight);
         currentLevel.update(delta, worldWidth, worldHeight);
         mainShip.update(delta, worldWidth, worldHeight);
-        scrollingBackground.backgroundUpdate(delta);
+        scrollingBackground.backgroundUpdate(delta, worldHeight);
         hitboxAndHurtboxLogic();
         draw();
     }

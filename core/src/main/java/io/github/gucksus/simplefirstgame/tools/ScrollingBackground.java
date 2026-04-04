@@ -7,11 +7,11 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 public class ScrollingBackground {
     Texture backgroundAnimationSheet;
-    float speed = 3f;
+    float speed = 6f;
     Animation<TextureRegion> backgroundAnimation;
     float stateTime;
     final int FRAME_NUM = 12;
-    final float frameDuration = 0.3f;
+    final float frameDuration = 0.5f;
     boolean isInAnimation;
     Weather[] weatherType = {
         new Weather("Overcast", .2f, .022f, 2),
@@ -26,6 +26,9 @@ public class ScrollingBackground {
     };
     BGAnimation currentAnimationType;
     float timer = 0;
+    float offsetY;
+    float width = 2;
+    float height = 2;
 
     public ScrollingBackground(float worldHeight) {
         backgroundAnimationSheet = new Texture("background_animation_sheet4.png");
@@ -69,9 +72,17 @@ public class ScrollingBackground {
         return animationsType[animationsType.length - 1];
     };
 
-    public void backgroundUpdate(float delta) {
+    public void backgroundUpdate(float delta, float worldHeight) {
         timer += delta;
+        processOffsetY (delta, worldHeight);
         checkForAnimationTrigger();
+    }
+
+    void processOffsetY (float delta, float worldHeight) {
+        offsetY -= speed * delta;
+        if (-offsetY + worldHeight < worldHeight) {
+            offsetY -= height;
+        }
     }
 
     public void draw(Batch batch, float delta) {
@@ -87,10 +98,8 @@ public class ScrollingBackground {
                 isInAnimation = false;
             }
         }
-        float width = 2;
-        float height = 2;
         for (float i = 0; i < 8; i += width) {
-            for (float j = 0; j < 11; j += height) {
+            for (float j = offsetY; j < -offsetY + 11; j += height) {
                 batch.draw(currentFrame, i, j, width, height);
             }
         }

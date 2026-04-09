@@ -1,0 +1,3 @@
+Some new features that i came up with:
+- Ship can parry with switching weapon.
+- Skull enemies if are be low the screen, explode.

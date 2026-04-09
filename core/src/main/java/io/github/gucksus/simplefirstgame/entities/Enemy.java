@@ -34,18 +34,30 @@ public abstract class Enemy {
     enum movingType {Straight, Curve}
 
     Animation<TextureRegion> shootAnimation;
-    Texture shootAnimationSheet;
+    int shootAnimationFrameNum;
+    int deathAnimationFrameNum;
+    float stateTime;
 
     // This constructor initializes width, height, sprite, initial position and neglect everything else. Therefore,
     // you have to add it in the subclass.
-    public Enemy(Texture texture, float iniX, float iniY, float width, float height) {
+    public Enemy(Texture shootAnimationSheet, float iniX, float iniY, float width, float height, int shootAnimationFrameNum) {
+        initializeAnimation(shootAnimationSheet, shootAnimationFrameNum);
         this.width = width;
         this.height = height;
-        sprite = new Sprite(texture);
+        this.shootAnimationFrameNum = shootAnimationFrameNum;
+        sprite = new Sprite(shootAnimation.getKeyFrame(0));
         sprite.setSize(width, height);
         sprite.setPosition(iniX, iniY);
         initialX = iniX;
         currentMovingType = movingType.Straight;
+    }
+
+    void initializeAnimation(Texture shootAnimationSheet, int shootAnimationFrameNum) {
+        TextureRegion[][] temp = TextureRegion.split(shootAnimationSheet, shootAnimationSheet.getWidth() / shootAnimationFrameNum, shootAnimationSheet.getHeight());
+        TextureRegion shootFrames[] = new TextureRegion[shootAnimationFrameNum];
+        System.arraycopy(temp[0], 0, shootFrames, 0, shootAnimationFrameNum);
+        shootAnimation = new Animation<>(0.1f, shootFrames);
+        stateTime = 0;
     }
 
     public void updatePosition(float delta) {

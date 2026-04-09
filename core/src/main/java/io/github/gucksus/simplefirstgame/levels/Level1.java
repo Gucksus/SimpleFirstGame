@@ -13,12 +13,12 @@ public class Level1 extends Level {
     public Level1() {
         super();
         popcornEnemyTexture = new Texture("Enemy/popcornEnemy.png");
-        popcornEnemy = new PopcornEnemy(popcornEnemyTexture, 69, 69);
+        popcornEnemy = new PopcornEnemy(popcornEnemyTexture, 69, 69, 1);
     }
 
     private void addPopcornEnemiesIntoWave(Wave wave) {
         for (int i = 0; i < wave.totalEnemies; i++) {
-            Enemy enemy = new PopcornEnemy(popcornEnemyTexture, wave.startX, wave.startY);
+            Enemy enemy = new PopcornEnemy(popcornEnemyTexture, wave.startX, wave.startY, 1);
             wave.waveEnemyArray.add(enemy);
             activeEnemies.add(enemy);
         }

@@ -4,8 +4,8 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Rectangle;
 
 public class PopcornEnemy extends Enemy {
-    public PopcornEnemy(Texture texture, float iniX, float iniY) {
-        super(texture, iniX, iniY, 1, 1);
+    public PopcornEnemy(Texture shootAnimationSheet, float iniX, float iniY, int shootFrameNum) {
+        super(shootAnimationSheet, iniX, iniY, 1, 1, shootFrameNum);
         health = 1f;
         amplitude = 2f;
         frequency = 2f;

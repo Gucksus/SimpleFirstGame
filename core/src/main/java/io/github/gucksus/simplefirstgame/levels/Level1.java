@@ -2,7 +2,6 @@ package io.github.gucksus.simplefirstgame.levels;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.utils.Timer;
 import io.github.gucksus.simplefirstgame.entities.Enemy;
 import io.github.gucksus.simplefirstgame.entities.PopcornEnemy;
 import io.github.gucksus.simplefirstgame.entities.SkullShooterEnemy;
@@ -49,9 +48,8 @@ public class Level1 extends Level {
 //        currentDuration = 2.5f;
         TextureRegion[][] temp = TextureRegion.split(skullAnimationSheet, skullAnimationSheet.getWidth() / 11, skullAnimationSheet.getHeight() / 2);
         Enemy enemy = new SkullShooterEnemy(temp[0][0], 4, 4);
-        TextureRegion[] frames = new TextureRegion[11];
-        System.arraycopy(temp[0], 0, frames, 0, 11);
-        enemy.initializeAnimation(temp[0]);
+        enemy.initializeShootAnimation(temp[0]);
+        enemy.initializeDeathAnimation(temp[1]);
         enemy.triggerShootAnimation();
         A1.waveEnemyArray.add(enemy);
         activeEnemies.add(enemy);

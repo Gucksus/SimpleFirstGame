@@ -29,7 +29,7 @@ public class Wave {
         }
         for (int i = waveEnemyArray.size - 1; i >= 0; --i) {
             Enemy enemy = waveEnemyArray.get(i);
-            if (enemy.isDead){
+            if (enemy.isDead && enemy.deathAnimation.isAnimationFinished(enemy.stateTime)){ // If the enemy is dead and finished death animation.
                 activeEnemyArray.removeValue(enemy, true);
             }
         }

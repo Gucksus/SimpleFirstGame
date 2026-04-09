@@ -1,6 +1,5 @@
 package io.github.gucksus.simplefirstgame.entities;
 
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -35,12 +34,13 @@ public abstract class Enemy {
     enum movingType {Straight, Curve}
 
     Animation<TextureRegion> shootAnimation;
+    public Animation<TextureRegion> deathAnimation;
     int shootAnimationFrameNum;
     int shootAnimationRepeat = 3;
     float animationIntervalTimer;
     float animationIntervalTime = 3;
     int deathAnimationFrameNum;
-    float stateTime;
+    public float stateTime;
     enum AnimationType {Static, Shoot, Death}
     AnimationType currentAnimationType = AnimationType.Static;
 
@@ -56,9 +56,15 @@ public abstract class Enemy {
         currentMovingType = movingType.Straight;
     }
 
-    public void initializeAnimation(TextureRegion[] shootAnimationFrames) {
+    public void initializeShootAnimation(TextureRegion[] shootAnimationFrames) {
         shootAnimation = new Animation<>(0.1f, shootAnimationFrames);
         this.shootAnimationFrameNum = shootAnimationFrames.length;
+        stateTime = 0;
+    }
+
+    public void initializeDeathAnimation(TextureRegion[] deathAnimationFrames) {
+        deathAnimation = new Animation<>(0.1f, deathAnimationFrames);
+        this.deathAnimationFrameNum = deathAnimationFrames.length;
         stateTime = 0;
     }
 
@@ -100,9 +106,10 @@ public abstract class Enemy {
     }
 
     public void updateStatus(float worldWidth, float worldHeight) {
-        if (health <= 0) {
+        if (health <= 0 && currentAnimationType != AnimationType.Death) {
             isDead = true;
-            isInvisible = true;
+            isInvulnerable = true;
+            triggerDeathAnimation();
         }
         if (isInScreenThisFrame(worldWidth, worldHeight) && !previouslyInScreen) {
             numberOfTimeAllowedOnScreenLeft--;
@@ -117,6 +124,12 @@ public abstract class Enemy {
 
     public void triggerShootAnimation() {
         currentAnimationType = AnimationType.Shoot;
+        stateTime = 0;
+    }
+
+    public void triggerDeathAnimation() {
+        currentAnimationType = AnimationType.Death;
+        stateTime = 0;
     }
 
     public void draw(SpriteBatch batch, float delta) {
@@ -128,7 +141,6 @@ public abstract class Enemy {
                 } else if (shootAnimationRepeat != 0 && animationIntervalTimer >= animationIntervalTime) {
                     shootAnimationRepeat--;
                     animationIntervalTimer = 0;
-                    stateTime = 0;
                     triggerShootAnimation();
                 }
                 break;
@@ -137,9 +149,16 @@ public abstract class Enemy {
                     stateTime += delta;
                     animationIntervalTimer = 0;
                     TextureRegion currentFrame = shootAnimation.getKeyFrame(stateTime);
-                    if (shootAnimation.getKeyFrameIndex(stateTime) == shootAnimationFrameNum - 1) {
+                    if (shootAnimation.isAnimationFinished(stateTime)) {
                         currentAnimationType = AnimationType.Static;
                     }
+                    batch.draw(currentFrame, sprite.getX(), sprite.getY(), width, height);
+                }
+                break;
+            case Death:
+                if (deathAnimationFrameNum != 0) {
+                    stateTime += delta;
+                    TextureRegion currentFrame = deathAnimation.getKeyFrame(stateTime);
                     batch.draw(currentFrame, sprite.getX(), sprite.getY(), width, height);
                 }
         }

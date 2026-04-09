@@ -37,9 +37,9 @@ public class MainShip {
         this.width = width;
         this.height = height;
         timerSinceLastDamage = invulnerableDuration;
-        shipTexture = new Texture("ShipSprite.png");
-        basicBulletTexture = new Texture("basicBullet.png");
-        spinAnimationSheet = new Texture("ship_sprite_animation1.png");
+        shipTexture = new Texture("Mainship/ShipSprite.png");
+        basicBulletTexture = new Texture("Bullet/basicBullet.png");
+        spinAnimationSheet = new Texture("Mainship/ship_sprite_animation1.png");
 
         TextureRegion[][] temp = TextureRegion.split(spinAnimationSheet, spinAnimationSheet.getWidth() / 11, spinAnimationSheet.getHeight());
         TextureRegion[] spinFrames = new TextureRegion[11];

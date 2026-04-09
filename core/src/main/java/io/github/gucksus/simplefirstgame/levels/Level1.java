@@ -12,7 +12,7 @@ public class Level1 extends Level {
 
     public Level1() {
         super();
-        popcornEnemyTexture = new Texture("popcornEnemy.png");
+        popcornEnemyTexture = new Texture("Enemy/popcornEnemy.png");
         popcornEnemy = new PopcornEnemy(popcornEnemyTexture, 69, 69);
     }
 

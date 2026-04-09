@@ -1,7 +1,9 @@
 package io.github.gucksus.simplefirstgame.entities;
 
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 
@@ -30,6 +32,9 @@ public abstract class Enemy {
     public float nextFrameYDifference;
     movingType currentMovingType;
     enum movingType {Straight, Curve}
+
+    Animation<TextureRegion> shootAnimation;
+    Texture shootAnimationSheet;
 
     // This constructor initializes width, height, sprite, initial position and neglect everything else. Therefore,
     // you have to add it in the subclass.

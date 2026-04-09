@@ -19,7 +19,7 @@ public class ScrollingBackground {
     float animationProb = .001f;
 
     public ScrollingBackground(float worldHeight) {
-        backgroundAnimationSheet = new Texture("background_animation_sheet3.png");
+        backgroundAnimationSheet = new Texture("Background/background_animation_sheet3.png");
         TextureRegion[][] tmp = TextureRegion.split(backgroundAnimationSheet, backgroundAnimationSheet.getWidth() / FRAME_NUM, backgroundAnimationSheet.getHeight());
         TextureRegion[] backgroundTileAnimationFrames = new TextureRegion[FRAME_NUM];
         System.arraycopy(tmp[0], 0, backgroundTileAnimationFrames, 0, FRAME_NUM);

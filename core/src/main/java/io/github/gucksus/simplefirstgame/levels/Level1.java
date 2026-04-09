@@ -53,6 +53,7 @@ public class Level1 extends Level {
         System.arraycopy(temp[0], 0, frames, 0, 11);
         enemy.initializeAnimation(temp[0]);
         enemy.triggerShootAnimation();
+        A1.waveEnemyArray.add(enemy);
         activeEnemies.add(enemy);
     }
 

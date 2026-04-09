@@ -30,7 +30,7 @@ public class ScrollingBackground {
         double randomNum = Math.random();
         if (!isInAnimation && randomNum <= animationProb) {
             isInAnimation = true;
-            System.out.println(1);
+            System.out.println("BG animation triggered");
         }
     }
 

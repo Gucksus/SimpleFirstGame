@@ -54,7 +54,6 @@ public class Core extends ApplicationAdapter {
 
     @Override
     public void render() {
-        // In case delta jump too high.
         float delta = Gdx.graphics.getDeltaTime();
         currentLevel.startLevelIfHaveNotStarted(delta, worldWidth, worldHeight);
         currentLevel.update(delta, worldWidth, worldHeight);

@@ -36,6 +36,9 @@ public abstract class Enemy {
 
     Animation<TextureRegion> shootAnimation;
     int shootAnimationFrameNum;
+    int shootAnimationRepeat = 3;
+    float animationIntervalTimer;
+    float animationIntervalTime = 3;
     int deathAnimationFrameNum;
     float stateTime;
     enum AnimationType {Static, Shoot, Death}
@@ -120,11 +123,23 @@ public abstract class Enemy {
         switch (currentAnimationType) {
             case Static:
                 sprite.draw(batch);
+                if (shootAnimationRepeat != 0 && animationIntervalTimer < animationIntervalTime) {
+                    animationIntervalTimer += delta;
+                } else if (shootAnimationRepeat != 0 && animationIntervalTimer >= animationIntervalTime) {
+                    shootAnimationRepeat--;
+                    animationIntervalTimer = 0;
+                    stateTime = 0;
+                    triggerShootAnimation();
+                }
                 break;
             case Shoot:
                 if (shootAnimationFrameNum != 0) {
                     stateTime += delta;
+                    animationIntervalTimer = 0;
                     TextureRegion currentFrame = shootAnimation.getKeyFrame(stateTime);
+                    if (shootAnimation.getKeyFrameIndex(stateTime) == shootAnimationFrameNum - 1) {
+                        currentAnimationType = AnimationType.Static;
+                    }
                     batch.draw(currentFrame, sprite.getX(), sprite.getY(), width, height);
                 }
         }

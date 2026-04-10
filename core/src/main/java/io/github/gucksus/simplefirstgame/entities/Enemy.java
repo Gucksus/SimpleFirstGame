@@ -27,6 +27,7 @@ public abstract class Enemy {
     public boolean isInvulnerable;
     public boolean isInvisible;
     public boolean previouslyInScreen;
+    public boolean isHarmless;
     public int numberOfTimeAllowedOnScreenLeft = 1;
     public float nextFrameXDifference;
     public float nextFrameYDifference;
@@ -109,6 +110,7 @@ public abstract class Enemy {
         if (health <= 0 && currentAnimationType != AnimationType.Death) {
             isDead = true;
             isInvulnerable = true;
+            isHarmless = true;
             triggerDeathAnimation();
         }
         if (isInScreenThisFrame(worldWidth, worldHeight) && !previouslyInScreen) {

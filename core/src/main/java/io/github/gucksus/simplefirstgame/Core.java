@@ -68,7 +68,7 @@ public class Core extends ApplicationAdapter {
         Array<Enemy> enemyArray = currentLevel.activeEnemies;
         for (int enemyIdx = enemyArray.size - 1; enemyIdx >= 0; enemyIdx--){
             Enemy currentEnemy = enemyArray.get(enemyIdx);
-            if (Intersector.overlaps(mainShip.shipHurtbox, currentEnemy.hitbox) && mainShip.timerSinceLastDamage > mainShip.invulnerableDuration){
+            if (Intersector.overlaps(mainShip.shipHurtbox, currentEnemy.hitbox) && mainShip.timerSinceLastDamage > mainShip.invulnerableDuration && !currentEnemy.isHarmless){
                 mainShip.lives -= 1;
                 if (mainShip.lives == 0){
                     mainShip.isDead = true;

@@ -8,6 +8,8 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 
 public abstract class Enemy {
+    public float endX;
+    public float endY;
     public float health;
     float amplitude;
     float frequency;

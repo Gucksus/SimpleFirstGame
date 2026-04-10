@@ -2,6 +2,7 @@ package io.github.gucksus.simplefirstgame.levels;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.utils.Timer;
 import io.github.gucksus.simplefirstgame.entities.Enemy;
 import io.github.gucksus.simplefirstgame.entities.PopcornEnemy;
 import io.github.gucksus.simplefirstgame.entities.SkullShooterEnemy;
@@ -53,6 +54,16 @@ public class Level1 extends Level {
         enemy.triggerShootAnimation();
         A1.waveEnemyArray.add(enemy);
         activeEnemies.add(enemy);
+        A1.startX = 4;
+        A1.startY = 4;
+        A1.moveStraight(1, 1, .1f, delta);
+        Timer.schedule(new Timer.Task() {
+            @Override
+            public void run() {
+                A1.stopEnemyMovement();
+                System.out.println(1);
+            }
+        }, .1f);
     }
 
     public void dispose() {

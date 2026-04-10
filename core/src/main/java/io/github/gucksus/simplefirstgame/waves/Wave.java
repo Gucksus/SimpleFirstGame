@@ -68,6 +68,26 @@ public class Wave {
         }
     }
 
+    public void stopEnemyMovement() {
+        waveEnemyArray.first().isMoving = false;
+        waveEnemyArray.first().nextFrameXDifference = 0;
+        waveEnemyArray.first().nextFrameYDifference = 0;
+        for (int i = 1; i < waveEnemyArray.size; i++) {
+            final int idx = i;
+            if (!waveEnemyArray.get(i).isDead){
+                Timer.schedule(new Timer.Task() {
+                    @Override
+                    public void run() {
+                        Enemy enemy = waveEnemyArray.get(idx);
+                        enemy.isMoving = false;
+                        enemy.nextFrameXDifference = 0;
+                        enemy.nextFrameYDifference = 0;
+                    }
+                }, i * interval);
+            }
+        }
+    }
+
     public void updateEnemyMovingStatus(float delta) {
         for (Enemy enemy: waveEnemyArray) {
             enemy.updatePosition(delta);

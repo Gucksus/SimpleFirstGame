@@ -56,14 +56,6 @@ public class Level1 extends Level {
         activeEnemies.add(enemy);
         A1.startX = 4;
         A1.startY = 4;
-        A1.moveStraight(1, 1, .1f, delta);
-        Timer.schedule(new Timer.Task() {
-            @Override
-            public void run() {
-                A1.stopEnemyMovement();
-                System.out.println(1);
-            }
-        }, .1f);
     }
 
     public void dispose() {

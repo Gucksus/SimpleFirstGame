@@ -40,7 +40,7 @@ public class Core extends ApplicationAdapter {
         worldHeight = viewport.getWorldHeight();
         worldWidth = viewport.getWorldWidth();
         scrollingBackground = new ScrollingBackground(viewport.getWorldHeight());
-        mainShip = new MainShip(4, 0, 2, 2, .1f);
+        mainShip = new MainShip(4, 0, 2, 2);
         // Level can be changed by changing currentLevel to desired level.
         level1 = new Level1();
         currentLevel = level1;

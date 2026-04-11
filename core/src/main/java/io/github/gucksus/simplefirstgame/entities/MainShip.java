@@ -16,6 +16,7 @@ public class MainShip {
     Texture shipTexture;
     Texture basicBulletTexture;
     public Circle shipHurtbox;
+    float hurtboxOffsetY;
     Sprite shipSprite;
     public Array<Bullet> bulletArray;
     float width;
@@ -33,9 +34,10 @@ public class MainShip {
     Texture spinAnimationSheet;
     float stateTime;
 
-    public MainShip(float centerX, float iniY, float width, float height, float hurtboxRadius) {
+    public MainShip(float centerX, float iniY, float width, float height) {
         this.width = width;
         this.height = height;
+        hurtboxOffsetY = + height / 2.5f * 1.01f;
         timerSinceLastDamage = invulnerableDuration;
         shipTexture = new Texture("Mainship/ShipSprite.png");
         basicBulletTexture = new Texture("Bullet/basicBullet.png");
@@ -51,7 +53,7 @@ public class MainShip {
         shipSprite.setSize(width, height);
         shipSprite.setCenterX(centerX);
         shipSprite.setY(iniY);
-        shipHurtbox = new Circle(centerX, iniY + height / 2.5f, hurtboxRadius);
+        shipHurtbox = new Circle(centerX, iniY + hurtboxOffsetY, .1f);
         bulletArray = new Array<>();
         currentBullet = new BasicBullet(basicBulletTexture, 69, 69);
         directionDifferenceMultiplier = new Vector2();
@@ -62,7 +64,7 @@ public class MainShip {
         timerSinceLastDamage += delta;
         input(delta, worldWidth, worldHeight);
         // Update hurtbox position for the ship.
-        shipHurtbox.setPosition(shipSprite.getX() + width / 2, shipSprite.getY() + height / 2.5f);
+        shipHurtbox.setPosition(shipSprite.getX() + width / 2, shipSprite.getY() + hurtboxOffsetY);
         updateBullet(delta, worldHeight);
     }
 

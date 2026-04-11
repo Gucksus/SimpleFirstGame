@@ -53,7 +53,7 @@ public class MainShip {
         shipSprite.setSize(width, height);
         shipSprite.setCenterX(centerX);
         shipSprite.setY(iniY);
-        shipHurtbox = new Circle(centerX, iniY + hurtboxOffsetY, .1f);
+        shipHurtbox = new Circle(shipSprite.getX() + width / 2, iniY + hurtboxOffsetY, .1f);
         bulletArray = new Array<>();
         currentBullet = new BasicBullet(basicBulletTexture, 69, 69);
         directionDifferenceMultiplier = new Vector2();
@@ -138,6 +138,14 @@ public class MainShip {
         Rectangle currentBulletHitbox = currentBullet.hitbox;
         shapeRenderer.setColor(Color.GREEN);
         shapeRenderer.rect(currentBulletHitbox.x, currentBulletHitbox.y, currentBulletHitbox.width, currentBulletHitbox.height);
+    }
+
+    public float getShipHurtboxCenterY() {
+        return shipHurtbox.y + hurtboxOffsetY / 2;
+    }
+
+    public float getShipHurtboxCenterX() {
+        return shipSprite.getX() + width / 2;
     }
 
     public void dispose() {

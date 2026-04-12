@@ -1,4 +1,4 @@
-package io.github.gucksus.simplefirstgame.entities;
+package io.github.gucksus.simplefirstgame.entities.base;
 
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Sprite;
@@ -6,11 +6,12 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
+import io.github.gucksus.simplefirstgame.entities.MainShip;
 
 public abstract class Enemy {
     public float health;
-    float amplitude;
-    float frequency;
+    protected float amplitude;
+    protected float frequency;
     float sinTimer = 0;
     public Sprite sprite;
     float initialX;
@@ -18,12 +19,12 @@ public abstract class Enemy {
     public Rectangle hurtbox;
     public float width;
     public float height;
-    float hitboxOffsetX;
-    float hitboxOffsetY;
-    float shootPointOffsetX;
-    float shootPointOffsetY;
-    float hurtboxOffsetX;
-    float hurtboxOffsetY;
+    protected float hitboxOffsetX;
+    protected float hitboxOffsetY;
+    protected float shootPointOffsetX;
+    protected float shootPointOffsetY;
+    protected float hurtboxOffsetX;
+    protected float hurtboxOffsetY;
     public boolean isDead = false;
     public boolean isMoving;
     public boolean isInvulnerable;

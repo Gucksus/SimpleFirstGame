@@ -1,7 +1,8 @@
-package io.github.gucksus.simplefirstgame.entities;
+package io.github.gucksus.simplefirstgame.entities.bullets;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Rectangle;
+import io.github.gucksus.simplefirstgame.entities.base.Bullet;
 
 public class BasicBullet extends Bullet {
     public BasicBullet(Texture texture ,float iniX, float iniY) {

@@ -2,10 +2,9 @@ package io.github.gucksus.simplefirstgame.levels;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.utils.Timer;
-import io.github.gucksus.simplefirstgame.entities.Enemy;
-import io.github.gucksus.simplefirstgame.entities.PopcornEnemy;
-import io.github.gucksus.simplefirstgame.entities.SkullShooterEnemy;
+import io.github.gucksus.simplefirstgame.entities.base.Enemy;
+import io.github.gucksus.simplefirstgame.entities.enemies.PopcornEnemy;
+import io.github.gucksus.simplefirstgame.entities.enemies.SkullShooterEnemy;
 import io.github.gucksus.simplefirstgame.waves.Wave;
 
 public class Level1 extends Level {

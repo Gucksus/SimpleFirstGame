@@ -1,20 +1,20 @@
-package io.github.gucksus.simplefirstgame.entities;
+package io.github.gucksus.simplefirstgame.entities.base;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Rectangle;
 
 public abstract class Bullet {
-    float speed;
+    protected float speed;
     public float damage;
-    float width;
-    float height;
+    protected float width;
+    protected float height;
     public Sprite sprite;
     public Rectangle hitbox;
     // This is because of the bullet sprite contains unnecessary pixels on the sides.
-    float hitboxOffsetX;
+    protected float hitboxOffsetX;
     // Limit the amount of bullet that can be on screen. This is a mechanic in shmups.
-    int maxBulletOnScreen;
+    public int maxBulletOnScreen;
      public float fireRate;
     // This constructor initializes width, height, sprite, initial position and neglect everything else. Therefore,
     // you have to add it in the subclass.

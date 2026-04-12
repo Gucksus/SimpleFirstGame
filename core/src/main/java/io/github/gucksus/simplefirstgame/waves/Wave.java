@@ -2,7 +2,7 @@ package io.github.gucksus.simplefirstgame.waves;
 
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Timer;
-import io.github.gucksus.simplefirstgame.entities.Enemy;
+import io.github.gucksus.simplefirstgame.entities.base.Enemy;
 
 
 public class Wave {

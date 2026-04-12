@@ -11,6 +11,8 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
+import io.github.gucksus.simplefirstgame.entities.base.Bullet;
+import io.github.gucksus.simplefirstgame.entities.bullets.BasicBullet;
 
 public class MainShip {
     Texture shipTexture;

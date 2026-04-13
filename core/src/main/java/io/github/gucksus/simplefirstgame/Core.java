@@ -56,7 +56,7 @@ public class Core extends ApplicationAdapter {
     public void render() {
         float delta = Gdx.graphics.getDeltaTime();
         currentLevel.startLevelIfHaveNotStarted(delta, worldWidth, worldHeight);
-        currentLevel.update(delta, worldWidth, worldHeight);
+        currentLevel.update(delta, worldWidth, worldHeight, mainShip);
         mainShip.update(delta, worldWidth, worldHeight);
         scrollingBackground.backgroundUpdate(delta, worldHeight);
         hitboxAndHurtboxLogic();

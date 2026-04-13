@@ -2,14 +2,13 @@ package io.github.gucksus.simplefirstgame.levels;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
 import io.github.gucksus.simplefirstgame.entities.MainShip;
 import io.github.gucksus.simplefirstgame.entities.base.Enemy;
 import io.github.gucksus.simplefirstgame.entities.base.EnemyBullet;
-import io.github.gucksus.simplefirstgame.entities.bullets.SkullShooterBullet;
 import io.github.gucksus.simplefirstgame.tools.DebugRenderer;
 import io.github.gucksus.simplefirstgame.waves.Wave;
-import jdk.tools.jmod.Main;
 
 public abstract class Level {
     public boolean isLevelCompleted = false;
@@ -25,6 +24,7 @@ public abstract class Level {
         debugRenderer = new DebugRenderer();
         activeEnemies = new Array<>();
         waveArray = new Array<>();
+        enemyBulletArray = new Array<>();
     }
 
     public abstract void enemySpawn(float worldWidth, float worldHeight);
@@ -43,9 +43,10 @@ public abstract class Level {
         }
     }
 
-    public void update (float delta, float worldWidth, float worldHeight) {
+    public void update (float delta, float worldWidth, float worldHeight, MainShip mainShip) {
         updateDelta(delta);
         wavesUpdate(delta, worldWidth, worldHeight);
+        addEnemyBulletUpdate(mainShip);
     }
 
     public void wavesUpdate(float delta, float worldWidth, float worldHeight) {
@@ -76,8 +77,10 @@ public abstract class Level {
 
     public void addEnemyBulletUpdate (MainShip mainShip) {
         for (Enemy enemy: activeEnemies) {
-            if (enemy.shootThisFrame()) {
-                enemyBulletArray.add();
+            EnemyBullet enemyBullet = enemy.shoot(mainShip);
+            if (enemyBullet != null) {
+                enemyBulletArray.add(enemyBullet);
+                System.out.printf("Ship: %f, %f\nEnemy: %f, %f\n->Angle: %f", mainShip.getShipHurtboxCenterX(), mainShip.getShipHurtboxCenterY(), enemy.sprite.getX(), enemy.sprite.getY(), MathUtils.atan((mainShip.getShipHurtboxCenterY() - enemy.sprite.getY()) / (mainShip.getShipHurtboxCenterX() - enemy.sprite.getX())) * MathUtils.radiansToDegrees);
             }
         }
     }

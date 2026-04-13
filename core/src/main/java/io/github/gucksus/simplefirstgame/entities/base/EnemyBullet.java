@@ -6,11 +6,11 @@ import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 
-public abstract class EnemyBullet {
+public class EnemyBullet {
     float speed;
     float width;
     float height;
-    float shootAngle;
+    public float shootAngle;
     float timer;
     float damage = 1;
     Sprite sprite;
@@ -20,13 +20,13 @@ public abstract class EnemyBullet {
     Circle circleHitbox;
     float circleHitboxOffsetX;
     float circleHitboxOffsetY;
-    boolean isCircle;
-    enum MovingType {
+    protected boolean isCircle;
+    protected enum MovingType {
         Straight,
         Curve,
         Roundabout
     }
-    MovingType movingType;
+    protected MovingType movingType;
 
     public EnemyBullet (Texture texture, float iniX, float iniY, float width, float height, float shootAngle) {
         this.width = width;
@@ -36,6 +36,16 @@ public abstract class EnemyBullet {
         sprite.setCenterX(iniX);
         sprite.setY(iniY);
         this.shootAngle = shootAngle;
+    }
+
+    public EnemyBullet (EnemyBullet another) {
+        this.width = another.width;
+        this.height = another.height;
+        sprite = new Sprite(another.sprite.getTexture());
+        sprite.setSize(another.width, another.height);
+        sprite.setCenterX(sprite.getX());
+        sprite.setY(sprite.getY());
+        this.shootAngle = another.shootAngle;
     }
 
     void updateHitbox() {

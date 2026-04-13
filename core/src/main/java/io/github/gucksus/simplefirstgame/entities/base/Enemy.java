@@ -32,20 +32,20 @@ public abstract class Enemy {
     public boolean isInvisible;
     public boolean previouslyInScreen;
     public boolean isHarmless;
+    boolean shootInThisAnimation;
     public int numberOfTimeAllowedOnScreenLeft = 1;
     public float nextFrameXDifference;
     public float nextFrameYDifference;
     movingType currentMovingType;
     enum movingType {Straight, Curve}
-    protected EnemyBullet bullet;
     protected Texture bulletTexture;
 
     Animation<TextureRegion> shootAnimation;
     public Animation<TextureRegion> deathAnimation;
     int shootAnimationFrameNum;
-    int shootAnimationRepeat = 3;
+    protected int shootAnimationRepeat = 3;
     float animationIntervalTimer;
-    float animationIntervalTime = 3;
+    protected float animationIntervalTime = 3;
     int deathAnimationFrameNum;
     public float stateTime;
     enum AnimationType {Static, Shoot, Death}
@@ -149,6 +149,7 @@ public abstract class Enemy {
                 } else if (shootAnimationRepeat != 0 && animationIntervalTimer >= animationIntervalTime) {
                     shootAnimationRepeat--;
                     animationIntervalTimer = 0;
+                    shootInThisAnimation = false;
                     triggerShootAnimation();
                 }
                 break;
@@ -172,12 +173,29 @@ public abstract class Enemy {
         }
     }
 
-    public boolean shootThisFrame() {
+    boolean shootThisFrame() {
         return (shootAnimation.getKeyFrameIndex(stateTime) == 6);
+    }
+
+    protected abstract EnemyBullet returnBulletType(float shootPointX, float shootPointY, float shootAngle);
+
+    public EnemyBullet shoot(MainShip mainShip) {
+        if (shootThisFrame() && !shootInThisAnimation) {
+            shootInThisAnimation = true;
+            float shootPointX = sprite.getX() + shootPointOffsetX;
+            float shootPointY = sprite.getY() + shootPointOffsetY;
+            float shootAngle = MathUtils.atan(Math.abs(shootPointY - mainShip.getShipHurtboxCenterY()) / Math.abs(shootPointX - mainShip.getShipHurtboxCenterX()));
+            return returnBulletType(shootPointX, shootPointY, shootAngle);
+        }
+        else return null;
     }
 
     public void dispose() {
         bulletTexture.dispose();
+    }
+
+    public void debugShowShootPoint() {
+        System.out.println(sprite.getX() + shootPointOffsetX + " and " + (sprite.getY() + shootPointOffsetY));
     }
 
 }

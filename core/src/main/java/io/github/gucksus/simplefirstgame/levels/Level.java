@@ -3,9 +3,13 @@ package io.github.gucksus.simplefirstgame.levels;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.utils.Array;
+import io.github.gucksus.simplefirstgame.entities.MainShip;
 import io.github.gucksus.simplefirstgame.entities.base.Enemy;
+import io.github.gucksus.simplefirstgame.entities.base.EnemyBullet;
+import io.github.gucksus.simplefirstgame.entities.bullets.SkullShooterBullet;
 import io.github.gucksus.simplefirstgame.tools.DebugRenderer;
 import io.github.gucksus.simplefirstgame.waves.Wave;
+import jdk.tools.jmod.Main;
 
 public abstract class Level {
     public boolean isLevelCompleted = false;
@@ -15,6 +19,7 @@ public abstract class Level {
     public Array<Wave> waveArray;
     public boolean isLevelStarted;
     public float delta = 1;
+    public Array<EnemyBullet> enemyBulletArray;
 
     public Level() {
         debugRenderer = new DebugRenderer();
@@ -67,5 +72,18 @@ public abstract class Level {
             this.enemySpawn(worldWidth, worldHeight);
             this.isLevelStarted = true;
         }
+    }
+
+    public void addEnemyBulletUpdate (MainShip mainShip) {
+        for (Enemy enemy: activeEnemies) {
+            if (enemy.shootThisFrame()) {
+                enemyBulletArray.add();
+            }
+        }
+    }
+
+    public void dispose() {
+        for (Enemy enemy: activeEnemies)
+            enemy.dispose();
     }
 }

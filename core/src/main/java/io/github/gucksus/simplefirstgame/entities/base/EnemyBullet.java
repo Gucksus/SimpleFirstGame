@@ -12,6 +12,7 @@ public abstract class EnemyBullet {
     float height;
     float shootAngle;
     float timer;
+    float damage = 1;
     Sprite sprite;
     Rectangle rectangleHitbox;
     float rectangleHitboxOffsetX;

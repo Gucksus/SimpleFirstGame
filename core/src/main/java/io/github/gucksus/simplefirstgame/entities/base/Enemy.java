@@ -1,5 +1,6 @@
 package io.github.gucksus.simplefirstgame.entities.base;
 
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -36,6 +37,8 @@ public abstract class Enemy {
     public float nextFrameYDifference;
     movingType currentMovingType;
     enum movingType {Straight, Curve}
+    protected EnemyBullet bullet;
+    protected Texture bulletTexture;
 
     Animation<TextureRegion> shootAnimation;
     public Animation<TextureRegion> deathAnimation;
@@ -169,8 +172,12 @@ public abstract class Enemy {
         }
     }
 
-    void shoot(MainShip ship) {
+    public boolean shootThisFrame() {
+        return (shootAnimation.getKeyFrameIndex(stateTime) == 6);
+    }
 
+    public void dispose() {
+        bulletTexture.dispose();
     }
 
 }

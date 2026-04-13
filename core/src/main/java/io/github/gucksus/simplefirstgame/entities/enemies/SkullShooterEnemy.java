@@ -3,6 +3,7 @@ package io.github.gucksus.simplefirstgame.entities.enemies;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import io.github.gucksus.simplefirstgame.entities.base.Enemy;
+import io.github.gucksus.simplefirstgame.entities.bullets.SkullShooterBullet;
 
 public class SkullShooterEnemy extends Enemy {
     public SkullShooterEnemy(TextureRegion staticTexture, float iniX, float iniY) {
@@ -16,5 +17,7 @@ public class SkullShooterEnemy extends Enemy {
         hurtboxOffsetY = height / 32 * 7;
         hitbox = new Rectangle(iniX + hitboxOffsetX, iniY + hitboxOffsetY, width / 32 * 20f, height / 32 * 16);
         hurtbox = new Rectangle(iniX + hurtboxOffsetX, iniY + hurtboxOffsetY, width / 32 * 26, height / 32 * 15);
+        bulletT
+        bullet = new SkullShooterBullet()
     }
 }

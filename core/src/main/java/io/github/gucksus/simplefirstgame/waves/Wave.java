@@ -50,7 +50,7 @@ public class Wave {
         }
         for (int i = waveEnemyArray.size - 1; i >= 0; --i) {
             Enemy enemy = waveEnemyArray.get(i);
-            if (enemy.isDead && enemy.deathAnimation.isAnimationFinished(enemy.stateTime)){ // If the enemy is dead and finished death animation.
+            if (enemy.isDead && enemy.isDeathAnimationFinished()){ // If the enemy is dead and finished death animation.
                 activeEnemyArray.removeValue(enemy, true);
             }
         }
@@ -85,34 +85,30 @@ public class Wave {
         startY = endY;
         for (int i = 0; i < waveEnemyArray.size; i++) {
             final int idx = i;
-            if (!waveEnemyArray.get(i).isDead){
-                Timer.schedule(new Timer.Task() {
-                    @Override
-                    public void run() {
-                        Enemy enemy = waveEnemyArray.get(idx);
-                        enemy.isMoving = true;
-                        enemy.nextFrameXDifference = (endX - lastStartX) / duration * delta;
-                        enemy.nextFrameYDifference = (endY - lastStartY) / duration * delta;
-                    }
-                }, X + i * interval);
-            }
+            Timer.schedule(new Timer.Task() {
+                @Override
+                public void run() {
+                    Enemy enemy = waveEnemyArray.get(idx);
+                    enemy.isMoving = true;
+                    enemy.nextFrameXDifference = (endX - lastStartX) / duration * delta;
+                    enemy.nextFrameYDifference = (endY - lastStartY) / duration * delta;
+                }
+            }, X + i * interval);
         }
     }
 
     public void stopAllEnemyMovementAfterXSeconds(float X) {
         for (int i = 0; i < waveEnemyArray.size; i++) {
             final int idx = i;
-            if (!waveEnemyArray.get(i).isDead){
-                Timer.schedule(new Timer.Task() {
-                    @Override
-                    public void run() {
-                        Enemy enemy = waveEnemyArray.get(idx);
-                        enemy.isMoving = false;
-                        enemy.nextFrameXDifference = 0;
-                        enemy.nextFrameYDifference = 0;
-                    }
-                }, X + i * interval);
-            }
+            Timer.schedule(new Timer.Task() {
+                @Override
+                public void run() {
+                    Enemy enemy = waveEnemyArray.get(idx);
+                    enemy.isMoving = false;
+                    enemy.nextFrameXDifference = 0;
+                    enemy.nextFrameYDifference = 0;
+                }
+            }, X + i * interval);
         }
     }
 

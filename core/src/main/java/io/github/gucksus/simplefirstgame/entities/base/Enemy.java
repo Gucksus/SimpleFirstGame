@@ -9,7 +9,8 @@ import com.badlogic.gdx.math.Rectangle;
 import io.github.gucksus.simplefirstgame.entities.MainShip;
 
 /**
- * <b>YOU HAVE TO DECLARE THESE VARIABLE IN SUBCLASSES:</b> <i>health, hitboxOffsetX and hitboxOffsetY, hurtboxOffsetX and hurtboxOffsetY, shootPointOffsetX and shootPointOffsetY, hitbox, hurtbox, bulletTexture, animationIntervalTime, shootAnimationRepeat.</i>
+ * <b>YOU HAVE TO DECLARE THESE VARIABLE IN SUBCLASSES:</b> <i>health, hitboxOffsetX and hitboxOffsetY, hurtboxOffsetX and hurtboxOffsetY, shootPointOffsetX and shootPointOffsetY, hitbox, hurtbox, bulletTexture, animationIntervalTime, shootAnimationRepeat.</i> <br>
+ * <b><i>SET THESE VARIABLES AS 0 IF THE ENEMY DOES NOT HAVE SHOOT OR/AND DEATH ANIMATION: shootAnimationFrameNum, deathAnimationFrameNum.</i></b>
  */
 public abstract class Enemy {
     public float health;
@@ -46,7 +47,7 @@ public abstract class Enemy {
 
     protected Animation<TextureRegion> shootAnimation;
     public Animation<TextureRegion> deathAnimation;
-    int shootAnimationFrameNum;
+    protected int shootAnimationFrameNum;
     /**
      * The number of time that the enemy is allowed to shoot.
      */
@@ -56,7 +57,7 @@ public abstract class Enemy {
      */
     float animationIntervalTimer;
     protected float animationInterval;
-    int deathAnimationFrameNum;
+    public int deathAnimationFrameNum;
     public float stateTime;
     enum AnimationType {Static, Shoot, Death}
     AnimationType currentAnimationType = AnimationType.Static;
@@ -142,13 +143,17 @@ public abstract class Enemy {
     }
 
     public void triggerShootAnimation() {
-        currentAnimationType = AnimationType.Shoot;
-        stateTime = 0;
+        if (shootAnimationFrameNum != 0) {
+            currentAnimationType = AnimationType.Shoot;
+            stateTime = 0;
+        }
     }
 
     public void triggerDeathAnimation() {
-        currentAnimationType = AnimationType.Death;
-        stateTime = 0;
+        if (deathAnimationFrameNum != 0) {
+            currentAnimationType = AnimationType.Death;
+            stateTime = 0;
+        }
     }
 
     public void draw(SpriteBatch batch, float delta) {
@@ -183,6 +188,13 @@ public abstract class Enemy {
                     batch.draw(currentFrame, sprite.getX(), sprite.getY(), width, height);
                 }
         }
+    }
+
+    public boolean isDeathAnimationFinished() {
+        if (deathAnimationFrameNum == 0)
+            return true;
+        else
+            return deathAnimation.isAnimationFinished(stateTime);
     }
 
     /**

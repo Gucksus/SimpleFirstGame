@@ -8,13 +8,15 @@ import io.github.gucksus.simplefirstgame.entities.base.EnemyBullet;
 public class PopcornEnemy extends Enemy {
     public PopcornEnemy(TextureRegion staticTexture, float iniX, float iniY) {
         super(staticTexture , iniX, iniY, 1, 1);
-        health = 1f;
+        health = 2f;
         hitboxOffsetX = width / 32 * 6;
         hitboxOffsetY = height / 32 * 6;
         hurtboxOffsetX = width / 32 * 3;
         hurtboxOffsetY = height / 32 * 7;
         hitbox = new Rectangle(iniX + hitboxOffsetX, iniY + hitboxOffsetY, width / 32 * 20f, height / 32 * 16);
         hurtbox = new Rectangle(iniX + hurtboxOffsetX, iniY + hurtboxOffsetY, width / 32 * 26, height / 32 * 15);
+        shootAnimationFrameNum = 0;
+        deathAnimationFrameNum = 0;
     }
 
     @Override

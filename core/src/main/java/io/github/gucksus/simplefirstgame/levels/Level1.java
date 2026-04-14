@@ -2,6 +2,7 @@ package io.github.gucksus.simplefirstgame.levels;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.utils.Timer;
 import io.github.gucksus.simplefirstgame.entities.base.Enemy;
 import io.github.gucksus.simplefirstgame.entities.base.Level;
 import io.github.gucksus.simplefirstgame.entities.enemies.PopcornEnemy;
@@ -35,7 +36,7 @@ public class Level1 extends Level {
     private void addSkullShooterIntoWave(Wave wave) {
         for (int i = 0; i < wave.totalEnemies; i++) {
             TextureRegion[][] temp = TextureRegion.split(skullAnimationSheet, skullAnimationSheet.getWidth() / 11, skullAnimationSheet.getHeight() / 2);
-            Enemy enemy = new SkullShooterEnemy(temp[0][0], skullBulletTexture,4, 4);
+            Enemy enemy = new SkullShooterEnemy(temp[0][0], skullBulletTexture, wave.startX, wave.startY);
             enemy.initializeShootAnimation(temp[0]);
             enemy.initializeDeathAnimation(temp[1]);
             wave.waveEnemyArray.add(enemy);
@@ -52,13 +53,28 @@ public class Level1 extends Level {
         Wave A2 = waveArray.peek();
         addPopcornEnemiesIntoWave(A1);
         addPopcornEnemiesIntoWave(A2);
-
         System.out.println(examplePopcornEnemy.deathAnimationFrameNum);
         A1.moveAllEnemyStraightAfterXSeconds(3f - examplePopcornEnemy.width / 2, 1.5f, 3, delta, 0);
-//        A2.moveAllEnemyStraightAfterXSeconds(5f - examplePopcornEnemy.width / 2, 1.5f, 3, delta, 2);
-//        A1.moveAllEnemyStraightAfterXSeconds(A1.startX, 11, 2.5f, delta, 3);
-//        A2.moveAllEnemyStraightAfterXSeconds(A2.startX, 11, 2.5f, delta, 5);
+        A2.moveAllEnemyStraightAfterXSeconds(5f - examplePopcornEnemy.width / 2, 1.5f, 3, delta, 0);
+        A1.moveAllEnemyStraightAfterXSeconds(A1.startX, 11, 2.5f, delta, 3);
+        A2.moveAllEnemyStraightAfterXSeconds(A2.startX, 11, 2.5f, delta, 3);
+
+        Timer.schedule(new Timer.Task() {
+            @Override
+            public void run() {
+                waveArray.add(new Wave(activeEnemies, 1, 0, 0, 11));
+                Wave A3 = waveArray.peek();
+                waveArray.add(new Wave(activeEnemies, 1, 0, 4, 11));
+                Wave A4 = waveArray.peek();
+                addSkullShooterIntoWave(A3);
+                addSkullShooterIntoWave(A4);
+                A3.moveAllEnemyStraightAfterXSeconds(0, -3, 10, delta, 0);
+                A4.moveAllEnemyStraightAfterXSeconds(4, -3, 10, delta, 0);
+            }
+        }, 5.5f);
     }
+
+
 
     public void dispose() {
         popcornEnemyTexture.dispose();

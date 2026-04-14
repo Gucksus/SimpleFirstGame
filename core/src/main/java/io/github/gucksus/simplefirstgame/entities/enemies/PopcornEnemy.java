@@ -8,7 +8,7 @@ import io.github.gucksus.simplefirstgame.entities.base.EnemyBullet;
 public class PopcornEnemy extends Enemy {
     public PopcornEnemy(TextureRegion staticTexture, float iniX, float iniY) {
         super(staticTexture , iniX, iniY, 1, 1);
-        health = 2f;
+        health = 1f;
         hitboxOffsetX = width / 32 * 6;
         hitboxOffsetY = height / 32 * 6;
         hurtboxOffsetX = width / 32 * 3;

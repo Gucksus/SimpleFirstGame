@@ -10,7 +10,7 @@ import io.github.gucksus.simplefirstgame.entities.bullets.SkullShooterBullet;
 public class SkullShooterEnemy extends Enemy {
     public SkullShooterEnemy(TextureRegion staticTexture, Texture bulletTexture, float iniX, float iniY) {
         super(staticTexture , iniX, iniY, 4, 4);
-        health = 3f;
+        health = 5f;
         hitboxOffsetX = width / 32 * 6;
         hitboxOffsetY = height / 32 * 6;
         shootPointOffsetX = 4/ 64f * 32;

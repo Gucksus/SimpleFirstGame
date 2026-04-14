@@ -191,10 +191,6 @@ public abstract class Enemy {
         else return null;
     }
 
-    public void dispose() {
-        bulletTexture.dispose();
-    }
-
     public void debugShowShootPoint() {
         System.out.println(sprite.getX() + shootPointOffsetX + " and " + (sprite.getY() + shootPointOffsetY));
     }

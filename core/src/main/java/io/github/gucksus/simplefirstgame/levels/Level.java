@@ -94,9 +94,4 @@ public abstract class Level {
             enemyBullet.update(delta);
         }
     }
-
-    public void dispose() {
-        for (Enemy enemy: activeEnemies)
-            enemy.dispose();
-    }
 }

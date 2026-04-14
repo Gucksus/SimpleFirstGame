@@ -3,6 +3,7 @@ package io.github.gucksus.simplefirstgame.levels;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import io.github.gucksus.simplefirstgame.entities.base.Enemy;
+import io.github.gucksus.simplefirstgame.entities.bullets.SkullShooterBullet;
 import io.github.gucksus.simplefirstgame.entities.enemies.PopcornEnemy;
 import io.github.gucksus.simplefirstgame.entities.enemies.SkullShooterEnemy;
 import io.github.gucksus.simplefirstgame.waves.Wave;
@@ -11,11 +12,13 @@ public class Level1 extends Level {
     PopcornEnemy popcornEnemy;
     Texture popcornEnemyTexture;
     Texture skullAnimationSheet;
+    Texture skullBulletTexture;
 
     public Level1() {
         super();
         popcornEnemyTexture = new Texture("Enemy/popcornEnemy.png");
         skullAnimationSheet = new Texture("Enemy/skull_animation.png");
+        skullBulletTexture = new Texture("Bullet/skull_bullet_texture.png");
     }
 
     private void addPopcornEnemiesIntoWave(Wave wave) {
@@ -47,7 +50,7 @@ public class Level1 extends Level {
 //        }, currentDuration);
 //        currentDuration = 2.5f;
         TextureRegion[][] temp = TextureRegion.split(skullAnimationSheet, skullAnimationSheet.getWidth() / 11, skullAnimationSheet.getHeight() / 2);
-        Enemy enemy = new SkullShooterEnemy(temp[0][0], 4, 4);
+        Enemy enemy = new SkullShooterEnemy(temp[0][0], skullBulletTexture,4, 4);
         enemy.initializeShootAnimation(temp[0]);
         enemy.initializeDeathAnimation(temp[1]);
         enemy.triggerShootAnimation();

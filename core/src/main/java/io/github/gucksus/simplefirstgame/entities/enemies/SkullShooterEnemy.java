@@ -8,7 +8,7 @@ import io.github.gucksus.simplefirstgame.entities.base.EnemyBullet;
 import io.github.gucksus.simplefirstgame.entities.bullets.SkullShooterBullet;
 
 public class SkullShooterEnemy extends Enemy {
-    public SkullShooterEnemy(TextureRegion staticTexture, float iniX, float iniY) {
+    public SkullShooterEnemy(TextureRegion staticTexture, Texture bulletTexture, float iniX, float iniY) {
         super(staticTexture , iniX, iniY, 4, 4);
         health = 3f;
         hitboxOffsetX = width / 32 * 6;
@@ -19,7 +19,7 @@ public class SkullShooterEnemy extends Enemy {
         hurtboxOffsetY = height / 32 * 7;
         hitbox = new Rectangle(iniX + hitboxOffsetX, iniY + hitboxOffsetY, width / 32 * 20f, height / 32 * 16);
         hurtbox = new Rectangle(iniX + hurtboxOffsetX, iniY + hurtboxOffsetY, width / 32 * 26, height / 32 * 15);
-        bulletTexture = new Texture("Bullet/skull_bullet_texture.png");
+        this.bulletTexture = bulletTexture;
         animationIntervalTime = 1;
         shootAnimationRepeat = 15;
     }

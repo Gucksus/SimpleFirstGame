@@ -63,5 +63,6 @@ public class Level1 extends Level {
     public void dispose() {
         popcornEnemyTexture.dispose();
         skullAnimationSheet.dispose();
+        skullBulletTexture.dispose();
     }
 }

@@ -12,6 +12,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import io.github.gucksus.simplefirstgame.entities.base.Bullet;
+import io.github.gucksus.simplefirstgame.entities.base.Level;
 import io.github.gucksus.simplefirstgame.entities.bullets.BasicBullet;
 
 public class MainShip {
@@ -19,7 +20,6 @@ public class MainShip {
     public Circle shipHurtbox;
     float hurtboxOffsetY;
     Sprite shipSprite;
-    public Array<Bullet> bulletArray;
     float width;
     float height;
     float shipSpeed = 6f;
@@ -52,21 +52,19 @@ public class MainShip {
         shipSprite.setCenterX(centerX);
         shipSprite.setY(iniY);
         shipHurtbox = new Circle(shipSprite.getX() + width / 2, iniY + hurtboxOffsetY, .1f);
-        bulletArray = new Array<>();
         currentBullet = new BasicBullet(basicBulletTexture, 69, 69);
         directionDifferenceMultiplier = new Vector2();
     }
 
-    public void update(float delta, float worldWidth, float worldHeight) {
+    public void update(float delta, float worldWidth, float worldHeight, Level level) {
         timerSinceLastShot += delta;
         timerSinceLastDamage += delta;
-        input(delta, worldWidth, worldHeight);
+        input(delta, worldWidth, worldHeight, level);
         // Update hurtbox position for the ship.
         shipHurtbox.setPosition(shipSprite.getX() + width / 2, shipSprite.getY() + hurtboxOffsetY);
-        updateBullet(delta, worldHeight);
     }
 
-    private void input(float delta, float worldWidth, float worldHeight) {
+    private void input(float delta, float worldWidth, float worldHeight, Level level) {
         float dx = 0;
         float dy = 0;
 
@@ -85,34 +83,16 @@ public class MainShip {
         shipSprite.setY(MathUtils.clamp(shipSprite.getY(), 0, worldHeight - shipSprite.getHeight()));
 
         if (Gdx.input.isKeyPressed(Input.Keys.J)) {
-            if (bulletArray.size < currentBullet.maxBulletOnScreen && timerSinceLastShot >= currentBullet.fireRate && !isDead) { // If the amount of bullet on screen is smaller than max amount, then allow shooting.
+            if (level.bulletArray.size < currentBullet.maxBulletOnScreen && timerSinceLastShot >= currentBullet.fireRate && !isDead) { // If the amount of bullet on screen is smaller than max amount, then allow shooting.
                 float iniX = shipSprite.getX() + shipSprite.getWidth() / 2;
                 float iniY = shipSprite.getY() + shipSprite.getHeight();
-                bulletArray.add(new BasicBullet(basicBulletTexture , iniX, iniY));
+                level.bulletArray.add(new BasicBullet(basicBulletTexture , iniX, iniY));
                 timerSinceLastShot = 0;
             }
         }
 
         if (Gdx.input.isKeyPressed(Input.Keys.L) && !isInAnimation) {
             isInAnimation = true;
-        }
-    }
-
-    /**
-     * This method updates bullet position; checks if a bullet is out of screen and removes any bullet that does.
-     * @param delta The frame delta time.
-     * @param worldHeight The height of the world.
-     */
-    private void updateBullet(float delta, float worldHeight) {
-        for (int i = bulletArray.size - 1; i >= 0; i--){
-            bulletArray.get(i).update(delta);
-        }
-
-        for (int i = bulletArray.size - 1; i >= 0; i--) {
-            Sprite currentBulletSprite = bulletArray.get(i).sprite;
-            if (currentBulletSprite.getY() > worldHeight) {
-                bulletArray.removeIndex(i);
-            }
         }
     }
 
@@ -126,9 +106,6 @@ public class MainShip {
             TextureRegion currentFrame = spinAnimation.getKeyFrame(stateTime, false);
              batch.draw(currentFrame, shipSprite.getX(), shipSprite.getY(), width, height);
 
-        }
-        for (Bullet basicBullet : bulletArray) {
-            basicBullet.sprite.draw(batch);
         }
     }
 

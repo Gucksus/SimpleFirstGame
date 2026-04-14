@@ -57,32 +57,10 @@ public class Core extends ApplicationAdapter {
         float delta = Gdx.graphics.getDeltaTime();
         currentLevel.startLevelIfHaveNotStarted(delta, worldWidth, worldHeight);
         currentLevel.update(delta, worldWidth, worldHeight, mainShip);
-        mainShip.update(delta, worldWidth, worldHeight);
+        mainShip.update(delta, worldWidth, worldHeight, currentLevel);
         scrollingBackground.backgroundUpdate(delta, worldHeight);
-        hitboxAndHurtboxLogic();
+        currentLevel.hitboxAndHurtboxLogic(mainShip);
         draw();
-    }
-
-    private void hitboxAndHurtboxLogic() {
-        Array<Bullet> bulletArray = mainShip.bulletArray;
-        Array<Enemy> enemyArray = currentLevel.activeEnemies;
-        for (int enemyIdx = enemyArray.size - 1; enemyIdx >= 0; enemyIdx--){
-            Enemy currentEnemy = enemyArray.get(enemyIdx);
-            if (Intersector.overlaps(mainShip.shipHurtbox, currentEnemy.hitbox) && mainShip.timerSinceLastDamage > mainShip.invulnerableDuration && !currentEnemy.isHarmless){
-                mainShip.lives -= 1;
-                if (mainShip.lives == 0){
-                    mainShip.isDead = true;
-                }
-                mainShip.timerSinceLastDamage = 0;
-            }
-            for (int bulletIdx = bulletArray.size - 1; bulletIdx >= 0; bulletIdx--){
-                Bullet currentBullet = bulletArray.get(bulletIdx);
-                if (currentBullet.hitbox.overlaps(currentEnemy.hurtbox) && !currentEnemy.isInvulnerable) {
-                    currentEnemy.health -= currentBullet.damage;
-                    bulletArray.removeIndex(bulletIdx);
-                }
-            }
-        }
     }
 
     private void draw() {

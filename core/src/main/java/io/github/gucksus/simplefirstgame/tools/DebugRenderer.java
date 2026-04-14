@@ -2,6 +2,7 @@ package io.github.gucksus.simplefirstgame.tools;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Rectangle;
 
 public class DebugRenderer {
@@ -16,5 +17,10 @@ public class DebugRenderer {
     public void drawHurtbox(Rectangle hurtbox, ShapeRenderer shapeRenderer) { // Draw hurtbox the same as draw hitbox.
         shapeRenderer.setColor(Color.RED);
         shapeRenderer.rect(hurtbox.x, hurtbox.y, hurtbox.width, hurtbox.height);
+    }
+
+    public void drawCircleHitbox(Circle circleHitbox, ShapeRenderer shapeRenderer) {
+        shapeRenderer.setColor(Color.GREEN);
+        shapeRenderer.circle(circleHitbox.x, circleHitbox.y, circleHitbox.radius, 12);
     }
 }

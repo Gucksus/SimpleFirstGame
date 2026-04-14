@@ -1,7 +1,9 @@
 package io.github.gucksus.simplefirstgame.entities.base;
 
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.utils.Array;
 import io.github.gucksus.simplefirstgame.entities.MainShip;
 import io.github.gucksus.simplefirstgame.tools.DebugRenderer;
@@ -17,12 +19,14 @@ public abstract class Level {
     public boolean isLevelStarted;
     public float delta;
     public Array<EnemyBullet> enemyBulletArray;
+    public Array<Bullet> bulletArray;
 
     public Level() {
         debugRenderer = new DebugRenderer();
         activeEnemies = new Array<>();
         waveArray = new Array<>();
         enemyBulletArray = new Array<>();
+        bulletArray = new Array<>();
     }
 
     public abstract void enemySpawn(float worldWidth, float worldHeight);
@@ -35,12 +39,18 @@ public abstract class Level {
         for (EnemyBullet enemyBullet: enemyBulletArray) {
             enemyBullet.sprite.draw(batch);
         }
+        for (Bullet basicBullet : bulletArray) {
+            basicBullet.sprite.draw(batch);
+        }
     }
 
     public void drawEnemyHitboxAndHurtBox(ShapeRenderer shapeRenderer) {
         for (Enemy enemy : activeEnemies) {
             debugRenderer.drawHitbox(enemy.hitbox, shapeRenderer);
             debugRenderer.drawHurtbox(enemy.hurtbox, shapeRenderer);
+        }
+        for (EnemyBullet enemyBullet: enemyBulletArray) {
+            debugRenderer.drawCircleHitbox(enemyBullet.circleHitbox, shapeRenderer);
         }
     }
 
@@ -49,6 +59,7 @@ public abstract class Level {
         wavesUpdate(delta, worldWidth, worldHeight);
         addEnemyBulletUpdate(mainShip);
         enemyBulletUpdate(delta);
+        bulletUpdate(delta, worldHeight);
     }
 
     public void wavesUpdate(float delta, float worldWidth, float worldHeight) {
@@ -95,6 +106,59 @@ public abstract class Level {
     public void enemyBulletUpdate(float delta) {
         for (EnemyBullet enemyBullet: enemyBulletArray) {
             enemyBullet.update(delta);
+        }
+    }
+
+    /**
+     * This method updates bullet position; checks if a bullet is out of screen and removes any bullet that does.
+     * @param delta The frame delta time.
+     * @param worldHeight The height of the world.
+     */
+    private void bulletUpdate(float delta, float worldHeight) {
+        for (int i = bulletArray.size - 1; i >= 0; i--){
+            bulletArray.get(i).update(delta);
+        }
+
+        for (int i = bulletArray.size - 1; i >= 0; i--) {
+            Sprite currentBulletSprite = bulletArray.get(i).sprite;
+            if (currentBulletSprite.getY() > worldHeight) {
+                bulletArray.removeIndex(i);
+            }
+        }
+    }
+
+    public void mainShipTakeDamage(MainShip mainShip) {
+        mainShip.lives -= 1;
+        if (mainShip.lives == 0){
+            mainShip.isDead = true;
+        }
+        mainShip.timerSinceLastDamage = 0;
+    }
+
+    public void hitboxAndHurtboxLogic(MainShip mainShip) {
+        for (int enemyIdx = activeEnemies.size - 1; enemyIdx >= 0; enemyIdx--){
+            Enemy currentEnemy = activeEnemies.get(enemyIdx);
+            if (Intersector.overlaps(mainShip.shipHurtbox, currentEnemy.hitbox) && mainShip.timerSinceLastDamage > mainShip.invulnerableDuration && !currentEnemy.isHarmless){
+                mainShipTakeDamage(mainShip);
+            }
+            for (int bulletIdx = bulletArray.size - 1; bulletIdx >= 0; bulletIdx--){
+                Bullet currentBullet = bulletArray.get(bulletIdx);
+                if (currentBullet.hitbox.overlaps(currentEnemy.hurtbox) && !currentEnemy.isInvulnerable) {
+                    currentEnemy.health -= currentBullet.damage;
+                    bulletArray.removeIndex(bulletIdx);
+                }
+            }
+        }
+        for (EnemyBullet enemyBullet: enemyBulletArray) {
+            if (enemyBullet.isCircle) {
+                if (Intersector.overlaps(enemyBullet.circleHitbox, mainShip.shipHurtbox)) {
+                    mainShipTakeDamage(mainShip);
+                }
+            } else {
+                if (Intersector.overlaps(mainShip.shipHurtbox, enemyBullet.rectangleHitbox)) {
+                    mainShipTakeDamage(mainShip);
+                }
+            }
         }
     }
 }

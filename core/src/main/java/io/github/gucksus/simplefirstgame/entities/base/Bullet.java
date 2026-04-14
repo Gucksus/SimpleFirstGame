@@ -4,6 +4,9 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Rectangle;
 
+/**
+ * <b>YOU HAVE TO DECLARE THESE VARIABLES IN SUBCLASSES</b>: speed, damage, fireRate, hitboxOffsetX, hitbox, maxBulletOnScreen.
+ */
 public abstract class Bullet {
     protected float speed;
     public float damage;
@@ -11,13 +14,10 @@ public abstract class Bullet {
     protected float height;
     public Sprite sprite;
     public Rectangle hitbox;
-    // This is because of the bullet sprite contains unnecessary pixels on the sides.
-    protected float hitboxOffsetX;
-    // Limit the amount of bullet that can be on screen. This is a mechanic in shmups.
-    public int maxBulletOnScreen;
+    protected float hitboxOffsetX; // This is because of the bullet sprite contains unnecessary pixels on the sides.
+    public int maxBulletOnScreen; // Limit the amount of bullet that can be on screen. This is a mechanic in shmups.
      public float fireRate;
-    // This constructor initializes width, height, sprite, initial position and neglect everything else. Therefore,
-    // you have to add it in the subclass.
+
     public Bullet(Texture texture, float iniX, float iniY, float width, float height) {
         this.width = width;
         this.height = height;
@@ -27,7 +27,10 @@ public abstract class Bullet {
         sprite.setY(iniY);
     }
 
-    // Update the position of the sprite and also hitbox.
+    /**
+     * Update the position of the sprite and also hitbox. Only move them up in a straight line.
+     * @param delta The delta time.
+     */
     public void update(float delta){
         sprite.translateY(delta * speed);
         hitbox.setPosition(sprite.getX() + hitboxOffsetX, sprite.getY());

@@ -22,7 +22,7 @@ public class Level1 extends Level {
         skullBulletTexture = new Texture("Bullet/skull_bullet_texture.png");
         TextureRegion staticPopcornTexture = new TextureRegion(popcornEnemyTexture);
         examplePopcornEnemy = new PopcornEnemy(staticPopcornTexture, 67, 67);
-        debugMode = true;
+        debugMode = false;
     }
 
     private void addNewWave(int totalEnemy, float interval, float startX, float startY) {
@@ -59,8 +59,8 @@ public class Level1 extends Level {
         addPopcornEnemiesIntoWave(A1);
         addPopcornEnemiesIntoWave(A2);
         System.out.println(examplePopcornEnemy.getDeathAnimationFrameNum());
-        A1.moveAllEnemyStraightAfterXSeconds(3f - examplePopcornEnemy.width / 2, 1.5f, 3, delta, 0);
-        A2.moveAllEnemyStraightAfterXSeconds(5f - examplePopcornEnemy.width / 2, 1.5f, 3, delta, 0);
+        A1.moveAllEnemyStraightAfterXSeconds(3f - examplePopcornEnemy.getWidth() / 2, 1.5f, 3, delta, 0);
+        A2.moveAllEnemyStraightAfterXSeconds(5f - examplePopcornEnemy.getWidth() / 2, 1.5f, 3, delta, 0);
         A1.moveAllEnemyStraightAfterXSeconds(A1.startX, 11, 2.5f, delta, 3);
         A2.moveAllEnemyStraightAfterXSeconds(A2.startX, 11, 2.5f, delta, 3);
 
@@ -72,9 +72,14 @@ public class Level1 extends Level {
                 waveArray.add(new Wave(activeEnemies, 1, 0, 4, 11));
                 Wave A4 = waveArray.peek();
                 addSkullShooterIntoWave(A3);
-                addSkullShooterIntoWave(A4);
-                A3.moveAllEnemyStraightAfterXSeconds(0, -10, 10, delta, 0);
-                A4.moveAllEnemyStraightAfterXSeconds(4, -10, 10, delta, 0);
+                Timer.schedule(new Timer.Task() {
+                    @Override
+                    public void run() {
+                        addSkullShooterIntoWave(A4);
+                        A4.moveAllEnemyStraightAfterXSeconds(4, -10, 15, delta, 0);
+                    }
+                }, 2);
+                A3.moveAllEnemyStraightAfterXSeconds(0, -10, 15, delta, 0);
             }
         }, 5.5f);
 

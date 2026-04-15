@@ -274,4 +274,12 @@ public abstract class Enemy {
     public int getDeathAnimationFrameNum() {
         return deathAnimationFrameNum;
     }
+
+    public float getWidth() {
+        return width;
+    }
+
+    public float getHeight() {
+        return height;
+    }
 }

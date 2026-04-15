@@ -74,7 +74,6 @@ public class Core extends ApplicationAdapter {
         batch.begin();
 
         batch.disableBlending();
-//        scrollingBackground.draw(batch);
         scrollingBackground.draw(batch, delta);
         batch.enableBlending();
         currentLevel.draw(batch);

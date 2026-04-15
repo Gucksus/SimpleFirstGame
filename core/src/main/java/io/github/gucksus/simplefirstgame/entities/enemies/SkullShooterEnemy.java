@@ -11,14 +11,14 @@ public class SkullShooterEnemy extends Enemy {
     public SkullShooterEnemy(TextureRegion staticTexture, Texture bulletTexture, float iniX, float iniY) {
         super(staticTexture , iniX, iniY, 4, 4);
         health = 5f;
-        hitboxOffsetX = width / 32 * 6;
-        hitboxOffsetY = height / 32 * 6;
-        shootPointOffsetX = 4/ 64f * 32;
-        shootPointOffsetY = 4 / 64f * 22;
-        hurtboxOffsetX = width / 32 * 3;
-        hurtboxOffsetY = height / 32 * 7;
-        hitbox = new Rectangle(iniX + hitboxOffsetX, iniY + hitboxOffsetY, width / 32 * 20f, height / 32 * 16);
-        hurtbox = new Rectangle(iniX + hurtboxOffsetX, iniY + hurtboxOffsetY, width / 32 * 26, height / 32 * 15);
+        hitboxOffsetX = width / textureSizeX * 27;
+        hitboxOffsetY = height / textureSizeY * 26;
+        shootPointOffsetX = width / textureSizeX * 32;
+        shootPointOffsetY = height / textureSizeY * 22;
+        hurtboxOffsetX = width / textureSizeX * 23;
+        hurtboxOffsetY = height / textureSizeY * 25;
+        hitbox = new Rectangle(iniX + hitboxOffsetX, iniY + hitboxOffsetY, width / 64f * 10, height / 64 * 16);
+        hurtbox = new Rectangle(iniX + hurtboxOffsetX, iniY + hurtboxOffsetY, width / 64f * 18, height / 64 * 20);
         this.bulletTexture = bulletTexture;
         animationInterval = 1;
         shootAnimationRepeat = 15;
@@ -26,7 +26,7 @@ public class SkullShooterEnemy extends Enemy {
 
     @Override
     protected EnemyBullet returnBulletType(float shootPointX, float shootPointY, float dx, float dy) {
-        return new SkullShooterBullet(bulletTexture, shootPointX, shootPointY, 2, 2, dx, dy);
+        return new SkullShooterBullet(bulletTexture, shootPointX, shootPointY, 3, 3, dx, dy);
     }
 
     @Override

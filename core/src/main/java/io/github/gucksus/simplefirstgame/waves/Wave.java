@@ -63,8 +63,9 @@ public class Wave {
      */
     public boolean waveUpdateRemoval(float worldWidth, float worldHeight) {
         for (Enemy enemy: waveEnemyArray) {
-            if (enemy.numberOfTimeAllowedOnScreenLeft > 0 || enemy.isInScreenThisFrame(worldWidth, worldHeight))
+            if (enemy.numberOfTimeAllowedOnScreenLeft > 0 || enemy.isInScreenThisFrame(worldWidth, worldHeight)){
                 return false;
+            }
         }
         return true;
     }

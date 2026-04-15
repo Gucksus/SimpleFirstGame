@@ -25,6 +25,8 @@ public abstract class Enemy {
     protected float shootPointOffsetY;
     protected float hurtboxOffsetX;
     protected float hurtboxOffsetY;
+    protected int textureSizeX;
+    protected int textureSizeY;
     public boolean isDead = false;
     public boolean isMoving;
     public boolean isInvulnerable;
@@ -65,6 +67,8 @@ public abstract class Enemy {
     public Enemy(TextureRegion staticTexture, float iniX, float iniY, float width, float height) {
         this.width = width;
         this.height = height;
+        textureSizeX = staticTexture.getRegionWidth();
+        textureSizeY = staticTexture.getRegionHeight();
         sprite = new Sprite(staticTexture);
         sprite.setSize(width, height);
         sprite.setPosition(iniX, iniY);
@@ -110,7 +114,7 @@ public abstract class Enemy {
      * @return Whether the enemy is in the screen in this frame.
      */
     public boolean isInScreenThisFrame(float worldWidth, float worldHeight) {
-        return (sprite.getX() > -width && sprite.getX() < worldWidth && sprite.getX() > -height && sprite.getY() < worldHeight);
+        return (sprite.getX() > -width && sprite.getX() < worldWidth && sprite.getY() > -height && sprite.getY() < worldHeight);
     }
 
     /**

@@ -12,6 +12,7 @@ import io.github.gucksus.simplefirstgame.waves.Wave;
 
 public abstract class Level {
     public boolean isLevelCompleted = false;
+    protected boolean debugMode = false;
     public float lvTimer = 0;
     DebugRenderer debugRenderer;
     public Array<Enemy> activeEnemies;
@@ -31,6 +32,8 @@ public abstract class Level {
     }
 
     public abstract void enemySpawn(float worldWidth, float worldHeight);
+
+    public abstract void enemySpawnDebug(float worldWidth, float worldHeight);
 
     public void draw(SpriteBatch batch) {
         for (Enemy enemy : activeEnemies)
@@ -80,6 +83,9 @@ public abstract class Level {
             wave.enemyUpdateRemoval(worldWidth, worldHeight);
             wave.updateEnemyMovingStatus(delta);
             if (wave.waveUpdateRemoval(worldWidth, worldHeight)) {
+                for (Enemy enemy: wave.waveEnemyArray) {
+                    activeEnemies.removeValue(enemy, true);
+                }
                 waveArray.removeIndex(i);
             }
         }
@@ -97,8 +103,14 @@ public abstract class Level {
      */
     public void startLevelIfHaveNotStarted (float delta, float worldWidth, float worldHeight) {
         if (!this.isLevelStarted && Math.abs(this.delta - delta) <= .001f) {
-            this.enemySpawn(worldWidth, worldHeight);
-            this.isLevelStarted = true;
+            if (!debugMode) {
+                this.enemySpawn(worldWidth, worldHeight);
+                this.isLevelStarted = true;
+            }
+            else {
+                this.enemySpawnDebug(worldWidth, worldHeight);
+                this.isLevelStarted = true;
+            }
         }
     }
 

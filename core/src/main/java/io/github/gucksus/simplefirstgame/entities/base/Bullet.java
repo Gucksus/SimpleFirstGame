@@ -9,14 +9,14 @@ import com.badlogic.gdx.math.Rectangle;
  */
 public abstract class Bullet {
     protected float speed;
-    public float damage;
+    protected float damage;
     protected float width;
     protected float height;
-    public Sprite sprite;
-    public Rectangle hitbox;
+    protected Sprite sprite;
+    protected Rectangle hitbox;
     protected float hitboxOffsetX; // This is because of the bullet sprite contains unnecessary pixels on the sides.
-    public int maxBulletOnScreen; // Limit the amount of bullet that can be on screen. This is a mechanic in shmups.
-     public float fireRate;
+    protected int maxBulletOnScreen; // Limit the amount of bullet that can be on screen. This is a mechanic in shmups.
+    protected float fireRate;
 
     public Bullet(Texture texture, float iniX, float iniY, float width, float height) {
         this.width = width;
@@ -34,5 +34,21 @@ public abstract class Bullet {
     public void update(float delta){
         sprite.translateY(delta * speed);
         hitbox.setPosition(sprite.getX() + hitboxOffsetX, sprite.getY());
+    }
+
+    public float getDamage() {
+        return damage;
+    }
+
+    public Rectangle getHitbox() {
+        return  hitbox;
+    }
+
+    public int getMaxBulletOnScreen() {
+        return maxBulletOnScreen;
+    }
+
+    public float getFireRate() {
+        return fireRate;
     }
 }

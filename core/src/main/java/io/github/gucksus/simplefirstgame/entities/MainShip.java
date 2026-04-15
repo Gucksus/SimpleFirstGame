@@ -83,7 +83,7 @@ public class MainShip {
         shipSprite.setY(MathUtils.clamp(shipSprite.getY(), 0, worldHeight - shipSprite.getHeight()));
 
         if (Gdx.input.isKeyPressed(Input.Keys.J)) {
-            if (level.bulletArray.size < currentBullet.maxBulletOnScreen && timerSinceLastShot >= currentBullet.fireRate && !isDead) { // If the amount of bullet on screen is smaller than max amount, then allow shooting.
+            if (level.bulletArray.size < currentBullet.getMaxBulletOnScreen() && timerSinceLastShot >= currentBullet.getFireRate() && !isDead) { // If the amount of bullet on screen is smaller than max amount, then allow shooting.
                 float iniX = shipSprite.getX() + shipSprite.getWidth() / 2;
                 float iniY = shipSprite.getY() + shipSprite.getHeight();
                 level.bulletArray.add(new BasicBullet(basicBulletTexture , iniX, iniY));
@@ -115,7 +115,7 @@ public class MainShip {
     }
 
     public void drawBulletHitbox(ShapeRenderer shapeRenderer) {
-        Rectangle currentBulletHitbox = currentBullet.hitbox;
+        Rectangle currentBulletHitbox = currentBullet.getHitbox();
         shapeRenderer.setColor(Color.GREEN);
         shapeRenderer.rect(currentBulletHitbox.x, currentBulletHitbox.y, currentBulletHitbox.width, currentBulletHitbox.height);
     }

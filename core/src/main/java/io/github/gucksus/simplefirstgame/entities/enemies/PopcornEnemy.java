@@ -9,8 +9,8 @@ public class PopcornEnemy extends Enemy {
     public PopcornEnemy(TextureRegion staticTexture, float iniX, float iniY) {
         super(staticTexture , iniX, iniY, 1, 1);
         health = 1f;
-        hitboxes.add(new BoxWithOffset(iniX, iniY, width / 32 * 20f, height / 32 * 16, pixelLengthX * 6, pixelLengthY * 6));
-        hurtboxes.add(new BoxWithOffset(iniX, iniY, width / 32 * 26f, height / 32 * 15, pixelLengthX * 3, pixelLengthY * 7));
+        hitboxes.add(new BoxWithOffset(iniX, iniY, 20, 16, 6, 6, pixelLengthX, pixelLengthY));
+        hurtboxes.add(new BoxWithOffset(iniX, iniY, 26, 15, 3, 7, pixelLengthX, pixelLengthY));
         shootAnimationFrameNum = 0;
         deathAnimationFrameNum = 0;
     }

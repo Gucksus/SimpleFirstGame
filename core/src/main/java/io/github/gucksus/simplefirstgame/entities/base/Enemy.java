@@ -27,6 +27,8 @@ public abstract class Enemy {
     protected int textureSizeY;
     protected float pixelLengthX;
     protected float pixelLengthY;
+    protected float shootFrameInterval = 0.1f;
+    protected float deathFrameInterval = 0.1f;
     public boolean isDead = false;
     public boolean isMoving;
     public boolean isInvulnerable;
@@ -81,13 +83,13 @@ public abstract class Enemy {
     }
 
     public void initializeShootAnimation(TextureRegion[] shootAnimationFrames) {
-        shootAnimation = new Animation<>(0.1f, shootAnimationFrames);
+        shootAnimation = new Animation<>(shootFrameInterval, shootAnimationFrames);
         this.shootAnimationFrameNum = shootAnimationFrames.length;
         stateTime = 0;
     }
 
     public void initializeDeathAnimation(TextureRegion[] deathAnimationFrames) {
-        deathAnimation = new Animation<>(0.1f, deathAnimationFrames);
+        deathAnimation = new Animation<>(deathFrameInterval, deathAnimationFrames);
         this.deathAnimationFrameNum = deathAnimationFrames.length;
         stateTime = 0;
     }

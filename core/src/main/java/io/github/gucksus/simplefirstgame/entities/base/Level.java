@@ -172,7 +172,7 @@ public abstract class Level {
             for (int bulletIdx = bulletArray.size - 1; bulletIdx >= 0; bulletIdx--){
                 Bullet currentBullet = bulletArray.get(bulletIdx);
                 if (currentEnemy.hurtboxIntersectWithThisBullet(currentBullet) && !currentEnemy.isInvulnerable) {
-                    currentEnemy.health -= currentBullet.damage;
+                    currentEnemy.health -= currentBullet.getDamage();
                     bulletArray.removeIndex(bulletIdx);
                 }
             }

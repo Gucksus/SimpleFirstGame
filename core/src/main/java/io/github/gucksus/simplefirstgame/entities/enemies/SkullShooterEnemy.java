@@ -11,14 +11,17 @@ import io.github.gucksus.simplefirstgame.tools.BoxWithOffset;
 public class SkullShooterEnemy extends Enemy {
     public SkullShooterEnemy(TextureRegion staticTexture, Texture bulletTexture, float iniX, float iniY) {
         super(staticTexture , iniX, iniY, 4, 4);
-        health = 5f;
+        health = 6f;
         shootPointsOffsets.add(new Vector2(pixelLengthX * 32, pixelLengthY * 22));
-        hitboxes.add(new BoxWithOffset(iniX, iniY, pixelLengthX * 10, pixelLengthY * 16, pixelLengthX * 27, pixelLengthY * 26));
-        hurtboxes.add(new BoxWithOffset(iniX, iniY, pixelLengthX * 18, pixelLengthY * 20, pixelLengthX * 23, pixelLengthY * 25));
+        hitboxes.add(new BoxWithOffset(iniX, iniY, 10, 19, 27, 23, pixelLengthX, pixelLengthY));
+        hurtboxes.add(new BoxWithOffset(iniX, iniY, 18, 20, 23, 25, pixelLengthX, pixelLengthY));
         this.bulletTexture = bulletTexture;
-        animationInterval = 1;
+        animationInterval = .7f;
+        shootFrameInterval = .05f;
         shootAnimationRepeat = 15;
     }
+
+
 
     @Override
     protected EnemyBullet returnBulletType(float shootPointX, float shootPointY, float dx, float dy) {

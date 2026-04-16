@@ -52,36 +52,37 @@ public class Level1 extends Level {
     @Override
     public void enemySpawn(float worldWidth, float worldHeight) {
 
-        waveArray.add(new Wave(activeEnemies, 7, .4f, -3, 9.5f));
-        waveArray.add(new Wave(activeEnemies, 7, .4f, -1, 9.5f));
+        addNewWave(14, .1f, -3, 9.5f);
+        addNewWave(14, .1f, -1, 9.5f);
         Wave A1 = waveArray.first();
         Wave A2 = waveArray.peek();
         addPopcornEnemiesIntoWave(A1);
         addPopcornEnemiesIntoWave(A2);
         System.out.println(examplePopcornEnemy.getDeathAnimationFrameNum());
-        A1.moveAllEnemyStraightAfterXSeconds(3f - examplePopcornEnemy.getWidth() / 2, 1.5f, 3, delta, 0);
-        A2.moveAllEnemyStraightAfterXSeconds(5f - examplePopcornEnemy.getWidth() / 2, 1.5f, 3, delta, 0);
-        A1.moveAllEnemyStraightAfterXSeconds(A1.startX, 11, 2.5f, delta, 3);
-        A2.moveAllEnemyStraightAfterXSeconds(A2.startX, 11, 2.5f, delta, 3);
+        A1.moveAllEnemyStraightAfterXSeconds(3f - examplePopcornEnemy.getWidth() / 2, 1.5f, .5f, delta, 0);
+        A2.moveAllEnemyStraightAfterXSeconds(5f - examplePopcornEnemy.getWidth() / 2, 1.5f, .5f, delta, 0);
+        A1.moveAllEnemyStraightAfterXSeconds(A1.startX, 11, .5f, delta, .5f);
+        A2.moveAllEnemyStraightAfterXSeconds(A2.startX, 11, .5f, delta, .5f);
 
         Timer.schedule(new Timer.Task() {
             @Override
             public void run() {
-                waveArray.add(new Wave(activeEnemies, 1, 0, 0, 11));
+                addNewWave(1, 0, 0, 11);
                 Wave A3 = waveArray.peek();
-                waveArray.add(new Wave(activeEnemies, 1, 0, 4, 11));
-                Wave A4 = waveArray.peek();
                 addSkullShooterIntoWave(A3);
+                A3.moveAllEnemyStraightAfterXSeconds(0, -10, 15, delta, 0);
                 Timer.schedule(new Timer.Task() {
                     @Override
                     public void run() {
+                        addNewWave( 1, 0, 4, 11);
+                        Wave A4 = waveArray.peek();
                         addSkullShooterIntoWave(A4);
                         A4.moveAllEnemyStraightAfterXSeconds(4, -10, 15, delta, 0);
                     }
-                }, 2);
-                A3.moveAllEnemyStraightAfterXSeconds(0, -10, 15, delta, 0);
+                }, 1);
             }
         }, 5.5f);
+
 
     }
 

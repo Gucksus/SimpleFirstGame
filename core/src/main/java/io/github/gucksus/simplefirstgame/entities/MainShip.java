@@ -10,7 +10,6 @@ import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.utils.Array;
 import io.github.gucksus.simplefirstgame.entities.base.Bullet;
 import io.github.gucksus.simplefirstgame.entities.base.Level;
 import io.github.gucksus.simplefirstgame.entities.bullets.BasicBullet;
@@ -38,7 +37,7 @@ public class MainShip {
     public MainShip(float centerX, float iniY, float width, float height) {
         this.width = width;
         this.height = height;
-        hurtboxOffsetY = + height / 2.5f * 1.01f;
+        hurtboxOffsetY = height / 2.5f * 1.01f;
         timerSinceLastDamage = invulnerableDuration;
         basicBulletTexture = new Texture("Bullet/basicBullet.png");
         spinAnimationSheet = new Texture("Mainship/ship_sprite_animation1.png");

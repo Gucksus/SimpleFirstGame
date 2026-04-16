@@ -1,5 +1,6 @@
 package io.github.gucksus.simplefirstgame.waves;
 
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Timer;
 import io.github.gucksus.simplefirstgame.entities.base.Enemy;
@@ -21,6 +22,9 @@ public class Wave {
      */
     public float startY;
     public boolean isDone;
+    Vector2 centerPoint;
+    float revolution;
+    float previousDuration;
 
     /**
      * Create a new wave of enemy.
@@ -91,25 +95,38 @@ public class Wave {
                 public void run() {
                     Enemy enemy = waveEnemyArray.get(idx);
                     enemy.isMoving = true;
+                    enemy.currentMovingType = Enemy.movingType.Straight;
                     enemy.nextFrameXDifference = (endX - lastStartX) / duration * delta;
                     enemy.nextFrameYDifference = (endY - lastStartY) / duration * delta;
                 }
             }, X + i * interval);
         }
+        stopAllEnemyMovementAfterXSeconds(duration);
     }
 
-    public void stopAllEnemyMovementAfterXSeconds(float X) {
+    public void moveAllEnemyInCircleAfterXSeconds(Vector2 center, float revolutionNum, float duration, float X, boolean clockwise) {
         for (int i = 0; i < waveEnemyArray.size; i++) {
             final int idx = i;
             Timer.schedule(new Timer.Task() {
                 @Override
                 public void run() {
                     Enemy enemy = waveEnemyArray.get(idx);
-                    enemy.isMoving = false;
-                    enemy.nextFrameXDifference = 0;
-                    enemy.nextFrameYDifference = 0;
+                    enemy.isMoving = true;
+                    enemy.currentMovingType = Enemy.movingType.Circle;
                 }
             }, X + i * interval);
+        }
+    }
+
+    public void stopAllEnemyMovementAfterXSeconds(float X) {
+        com.badlogic.gdx.graphics.g2d.Sprite sprite = waveEnemyArray.first().getSprite();
+        startX = sprite.getX();
+        startY = sprite.getY();
+        for (int i = 0; i < waveEnemyArray.size; i++) {
+            Enemy enemy = waveEnemyArray.get(i);
+            enemy.isMoving = false;
+            enemy.nextFrameXDifference = 0;
+            enemy.nextFrameYDifference = 0;
         }
     }
 

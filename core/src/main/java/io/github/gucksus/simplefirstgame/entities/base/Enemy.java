@@ -45,8 +45,8 @@ public abstract class Enemy {
      * The Y difference/distance of each frame compared to the previous frame. So in each frame, this amount is added to make the enemy move. Thus, all enemies move at a constant speed.
      */
     public float nextFrameYDifference;
-    movingType currentMovingType;
-    enum movingType {Straight, Curve}
+    public movingType currentMovingType;
+    public enum movingType {Straight, Circle}
     protected Texture bulletTexture;
 
     protected Animation<TextureRegion> shootAnimation;
@@ -100,6 +100,8 @@ public abstract class Enemy {
         switch (currentMovingType) {
             case Straight:
                 moveStraight();
+                break;
+            case Circle:
                 break;
         }
     }
@@ -281,5 +283,9 @@ public abstract class Enemy {
 
     public float getHeight() {
         return height;
+    }
+
+    public Sprite getSprite() {
+        return sprite;
     }
 }

@@ -59,10 +59,10 @@ public class Level1 extends Level {
         addPopcornEnemiesIntoWave(A1);
         addPopcornEnemiesIntoWave(A2);
         System.out.println(examplePopcornEnemy.getDeathAnimationFrameNum());
-        A1.moveAllEnemyStraightAfterXSeconds(3f - examplePopcornEnemy.getWidth() / 2, 1.5f, .5f, delta, 0);
-        A2.moveAllEnemyStraightAfterXSeconds(5f - examplePopcornEnemy.getWidth() / 2, 1.5f, .5f, delta, 0);
-        A1.moveAllEnemyStraightAfterXSeconds(A1.startX, 11, .5f, delta, .5f);
-        A2.moveAllEnemyStraightAfterXSeconds(A2.startX, 11, .5f, delta, .5f);
+        A1.moveAllEnemyStraightAfterXSeconds(3f - examplePopcornEnemy.getWidth() / 2, 1.5f, .2f, delta, 0);
+        A2.moveAllEnemyStraightAfterXSeconds(5f - examplePopcornEnemy.getWidth() / 2, 1.5f, .2f, delta, 0);
+        A1.moveAllEnemyStraightAfterXSeconds(A1.startX, 11, .01f, delta, .2f);
+        A2.moveAllEnemyStraightAfterXSeconds(A2.startX, 11, .01f, delta, .2f);
 
         Timer.schedule(new Timer.Task() {
             @Override

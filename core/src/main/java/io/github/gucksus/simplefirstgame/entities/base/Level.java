@@ -24,7 +24,7 @@ public abstract class Level {
     public Array<Bullet> bulletArray;
 
     public Level() {
-        delta = 1;
+        delta = 69;
         debugRenderer = new DebugRenderer();
         activeEnemies = new Array<>();
         waveArray = new Array<>();
@@ -107,7 +107,7 @@ public abstract class Level {
      * @param worldHeight The height of the world.
      */
     public void startLevelIfHaveNotStarted (float delta, float worldWidth, float worldHeight) {
-        if (!this.isLevelStarted && Math.abs(this.delta - delta) <= .001f) {
+        if (!this.isLevelStarted && Math.abs(this.delta - delta) <= .0001f) {
             if (!debugMode) {
                 this.enemySpawn(worldWidth, worldHeight);
             }
@@ -115,6 +115,7 @@ public abstract class Level {
                 this.enemySpawnDebug(worldWidth, worldHeight);
             }
             this.isLevelStarted = true;
+            System.out.println(delta);
         }
     }
 

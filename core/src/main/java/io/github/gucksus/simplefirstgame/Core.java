@@ -1,10 +1,8 @@
 package io.github.gucksus.simplefirstgame;
 
 import com.badlogic.gdx.ApplicationAdapter;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import io.github.gucksus.simplefirstgame.entities.MainShip;
 import io.github.gucksus.simplefirstgame.entities.base.Level;
@@ -26,13 +24,14 @@ public class Core extends ApplicationAdapter {
     Level1 level1;
     // This is for drawing hitbox and hurtbox.
     DebugRenderer debugRenderer;
+    ShapeRenderer shapeRenderer;
 
     @Override
     public void create() {
         // Initialize sprite batch and viewport.
         batch = new SpriteBatch();
         debugRenderer = new DebugRenderer(new ShapeRenderer());
-        viewport = new FitViewport(8,11);
+        viewport = new FitViewport(8, 11);
         worldHeight = viewport.getWorldHeight();
         worldWidth = viewport.getWorldWidth();
         scrollingBackground = new ScrollingBackground(viewport.getWorldHeight(), batch);
@@ -40,12 +39,18 @@ public class Core extends ApplicationAdapter {
         // Level can be changed by changing currentLevel to desired level.
         level1 = new Level1(worldWidth, worldHeight, batch, mainShip, debugRenderer);
         currentLevel = level1;
+        shapeRenderer = debugRenderer.shapeRenderer;
     }
 
     @Override
     public void resize(int width, int height) {
         // CenterCamera must be true to set origin at the bottom left.
         viewport.update(width, height, true);
+
+        batch.setProjectionMatrix(viewport.getCamera().combined);
+        shapeRenderer.setProjectionMatrix(viewport.getCamera().combined);
+
+        viewport.apply();
     }
 
     @Override
@@ -58,18 +63,10 @@ public class Core extends ApplicationAdapter {
     }
 
     private void draw() {
-        // Clear the screen and get ready for the next frame.
-        ScreenUtils.clear(Color.BLACK);
-        viewport.apply();
-        batch.setProjectionMatrix(viewport.getCamera().combined);
-        ShapeRenderer shapeRenderer = debugRenderer.shapeRenderer;
-        shapeRenderer.setProjectionMatrix(viewport.getCamera().combined);
 
         batch.begin();
 
-        batch.disableBlending();
         scrollingBackground.draw();
-        batch.enableBlending();
         currentLevel.drawEnemy();
         mainShip.draw();
 

@@ -10,15 +10,16 @@ import io.github.gucksus.simplefirstgame.entities.base.EnemyBullet;
 import io.github.gucksus.simplefirstgame.entities.bullets.SkullShooterBullet;
 import io.github.gucksus.simplefirstgame.tools.BoxWithOffset;
 import io.github.gucksus.simplefirstgame.tools.DebugRenderer;
+import io.github.gucksus.simplefirstgame.waves.Wave;
 
 public class SkullShooterEnemy extends Enemy {
-    public SkullShooterEnemy(TextureRegion staticTexture, Texture bulletTexture, float iniX, float iniY, float worldWidth, float worldHeight, MainShip mainShip, SpriteBatch batch, DebugRenderer debugRenderer) {
-        super(staticTexture , iniX, iniY, 4, 4, worldWidth, worldHeight, mainShip, batch, debugRenderer);
+    public SkullShooterEnemy(TextureRegion staticTexture, Texture bulletTexture, float iniX, float iniY, float worldWidth, float worldHeight, MainShip mainShip, SpriteBatch batch, DebugRenderer debugRenderer, Wave wave) {
+        super(staticTexture , iniX, iniY, 4, 4, worldWidth, worldHeight, mainShip, batch, debugRenderer, wave);
         health = 6f;
-        shootPointsOffsets.add(new Vector2(pixelLengthX * 32, pixelLengthY * 22));
-        hitboxes.add(new BoxWithOffset(iniX, iniY, 10, 19, 27, 23, pixelLengthX, pixelLengthY));
-        hurtboxes.add(new BoxWithOffset(iniX, iniY, 18, 10, 23, 33, pixelLengthX, pixelLengthY));
-        hurtboxes.add(new BoxWithOffset(iniX, iniY, 12, 10, 26, 20, pixelLengthX, pixelLengthY));
+        shootPointsOffsets.add(new Vector2(pixelLength.x * 32, pixelLength.y * 22));
+        hitboxes.add(new BoxWithOffset(iniX, iniY, 10, 19, 27, 23, pixelLength.x, pixelLength.y));
+        hurtboxes.add(new BoxWithOffset(iniX, iniY, 18, 10, 23, 33, pixelLength.x, pixelLength.y));
+        hurtboxes.add(new BoxWithOffset(iniX, iniY, 12, 10, 26, 20, pixelLength.x, pixelLength.y));
         this.bulletTexture = bulletTexture;
         animationInterval = .7f;
         shootFrameInterval = .05f;

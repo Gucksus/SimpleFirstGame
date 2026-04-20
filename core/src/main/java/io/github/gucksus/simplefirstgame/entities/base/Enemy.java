@@ -10,26 +10,34 @@ import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.Timer;
 import io.github.gucksus.simplefirstgame.entities.MainShip;
 import io.github.gucksus.simplefirstgame.tools.BoxWithOffset;
 import io.github.gucksus.simplefirstgame.tools.DebugRenderer;
+import io.github.gucksus.simplefirstgame.waves.Wave;
 
 /**
- * <b>YOU HAVE TO DECLARE THESE VARIABLE IN SUBCLASSES:</b> <i>health, hitboxOffsetX and hitboxOffsetY, hurtboxOffsetX and hurtboxOffsetY, shootPointOffsetX and shootPointOffsetY, hitbox, hurtbox, bulletTexture, animationIntervalTime, shootAnimationRepeat.</i> <br>
+ * <b>YOU HAVE TO DECLARE THESE VARIABLE IN SUBCLASSES:</b> <i>health, hitboxOffsetX and hitboxOffsetY, hurtboxOffsetX
+ * and hurtboxOffsetY, shootPointOffsetX and shootPointOffsetY, hitbox, hurtbox, bulletTexture, animationIntervalTime, shootAnimationRepeat.</i> <br>
  * <b><i>SET THESE VARIABLES AS 0 IF THE ENEMY DOES NOT HAVE SHOOT OR/AND DEATH ANIMATION: shootAnimationFrameNum, deathAnimationFrameNum.</i></b>
+ *
+ * **YOU HAVE TO DECLARE THESE VARIABLE IN SUBCLASSES:**
+ *
+ *
  */
 public abstract class Enemy {
     protected float health;
     public Sprite sprite;
-    protected Array<BoxWithOffset> hitboxes;
-    protected Array<BoxWithOffset> hurtboxes;
+    protected Array<BoxWithOffset> hitboxes = new Array<>();
+    protected Array<BoxWithOffset> hurtboxes = new Array<>();
     protected float width;
     protected float height;
-    protected Array<Vector2> shootPointsOffsets;
-    protected int textureSizeX;
-    protected int textureSizeY;
-    protected float pixelLengthX;
-    protected float pixelLengthY;
+    protected Array<Vector2> shootPointsOffsets = new Array<>();
+    protected Vector2 textureSize;
+    protected Vector2 pixelLength;
+    Vector2 startPoint = new Vector2();
+    Vector2 destination = new Vector2();
+    float moveDuration;
     protected float shootFrameInterval = 0.1f;
     protected float deathFrameInterval = 0.1f;
     protected boolean isDead = false;
@@ -66,32 +74,31 @@ public abstract class Enemy {
     protected float stateTime;
     enum AnimationType {Static, Shoot, Death}
     AnimationType currentAnimationType = AnimationType.Static;
-    protected Array<EnemyBullet> enemyBulletArray;
+    protected Array<EnemyBullet> enemyBulletArray = new Array<>();
     SpriteBatch batch;
     DebugRenderer debugRenderer;
     MainShip mainShip;
     float worldWidth;
     float worldHeight;
+    public Array<Timer.Task> tasks = new Array<>();
+    public Wave wave;
+    movingType currentMovingType = movingType.Straight;
+    enum movingType {Straight, Circle}
 
-    public Enemy(TextureRegion staticTexture, float iniX, float iniY, float width, float height, float worldWidth, float worldHeight, MainShip mainShip, SpriteBatch batch, DebugRenderer debugRenderer) {
+    public Enemy(TextureRegion staticTexture, float iniX, float iniY, float width, float height, float worldWidth, float worldHeight, MainShip mainShip, SpriteBatch batch, DebugRenderer debugRenderer, Wave wave) {
         this.width = width;
         this.height = height;
-        textureSizeX = staticTexture.getRegionWidth();
-        textureSizeY = staticTexture.getRegionHeight();
-        pixelLengthX = width / textureSizeX;
-        pixelLengthY = height / textureSizeY;
+        textureSize = new Vector2(staticTexture.getRegionWidth(), staticTexture.getRegionHeight());
+        pixelLength = new Vector2(width / textureSize.x , height / textureSize.y);
         sprite = new Sprite(staticTexture);
         sprite.setSize(width, height);
         sprite.setPosition(iniX, iniY);
-        hitboxes = new Array<>();
-        hurtboxes = new Array<>();
-        shootPointsOffsets = new Array<>();
-        enemyBulletArray = new Array<>();
         this.batch = batch;
         this.debugRenderer = debugRenderer;
         this.mainShip = mainShip;
         this.worldWidth = worldWidth;
         this.worldHeight = worldHeight;
+        this.wave = wave;
     }
 
     public void initializeShootAnimation(TextureRegion[] shootAnimationFrames) {
@@ -106,30 +113,82 @@ public abstract class Enemy {
         stateTime = 0;
     }
 
-    public void moveStraight() {
-        if (isMoving) {
-            sprite.translate(nextFrameXDifference, nextFrameYDifference);
-        }
-    }
-
-    public void moveCircle(Vector2 centerPoint , float radius) {
-        if (isMoving) {
-            angle += nextFrameAngleDifference;
-            Vector2 nextPoint = new Vector2();
-            nextPoint.x = centerPoint.x + radius * MathUtils.cos(angle);
-            nextPoint.y = centerPoint.y + radius * MathUtils.sin(angle);
-            sprite.setCenter(nextPoint.x, nextPoint.y);
-        }
-    }
-
     public void update() {
-        updateEnemyHitboxAndHurtboxWhenMoved();
         addEnemyBulletUpdate();
         hitboxUpdate();
         hurtboxUpdate();
         updateStatus();
         bulletUpdate();
         bulletHitboxUpdate();
+        moveUpdate();
+        updateEnemyHitboxAndHurtboxWhenMoved();
+    }
+
+    void addTask(Timer.Task task) {
+        Timer.schedule(task, wave.previousDuration + wave.waveEnemyArray.indexOf(this, true) * wave.interval);
+        tasks.add(task);
+    }
+
+    void moveUpdate() {
+        switch (currentMovingType) {
+            case Straight:
+                moveStraightUpdate();
+                break;
+            case Circle:
+                moveCircleUpdate();
+        }
+    }
+
+    public void moveCircle(float duration) {
+        Vector2 tempCenterPoint = wave.centerPoint;
+        Timer.Task task = new Timer.Task() {
+            @Override
+            public void run() {
+                isMoving = true;
+                currentMovingType = movingType.Circle;
+                moveDuration = duration;
+                Vector2 thisToCenter = new Vector2(getCenter().x - tempCenterPoint.x, getCenter().y - tempCenterPoint.y);
+                angle = thisToCenter.angleRad();
+            }
+        };
+        addTask(task);
+    }
+
+    public void moveStraight(float duration) {
+        Vector2 tempStartPoint = new Vector2(wave.startPoint);
+        Vector2 tempDestination = new Vector2(wave.destination);
+        Timer.Task task = new Timer.Task() {
+            @Override
+            public void run() {
+                isMoving = true;
+                currentMovingType = movingType.Straight;
+                startPoint = tempStartPoint;
+                destination = tempDestination;
+                moveDuration = duration;
+            }
+        };
+        addTask(task);
+    }
+
+    public void moveCircleUpdate() {
+        float delta = Gdx.graphics.getDeltaTime();
+        nextFrameAngleDifference = wave.clockwiseMultiplier * (wave.revolutionNum * MathUtils.PI2 / moveDuration * delta);
+        if (isMoving) {
+            angle += nextFrameAngleDifference;
+            Vector2 nextPoint = new Vector2();
+            nextPoint.x = wave.centerPoint.x + wave.radius * MathUtils.cos(angle);
+            nextPoint.y = wave.centerPoint.y + wave.radius * MathUtils.sin(angle);
+            sprite.setCenter(nextPoint.x, nextPoint.y);
+        }
+    }
+
+    public void moveStraightUpdate() {
+        float delta = Gdx.graphics.getDeltaTime();
+        nextFrameXDifference = (destination.x - startPoint.x) / moveDuration * delta;
+        nextFrameYDifference = (destination.y - startPoint.y) / moveDuration * delta;
+        if (isMoving) {
+            sprite.translate(nextFrameXDifference, nextFrameYDifference);
+        }
     }
 
     public void updateEnemyHitboxAndHurtboxWhenMoved() {
@@ -154,21 +213,12 @@ public abstract class Enemy {
         }
     }
 
-
-    /**
-     * <b>THIS METHOD NEEDS TO BE RUN EVERY FRAME.</b><br>
-     * This method checks number of things and then update the enemy status accordingly:
-     * <ol>
-     * <li>If the enemy's health is less than or equal to 0 and the death animation has not started yet.</li>
-     * <li>If the enemy is in screen this frame and if the enemy is in screen the last frame.</li>
-     * <li>If the number of time the enemy is allowed on screen is equal to 0.</li>
-     * </ol>
-     */
     public void updateStatus() {
         if (health <= 0 && currentAnimationType != AnimationType.Death) {
             isDead = true;
             isInvulnerable = true;
             isHarmless = true;
+            cancelAllTasks();
             triggerDeathAnimation();
         }
     }
@@ -330,6 +380,11 @@ public abstract class Enemy {
                 }
             }
         }
+    }
+
+    void cancelAllTasks() {
+        for (Timer.Task task: tasks) if (task.isScheduled())
+            task.cancel();
     }
 
     public boolean getIsDead() {

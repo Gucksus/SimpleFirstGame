@@ -54,7 +54,6 @@ public class Core extends ApplicationAdapter {
         currentLevel.update();
         mainShip.update();
         scrollingBackground.backgroundUpdate();
-        currentLevel.hitboxAndHurtboxLogic();
         draw();
     }
 
@@ -71,7 +70,7 @@ public class Core extends ApplicationAdapter {
         batch.disableBlending();
         scrollingBackground.draw();
         batch.enableBlending();
-        currentLevel.draw();
+        currentLevel.drawEnemy();
         mainShip.draw();
 
         batch.end();

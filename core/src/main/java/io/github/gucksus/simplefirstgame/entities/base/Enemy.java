@@ -125,8 +125,11 @@ public abstract class Enemy {
     public void update() {
         updateEnemyHitboxAndHurtboxWhenMoved();
         addEnemyBulletUpdate();
+        hitboxUpdate();
+        hurtboxUpdate();
         updateStatus();
         bulletUpdate();
+        bulletHitboxUpdate();
     }
 
     public void updateEnemyHitboxAndHurtboxWhenMoved() {
@@ -191,6 +194,7 @@ public abstract class Enemy {
 
     public void drawDebug() {
         drawBulletDebug();
+        drawHitbox();
     }
 
     public void drawAnimation() {
@@ -225,6 +229,15 @@ public abstract class Enemy {
                     TextureRegion currentFrame = deathAnimation.getKeyFrame(stateTime);
                     batch.draw(currentFrame, sprite.getX(), sprite.getY(), width, height);
                 }
+        }
+    }
+
+    void drawHitbox() {
+        for (BoxWithOffset hitbox : hitboxes) {
+            debugRenderer.drawHitbox(hitbox.getBox());
+        }
+        for (BoxWithOffset hurtbox: hurtboxes) {
+            debugRenderer.drawHurtbox(hurtbox.getBox());
         }
     }
 
@@ -286,23 +299,26 @@ public abstract class Enemy {
         return null;
     }
 
-    public boolean hitboxIntersectWithMainShip(MainShip mainShip) {
+    void hitboxUpdate() {
         for (BoxWithOffset hitbox: hitboxes) {
-            if (Intersector.overlaps(mainShip.shipHurtbox, hitbox.getBox()))
-                return true;
+            if (Intersector.overlaps(mainShip.shipHurtbox, hitbox.getBox()) && mainShip.timerSinceLastDamage > mainShip.invulnerableDuration && !isHarmless)
+                mainShip.takeDamage();
         }
-        return false;
     }
 
-    public boolean hurtboxIntersectWithThisBullet(Bullet bullet) {
+    void hurtboxUpdate() {
         for (BoxWithOffset hurtbox: hurtboxes) {
-            if (bullet.hitbox.overlaps(hurtbox.getBox()))
-                return true;
+            for (int i = mainShip.bulletArray.size - 1; i >= 0; i--) {
+                Bullet bullet = mainShip.bulletArray.get(i);
+                if (Intersector.overlaps(bullet.hitbox, hurtbox.getBox()) && !isInvulnerable) {
+                    health -= bullet.getDamage();
+                    mainShip.bulletArray.removeIndex(i);
+                }
+            }
         }
-        return false;
     }
 
-    public void damageShip() {
+    public void bulletHitboxUpdate() {
         for (EnemyBullet enemyBullet: enemyBulletArray) {
             if (enemyBullet.isCircle) {
                 if (Intersector.overlaps(enemyBullet.circleHitbox, mainShip.shipHurtbox)) {
@@ -318,16 +334,6 @@ public abstract class Enemy {
 
     public boolean getIsDead() {
         return isDead;
-    }
-
-    /**
-     * Method to check if the enemy is in the screen this frame or not.
-     * @param worldWidth The width of the world.
-     * @param worldHeight The height of the world.
-     * @return Whether the enemy is in the screen in this frame.
-     */
-    public boolean isInScreenThisFrame(float worldWidth, float worldHeight) {
-        return (sprite.getX() > -width && sprite.getX() < worldWidth && sprite.getY() > -height && sprite.getY() < worldHeight);
     }
 
     public float getWidth() {

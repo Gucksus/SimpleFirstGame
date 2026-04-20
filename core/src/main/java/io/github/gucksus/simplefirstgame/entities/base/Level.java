@@ -2,11 +2,9 @@ package io.github.gucksus.simplefirstgame.entities.base;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.utils.Array;
 import io.github.gucksus.simplefirstgame.entities.MainShip;
 import io.github.gucksus.simplefirstgame.tools.DebugRenderer;
-import io.github.gucksus.simplefirstgame.tools.BoxWithOffset;
 import io.github.gucksus.simplefirstgame.waves.Wave;
 
 
@@ -25,7 +23,7 @@ public abstract class Level {
     protected SpriteBatch batch;
 
     public Level(float worldWidth, float worldHeight, SpriteBatch batch, MainShip mainShip, DebugRenderer debugRenderer) {
-        lastDelta = 69;
+        lastDelta = 67;
         activeEnemies = new Array<>();
         waveArray = new Array<>();
         this.worldWidth = worldWidth;
@@ -39,8 +37,7 @@ public abstract class Level {
 
     public abstract void enemySpawnDebug();
 
-    public void draw() {
-        float delta = Gdx.graphics.getDeltaTime();
+    public void drawEnemy() {
         for (Enemy enemy : activeEnemies)
             if (!enemy.isInvisible) {
                 enemy.draw();
@@ -49,19 +46,7 @@ public abstract class Level {
 
     public void drawDebug() {
         for (Enemy enemy: activeEnemies) {
-            enemy.drawBulletDebug();
-        }
-        drawEnemyHitboxAndHurtBox();
-    }
-
-    public void drawEnemyHitboxAndHurtBox() {
-        for (Enemy enemy : activeEnemies) {
-            for (BoxWithOffset hitbox : enemy.hitboxes) {
-                debugRenderer.drawHitbox(hitbox.getBox());
-            }
-            for (BoxWithOffset hurtbox: enemy.hurtboxes) {
-                debugRenderer.drawHurtbox(hurtbox.getBox());
-            }
+            enemy.drawDebug();
         }
     }
 
@@ -88,7 +73,7 @@ public abstract class Level {
     }
 
     public void updateDelta () {
-        this.lastDelta = Gdx.graphics.getDeltaTime();
+        lastDelta = Gdx.graphics.getDeltaTime();
     }
 
     /**
@@ -105,23 +90,6 @@ public abstract class Level {
             }
             this.isLevelStarted = true;
             System.out.println(delta);
-        }
-    }
-
-    public void hitboxAndHurtboxLogic() {
-        for (int enemyIdx = activeEnemies.size - 1; enemyIdx >= 0; enemyIdx--){
-            Enemy currentEnemy = activeEnemies.get(enemyIdx);
-            if (currentEnemy.hitboxIntersectWithMainShip(mainShip) && mainShip.timerSinceLastDamage > mainShip.invulnerableDuration && !currentEnemy.isHarmless){
-                mainShip.takeDamage();
-            }
-            for (int bulletIdx = mainShip.bulletArray.size - 1; bulletIdx >= 0; bulletIdx--){
-                Bullet currentBullet = mainShip.bulletArray.get(bulletIdx);
-                if (currentEnemy.hurtboxIntersectWithThisBullet(currentBullet) && !currentEnemy.isInvulnerable) {
-                    currentEnemy.health -= currentBullet.getDamage();
-                    mainShip.bulletArray.removeIndex(bulletIdx);
-                }
-            }
-            currentEnemy.damageShip();
         }
     }
 }

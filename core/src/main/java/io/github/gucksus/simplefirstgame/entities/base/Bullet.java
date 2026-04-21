@@ -3,49 +3,99 @@ package io.github.gucksus.simplefirstgame.entities.base;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
 
 /**
- * <b>YOU HAVE TO DECLARE THESE VARIABLES IN SUBCLASSES:</b> <I>speed, damage, fireRate, hitboxOffsetX, hitbox, maxBulletOnScreen.</I>
+ * <b>YOU HAVE TO DECLARE THESE VARIABLE IN SUBCLASSES:</b> <i>movingType, isCircle, circleHitBox
+ * <b>OR</b> rectangleHitbox, speed.</i>
  */
-public abstract class Bullet {
+public class Bullet {
+    protected float iniX;
+    protected float iniY;
     protected float speed;
-    protected float damage;
     protected float width;
     protected float height;
-    protected Sprite sprite;
-    protected Rectangle hitbox;
-    protected float hitboxOffsetX; // This is because of the bullet sprite contains unnecessary pixels on the sides.
-    protected int maxBulletOnScreen; // Limit the amount of bullet that can be on screen. This is a mechanic in shmups.
+    float timer;
+    protected float damage = 1;
     protected float fireRate;
+    protected int maxBulletOnScreen;
+    protected Sprite sprite;
+    public Rectangle rectangleHitbox;
+    protected Vector2 rectangleHitboxOffset = new Vector2();
+    public Circle circleHitbox;
+    protected Vector2 circleHitboxOffset = new Vector2();
+    protected boolean isCircle;
 
-    public Bullet(Texture texture, float iniX, float iniY, float width, float height) {
+    protected enum MovingType {
+        Straight, Curve, Roundabout
+    }
+
+    protected MovingType movingType = MovingType.Straight;
+    protected Vector2 direction;
+    SpriteBatch batch;
+
+    public Bullet(Texture texture, float iniX, float iniY, float width, float height, float dx,
+            float dy, SpriteBatch batch) {
         this.width = width;
         this.height = height;
+        this.iniX = iniX;
+        this.iniY = iniY;
         sprite = new Sprite(texture);
         sprite.setSize(width, height);
         sprite.setCenterX(iniX);
-        sprite.setY(iniY);
+        sprite.setCenterY(iniY);
+        direction = new Vector2();
+        direction.set(dx, dy);
+        this.batch = batch;
+    }
+
+    void updateHitbox() {
+        if (isCircle)
+            circleHitbox.setPosition(sprite.getX() + circleHitboxOffset.x,
+                    sprite.getY() + circleHitboxOffset.y);
+        else
+            rectangleHitbox.setPosition(sprite.getX() + rectangleHitboxOffset.x,
+                    sprite.getY() + rectangleHitboxOffset.y);
     }
 
     /**
-     * Update the position of the sprite and also hitbox. Only move them up in a straight line.
+     * This works based on 2D vector.
+     * 
+     * @param delta The frame lastDelta time.
      */
-    public void update(){
+    public void updateStraight(float delta) {
+        timer += delta;
+        float distanceMultiplier = speed / direction.len();
+        sprite.setCenterX(iniX + direction.x * distanceMultiplier * timer);
+        sprite.setCenterY(iniY + direction.y * distanceMultiplier * timer);
+    }
+
+    public void update() {
         float delta = Gdx.graphics.getDeltaTime();
-        sprite.translateY(delta * speed);
-        hitbox.setPosition(sprite.getX() + hitboxOffsetX, sprite.getY());
+        switch (movingType) {
+            case Straight:
+                updateStraight(delta);
+                break;
+            case Curve:
+                throw new Error("Unimplemented.");
+            case Roundabout:
+                throw new Error("Unimplemented.");
+        }
+        updateHitbox();
+    }
+
+    public void draw() {
+        sprite.draw(batch);
     }
 
     public float getDamage() {
         return damage;
     }
 
-    public Rectangle getHitbox() {
-        return  hitbox;
-    }
-
-    public int getMaxBulletOnScreen() {
+    public float getMaxBulletOnScreen() {
         return maxBulletOnScreen;
     }
 
@@ -55,5 +105,9 @@ public abstract class Bullet {
 
     public Sprite getSprite() {
         return sprite;
+    }
+
+    public Rectangle getHitbox() {
+        return rectangleHitbox;
     }
 }

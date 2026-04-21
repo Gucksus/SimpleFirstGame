@@ -67,8 +67,8 @@ public class Core extends ApplicationAdapter {
         batch.begin();
 
         scrollingBackground.draw();
-        currentLevel.draw();
         mainShip.draw();
+        currentLevel.draw();
 
         batch.end();
 

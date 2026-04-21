@@ -23,11 +23,11 @@ public class Bullet {
     protected float fireRate;
     protected int maxBulletOnScreen;
     protected Sprite sprite;
-    public Rectangle rectangleHitbox;
+    protected Rectangle rectangleHitbox;
     protected Vector2 rectangleHitboxOffset = new Vector2();
-    public Circle circleHitbox;
+    protected Circle circleHitbox;
     protected Vector2 circleHitboxOffset = new Vector2();
-    protected boolean isCircle;
+    private boolean isCircle;
 
     protected enum MovingType {
         Straight, Curve, Roundabout
@@ -53,7 +53,7 @@ public class Bullet {
     }
 
     void updateHitbox() {
-        if (isCircle)
+        if (isCircle())
             circleHitbox.setPosition(sprite.getX() + circleHitboxOffset.x,
                     sprite.getY() + circleHitboxOffset.y);
         else
@@ -107,7 +107,21 @@ public class Bullet {
         return sprite;
     }
 
-    public Rectangle getHitbox() {
+    public Rectangle getRectangleHitbox() {
         return rectangleHitbox;
+    }
+
+    public Circle getCircleHitbox() {
+        return circleHitbox;
+    }
+
+    public boolean isCircle() {
+        return isCircle;
+
+    }
+
+    public void setCircle(boolean isCircle) {
+        this.isCircle = isCircle;
+
     }
 }

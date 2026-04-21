@@ -1,14 +1,14 @@
 package io.github.gucksus.simplefirstgame.levels;
 
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import io.github.gucksus.simplefirstgame.Constants;
 import io.github.gucksus.simplefirstgame.entities.MainShip;
 import io.github.gucksus.simplefirstgame.entities.base.Enemy;
 import io.github.gucksus.simplefirstgame.entities.base.Level;
 import io.github.gucksus.simplefirstgame.entities.enemies.PopcornEnemy;
 import io.github.gucksus.simplefirstgame.entities.enemies.SkullShooterEnemy;
-import io.github.gucksus.simplefirstgame.tools.DebugRenderer;
+import io.github.gucksus.simplefirstgame.tools.BulletHolder;
 import io.github.gucksus.simplefirstgame.waves.Wave;
 
 public class Level1 extends Level {
@@ -17,16 +17,11 @@ public class Level1 extends Level {
     Texture skullBulletTexture;
     PopcornEnemy examplePopcornEnemy;
 
-    public Level1(float worldWidth, float worldHeight, SpriteBatch batch, MainShip mainShip,
-            DebugRenderer debugRenderer) {
-        super(worldWidth, worldHeight, batch, mainShip, debugRenderer);
+    public Level1(Constants constants, BulletHolder bulletHolder, MainShip mainShip) {
+        super(constants, bulletHolder, mainShip);
         popcornEnemyTexture = new Texture("Enemy/popcornEnemy.png");
         skullAnimationSheet = new Texture("Enemy/skull_animation.png");
         skullBulletTexture = new Texture("Bullet/skull_bullet_texture.png");
-        TextureRegion staticPopcornTexture = new TextureRegion(popcornEnemyTexture);
-        Wave exampleWave = new Wave(activeEnemies, 10, 0, 67, 67, worldWidth, worldHeight, this);
-        examplePopcornEnemy = new PopcornEnemy(staticPopcornTexture, 67, 67, worldWidth,
-                worldHeight, mainShip, batch, debugRenderer, exampleWave);
         debugMode = true;
     }
 
@@ -39,9 +34,8 @@ public class Level1 extends Level {
         for (Wave wave : waves) {
             for (int i = 0; i < wave.totalEnemies; i++) {
                 TextureRegion staticPopcornTexture = new TextureRegion(popcornEnemyTexture);
-                Enemy enemy =
-                        new PopcornEnemy(staticPopcornTexture, wave.startPoint.x, wave.startPoint.y,
-                                worldWidth, worldHeight, mainShip, batch, debugRenderer, wave);
+                Enemy enemy = new PopcornEnemy(staticPopcornTexture, wave.startPoint.x,
+                        wave.startPoint.y, mainShip, wave);
                 wave.addEnemy(enemy);
             }
         }
@@ -53,8 +47,7 @@ public class Level1 extends Level {
                 TextureRegion[][] temp = TextureRegion.split(skullAnimationSheet,
                         skullAnimationSheet.getWidth() / 11, skullAnimationSheet.getHeight() / 2);
                 Enemy enemy = new SkullShooterEnemy(temp[0][0], skullBulletTexture,
-                        wave.startPoint.x, wave.startPoint.y, worldWidth, worldHeight, mainShip,
-                        batch, debugRenderer, wave);
+                        wave.startPoint.x, wave.startPoint.y, mainShip, wave);
                 enemy.initializeShootAnimation(temp[0]);
                 enemy.initializeDeathAnimation(temp[1]);
                 wave.addEnemy(enemy);

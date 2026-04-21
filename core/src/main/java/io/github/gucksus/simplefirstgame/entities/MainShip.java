@@ -7,9 +7,10 @@ import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.utils.Array;
+import io.github.gucksus.simplefirstgame.Constants;
 import io.github.gucksus.simplefirstgame.entities.base.Bullet;
 import io.github.gucksus.simplefirstgame.entities.bullets.BasicBullet;
+import io.github.gucksus.simplefirstgame.tools.BulletHolder;
 import io.github.gucksus.simplefirstgame.tools.DebugRenderer;
 
 public class MainShip {
@@ -34,11 +35,11 @@ public class MainShip {
     float worldWidth;
     float worldHeight;
     SpriteBatch batch;
-    public Array<Bullet> bulletArray;
     DebugRenderer debugRenderer;
+    BulletHolder bulletHolder;
 
-    public MainShip(float centerX, float iniY, float width, float height, float worldWidth,
-            float worldHeight, SpriteBatch batch, DebugRenderer debugRenderer) {
+    public MainShip(float centerX, float iniY, float width, float height, Constants constants,
+            BulletHolder bulletHolder) {
         this.width = width;
         this.height = height;
         hurtboxOffsetY = height / 2.5f * 1.01f;
@@ -58,11 +59,11 @@ public class MainShip {
         shipHurtbox = new Circle(shipSprite.getX() + width / 2, iniY + hurtboxOffsetY, .1f);
         currentBullet = new BasicBullet(basicBulletTexture, 69, 69, 67, 67, batch);
         directionDifferenceMultiplier = new Vector2();
-        this.worldWidth = worldWidth;
-        this.worldHeight = worldHeight;
-        this.batch = batch;
-        bulletArray = new Array<>();
-        this.debugRenderer = debugRenderer;
+        worldWidth = constants.worldWidth;
+        worldHeight = constants.worldHeight;
+        batch = constants.batch;
+        debugRenderer = constants.debugRenderer;
+        this.bulletHolder = bulletHolder;
     }
 
     public void update() {
@@ -72,7 +73,6 @@ public class MainShip {
         input();
         // Update hurtbox position for the ship.
         shipHurtbox.setPosition(shipSprite.getX() + width / 2, shipSprite.getY() + hurtboxOffsetY);
-        bulletUpdate();
     }
 
     private void input() {
@@ -102,11 +102,12 @@ public class MainShip {
 
         if (Gdx.input.isKeyPressed(Input.Keys.J)) {
             // If the amount of bullet on screen is smaller than max amount, then allow shooting.
-            if (bulletArray.size < currentBullet.getMaxBulletOnScreen()
+            if (bulletHolder.shipBullets.size < currentBullet.getMaxBulletOnScreen()
                     && timerSinceLastShot >= currentBullet.getFireRate() && !isDead) {
                 float iniX = shipSprite.getX() + shipSprite.getWidth() / 2;
                 float iniY = shipSprite.getY() + shipSprite.getHeight() / 64 * 48;
-                bulletArray.add(new BasicBullet(basicBulletTexture, iniX, iniY, 0, 1, batch));
+                bulletHolder.shipBullets
+                        .add(new BasicBullet(basicBulletTexture, iniX, iniY, 0, 1, batch));
                 timerSinceLastShot = 0;
             }
         }
@@ -124,29 +125,6 @@ public class MainShip {
         timerSinceLastDamage = 0;
     }
 
-    /**
-     * This method updates bullet position; checks if a bullet is out of screen and removes any
-     * bullet that does.
-     */
-    private void bulletUpdate() {
-        for (int i = bulletArray.size - 1; i >= 0; i--) {
-            bulletArray.get(i).update();
-        }
-
-        for (int i = bulletArray.size - 1; i >= 0; i--) {
-            Sprite currentBulletSprite = bulletArray.get(i).getSprite();
-            if (currentBulletSprite.getY() > worldHeight) {
-                bulletArray.removeIndex(i);
-            }
-        }
-    }
-
-    void drawBullet() {
-        for (Bullet bullet : bulletArray) {
-            bullet.getSprite().draw(batch);
-        }
-    }
-
     public void draw() {
         float delta = Gdx.graphics.getDeltaTime();
         if (!isDead && !isInAnimation) {
@@ -159,14 +137,10 @@ public class MainShip {
             batch.draw(currentFrame, shipSprite.getX(), shipSprite.getY(), width, height);
 
         }
-        drawBullet();
     }
 
     public void drawDebug() {
         debugRenderer.drawCircleHitbox(shipHurtbox);
-        for (Bullet bullet : bulletArray) {
-            debugRenderer.drawHitbox(bullet.getHitbox());
-        }
     }
 
     public float getShipHurtboxCenterY() {

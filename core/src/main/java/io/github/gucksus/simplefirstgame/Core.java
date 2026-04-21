@@ -7,6 +7,7 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import io.github.gucksus.simplefirstgame.entities.MainShip;
 import io.github.gucksus.simplefirstgame.entities.base.Level;
 import io.github.gucksus.simplefirstgame.levels.Level1;
+import io.github.gucksus.simplefirstgame.tools.BulletHolder;
 import io.github.gucksus.simplefirstgame.tools.DebugRenderer;
 import io.github.gucksus.simplefirstgame.tools.ScrollingBackground;
 
@@ -25,21 +26,24 @@ public class Core extends ApplicationAdapter {
     // This is for drawing hitbox and hurtbox.
     DebugRenderer debugRenderer;
     ShapeRenderer shapeRenderer;
+    BulletHolder bulletHolder;
+    Constants constants;
 
     @Override
     public void create() {
         // Initialize sprite batch and viewport.
         batch = new SpriteBatch();
         debugRenderer = new DebugRenderer(new ShapeRenderer());
+        shapeRenderer = debugRenderer.shapeRenderer;
         viewport = new FitViewport(8, 11);
         worldHeight = viewport.getWorldHeight();
         worldWidth = viewport.getWorldWidth();
-        scrollingBackground = new ScrollingBackground(viewport.getWorldHeight(), batch);
-        mainShip = new MainShip(4, 0, 2, 2, worldWidth, worldHeight, batch, debugRenderer);
-        // Level can be changed by changing currentLevel to desired level.
-        level1 = new Level1(worldWidth, worldHeight, batch, mainShip, debugRenderer);
+        constants = new Constants(worldWidth, worldHeight, batch, debugRenderer);
+        bulletHolder = new BulletHolder(constants);
+        mainShip = new MainShip(4, 0, 2, 2, constants, bulletHolder);
+        level1 = new Level1(constants, bulletHolder, mainShip);
         currentLevel = level1;
-        shapeRenderer = debugRenderer.shapeRenderer;
+        scrollingBackground = new ScrollingBackground(viewport.getWorldHeight(), batch);
     }
 
     @Override
@@ -58,6 +62,7 @@ public class Core extends ApplicationAdapter {
         currentLevel.startLevelIfHaveNotStarted();
         currentLevel.update();
         mainShip.update();
+        bulletHolder.update();
         scrollingBackground.backgroundUpdate();
         draw();
     }
@@ -69,6 +74,7 @@ public class Core extends ApplicationAdapter {
         scrollingBackground.draw();
         mainShip.draw();
         currentLevel.draw();
+        bulletHolder.draw();
 
         batch.end();
 
@@ -76,6 +82,7 @@ public class Core extends ApplicationAdapter {
 
         mainShip.drawDebug();
         currentLevel.drawDebug();
+        bulletHolder.drawDebug();
 
         shapeRenderer.end();
 

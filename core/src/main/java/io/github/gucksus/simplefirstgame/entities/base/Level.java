@@ -2,9 +2,10 @@ package io.github.gucksus.simplefirstgame.entities.base;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.utils.Array;
+import io.github.gucksus.simplefirstgame.Constants;
 import io.github.gucksus.simplefirstgame.entities.MainShip;
+import io.github.gucksus.simplefirstgame.tools.BulletHolder;
 import io.github.gucksus.simplefirstgame.tools.DebugRenderer;
 import io.github.gucksus.simplefirstgame.waves.Wave;
 
@@ -13,27 +14,29 @@ public abstract class Level {
     protected boolean isLevelCompleted = false;
     protected boolean debugMode = false;
     protected float lvTimer = 0;
-    protected DebugRenderer debugRenderer;
+    public DebugRenderer debugRenderer;
     protected Array<Enemy> activeEnemies;
     protected Array<Wave> waveArray;
     protected boolean isLevelStarted;
     protected float lastDelta;
-    protected float worldWidth;
-    protected float worldHeight;
+    public float worldWidth;
+    public float worldHeight;
     protected MainShip mainShip;
-    protected SpriteBatch batch;
-    protected Array<Bullet> enemyBullets = new Array<>();
+    public SpriteBatch batch;
+    protected Constants constants;
+    protected BulletHolder bulletHolder;
 
-    public Level(float worldWidth, float worldHeight, SpriteBatch batch, MainShip mainShip,
-            DebugRenderer debugRenderer) {
+    public Level(Constants constants, BulletHolder bulletHolder, MainShip mainShip) {
         lastDelta = 67;
         activeEnemies = new Array<>();
         waveArray = new Array<>();
-        this.worldWidth = worldWidth;
-        this.worldHeight = worldHeight;
-        this.batch = batch;
+        this.worldWidth = constants.worldWidth;
+        this.worldHeight = constants.worldHeight;
+        this.batch = constants.batch;
         this.mainShip = mainShip;
-        this.debugRenderer = debugRenderer;
+        this.debugRenderer = constants.debugRenderer;
+        this.constants = constants;
+        this.bulletHolder = bulletHolder;
     }
 
     public abstract void enemySpawn();
@@ -47,39 +50,8 @@ public abstract class Level {
             }
     }
 
-    void drawBullet() {
-        for (Bullet enemyBullet : enemyBullets) {
-            enemyBullet.sprite.draw(batch);
-        }
-    }
-
     public void draw() {
         drawEnemy();
-        drawBullet();
-    }
-
-    void drawBulletDebug() {
-        for (Bullet enemyBullet : enemyBullets) {
-            if (enemyBullet.isCircle) {
-                debugRenderer.drawCircleHitbox(enemyBullet.circleHitbox);
-            } else {
-                debugRenderer.drawHitbox(enemyBullet.rectangleHitbox);
-            }
-        }
-    }
-
-    public void bulletHitboxUpdate() {
-        for (Bullet enemyBullet : enemyBullets) {
-            if (enemyBullet.isCircle) {
-                if (Intersector.overlaps(enemyBullet.circleHitbox, mainShip.shipHurtbox)) {
-                    mainShip.takeDamage();
-                }
-            } else {
-                if (Intersector.overlaps(mainShip.shipHurtbox, enemyBullet.rectangleHitbox)) {
-                    mainShip.takeDamage();
-                }
-            }
-        }
     }
 
     void drawEnemyDebug() {
@@ -90,26 +62,17 @@ public abstract class Level {
 
     public void drawDebug() {
         drawEnemyDebug();
-        drawBulletDebug();
     }
 
     public void update() {
         updateDelta();
         wavesUpdate();
         updateEnemy();
-        bulletUpdate();
-        bulletHitboxUpdate();
     }
 
     void updateEnemy() {
         for (Enemy enemy : activeEnemies) {
             enemy.update();
-        }
-    }
-
-    public void bulletUpdate() {
-        for (Bullet enemyBullet : enemyBullets) {
-            enemyBullet.update();
         }
     }
 

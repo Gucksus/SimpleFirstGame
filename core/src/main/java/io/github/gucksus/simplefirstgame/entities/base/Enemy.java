@@ -11,8 +11,10 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Timer;
+import io.github.gucksus.simplefirstgame.Constants;
 import io.github.gucksus.simplefirstgame.entities.MainShip;
 import io.github.gucksus.simplefirstgame.tools.BoxWithOffset;
+import io.github.gucksus.simplefirstgame.tools.BulletHolder;
 import io.github.gucksus.simplefirstgame.tools.DebugRenderer;
 import io.github.gucksus.simplefirstgame.waves.Wave;
 
@@ -59,6 +61,7 @@ public abstract class Enemy {
      * this amount is added to make the enemy move. Thus, all enemies move at a constant speed.
      */
     public float nextFrameYDifference;
+
     public float nextFrameAngleDifference;
     public float angle;
 
@@ -96,9 +99,10 @@ public abstract class Enemy {
         Straight, Circle
     }
 
+    BulletHolder bulletHolder;
+
     public Enemy(TextureRegion staticTexture, float iniX, float iniY, float width, float height,
-            float worldWidth, float worldHeight, MainShip mainShip, SpriteBatch batch,
-            DebugRenderer debugRenderer, Wave wave) {
+            MainShip mainShip, Wave wave) {
         this.width = width;
         this.height = height;
         textureSize = new Vector2(staticTexture.getRegionWidth(), staticTexture.getRegionHeight());
@@ -106,12 +110,14 @@ public abstract class Enemy {
         sprite = new Sprite(staticTexture);
         sprite.setSize(width, height);
         sprite.setPosition(iniX, iniY);
-        this.batch = batch;
-        this.debugRenderer = debugRenderer;
+        Constants constants = wave.level.constants;
+        this.batch = constants.batch;
+        this.debugRenderer = constants.debugRenderer;
         this.mainShip = mainShip;
-        this.worldWidth = worldWidth;
-        this.worldHeight = worldHeight;
+        this.worldWidth = constants.worldWidth;
+        this.worldHeight = constants.worldHeight;
         this.wave = wave;
+        this.bulletHolder = wave.level.bulletHolder;
     }
 
     public void initializeShootAnimation(TextureRegion[] shootAnimationFrames) {
@@ -127,11 +133,11 @@ public abstract class Enemy {
     }
 
     public void update() {
-        hitboxUpdate();
-        hurtboxUpdate();
         updateStatus();
         moveUpdate();
         updateEnemyHitboxAndHurtboxWhenMoved();
+        hitboxCheck();
+        hurtboxCheck();
     }
 
     void addTask(Timer.Task task) {
@@ -326,27 +332,39 @@ public abstract class Enemy {
                 float dx = mainShip.getShipHurtboxCenterX() - shootPointX;
                 float dy = mainShip.getShipHurtboxCenterY() - shootPointY;
 
-                wave.level.enemyBullets.add(returnBulletType(shootPointX, shootPointY, dx, dy));
+                bulletHolder.enemyBullets.add(returnBulletType(shootPointX, shootPointY, dx, dy));
             }
         }
     }
 
-    void hitboxUpdate() {
+    void hitboxCheck() {
         for (BoxWithOffset hitbox : hitboxes) {
             if (Intersector.overlaps(mainShip.shipHurtbox, hitbox.getBox())
                     && mainShip.timerSinceLastDamage > mainShip.invulnerableDuration && !isHarmless)
                 mainShip.takeDamage();
         }
+
+        for (Bullet enemyBullet : bulletHolder.enemyBullets) {
+            if (enemyBullet.isCircle()) {
+                if (Intersector.overlaps(enemyBullet.getCircleHitbox(), mainShip.shipHurtbox)) {
+                    mainShip.takeDamage();
+                }
+            } else {
+                if (Intersector.overlaps(mainShip.shipHurtbox, enemyBullet.getRectangleHitbox())) {
+                    mainShip.takeDamage();
+                }
+            }
+        }
     }
 
-    void hurtboxUpdate() {
+    void hurtboxCheck() {
         for (BoxWithOffset hurtbox : hurtboxes) {
-            for (int i = mainShip.bulletArray.size - 1; i >= 0; i--) {
-                Bullet bullet = mainShip.bulletArray.get(i);
+            for (int i = bulletHolder.shipBullets.size - 1; i >= 0; i--) {
+                Bullet bullet = bulletHolder.shipBullets.get(i);
                 if (Intersector.overlaps(bullet.rectangleHitbox, hurtbox.getBox())
                         && !isInvulnerable) {
                     health -= bullet.getDamage();
-                    mainShip.bulletArray.removeIndex(i);
+                    bulletHolder.shipBullets.removeIndex(i);
                 }
             }
         }

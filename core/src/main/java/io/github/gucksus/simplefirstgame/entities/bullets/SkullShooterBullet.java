@@ -10,7 +10,7 @@ public class SkullShooterBullet extends Bullet {
             float dx, float dy, SpriteBatch batch) {
         super(texture, iniX, iniY, width, height, dx, dy, batch);
         movingType = MovingType.Straight;
-        isCircle = true;
+        setCircle(true);
         circleHitbox = new Circle(sprite.getX(), sprite.getY(), .25f);
         speed = 5f;
         circleHitboxOffset.x = sprite.getWidth() / 2;

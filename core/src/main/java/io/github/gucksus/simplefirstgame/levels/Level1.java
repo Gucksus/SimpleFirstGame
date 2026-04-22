@@ -23,7 +23,7 @@ public class Level1 extends Level {
         popcornEnemyTexture = new Texture("Enemy/popcornEnemy.png");
         skullAnimationSheet = new Texture("Enemy/skull_animation.png");
         skullBulletTexture = new Texture("Bullet/skull_bullet_texture.png");
-        debugMode = true;
+        debugMode = false;
     }
 
     private void addNewWave(int totalEnemy, float interval, float startX, float startY) {
@@ -73,21 +73,31 @@ public class Level1 extends Level {
         Timer.schedule(new Timer.Task() {
             @Override
             public void run() {
-                addNewWave(1, 0, 0, 11);
+                addNewWave(1, 0, 1, 11);
                 Wave A3 = waveArray.peek();
                 addSkullShooterIntoWave(A3);
-                A3.moveAllEnemyStraight(0, -10, 15);
+                A3.moveAllEnemyStraight(1, -10, 15);
             }
         }, 5.5f);
         
-        
+        Timer.schedule(new Timer.Task() {
+            @Override
+            public void run() {
+                addNewWave(1, 0, 7, 11);
+                Wave A4 = waveArray.peek();
+                addSkullShooterIntoWave(A4);
+                A4.moveAllEnemyStraight(7, -10, 10);
+            }
+        }, 6.5f);
     }
 
     @Override
     public void enemySpawnDebug() {
-        addNewWave(1, 0, 4, 7);
-        Wave A1 = waveArray.peek();
-        addSkullShooterIntoWave(A1);
+        addNewWave(10, .2f, 1, 9.5f);
+        Wave A1 = waveArray.first();
+        addPopcornEnemiesIntoWave(A1);
+        A1.moveAllEnemyStraight(3, 1.5f, 2f);
+        A1.moveAllEnemyStraight(A1.startPoint.x, 11, 2f);
     }
 
     public void dispose() {

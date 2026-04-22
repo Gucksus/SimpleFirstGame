@@ -1,5 +1,6 @@
 package io.github.gucksus.simplefirstgame.waves;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Timer;
@@ -42,7 +43,7 @@ public class Wave {
         this.activeEnemyArray = activeEnemyArray;
         this.totalEnemies = totalEnemies;
         this.interval = interval;
-        startPoint =  new Vector2(startX, startY);
+        startPoint = new Vector2(startX, startY);
         this.worldWidth = worldWidth;
         this.worldHeight = worldHeight;
         this.level = level;
@@ -82,7 +83,6 @@ public class Wave {
     public void moveAllEnemyStraight(float endX, float endY, float duration) {
         // Here the duration is the amount of time it takes for the first enemy to reach the
         // destination.
-
         destination.set(endX, endY);
         for (Enemy enemy : waveEnemyArray) {
             enemy.moveStraight(duration);
@@ -100,8 +100,7 @@ public class Wave {
 
         centerPoint = center;
         this.revolutionNum = revolutionNum;
-        Vector2 firstEnemyToCenter = new Vector2(startPoint.x - center.x,
-                startPoint.y - center.y);
+        Vector2 firstEnemyToCenter = new Vector2(startPoint.x - center.x, startPoint.y - center.y);
         radius = firstEnemyToCenter.len();
 
         for (Enemy enemy : waveEnemyArray) {

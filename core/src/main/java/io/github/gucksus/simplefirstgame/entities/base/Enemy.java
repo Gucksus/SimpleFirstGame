@@ -51,19 +51,10 @@ public abstract class Enemy {
     protected boolean isHarmless;
     protected boolean shootInThisAnimation;
     protected Texture bulletTexture;
-    /**
-     * The X difference/distance of each frame compared to the previous frame. So in each frame,
-     * this amount is added to make the enemy move. Thus, all enemies move at a constant speed.
-     */
-    public float nextFrameXDifference;
-    /**
-     * The Y difference/distance of each frame compared to the previous frame. So in each frame,
-     * this amount is added to make the enemy move. Thus, all enemies move at a constant speed.
-     */
-    public float nextFrameYDifference;
 
-    public float nextFrameAngleDifference;
-    public float angle;
+    float moveTimer;
+    float nextFrameAngleDifference;
+    float angle;
 
     protected Animation<TextureRegion> shootAnimation;
     protected Animation<TextureRegion> deathAnimation;
@@ -98,6 +89,7 @@ public abstract class Enemy {
     enum movingType {
         Straight, Circle
     }
+
     Vector2 centerPoint;
     float radius;
 
@@ -165,6 +157,7 @@ public abstract class Enemy {
             @Override
             public void run() {
                 isMoving = true;
+                moveTimer = 0;
                 currentMovingType = movingType.Circle;
                 moveDuration = duration;
                 Vector2 thisToCenter = new Vector2(getCoordinate().x - tempCenterPoint.x,
@@ -184,6 +177,7 @@ public abstract class Enemy {
             @Override
             public void run() {
                 isMoving = true;
+                moveTimer = 0;
                 currentMovingType = movingType.Straight;
                 startPoint = tempStartPoint;
                 destination = tempDestination;
@@ -208,10 +202,11 @@ public abstract class Enemy {
 
     public void moveStraightUpdate() {
         float delta = Gdx.graphics.getDeltaTime();
-        nextFrameXDifference = (destination.x - startPoint.x) / moveDuration * delta;
-        nextFrameYDifference = (destination.y - startPoint.y) / moveDuration * delta;
+        moveTimer += delta;
+        float nextX = startPoint.x + (destination.x - startPoint.x) / moveDuration * moveTimer;
+        float nextY = startPoint.y + (destination.y - startPoint.y) / moveDuration * moveTimer;
         if (isMoving) {
-            sprite.translate(nextFrameXDifference, nextFrameYDifference);
+            sprite.setCenter(nextX, nextY);
         }
     }
 

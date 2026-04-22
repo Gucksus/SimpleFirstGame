@@ -38,7 +38,7 @@ public class Core extends ApplicationAdapter {
         viewport = new FitViewport(8, 11);
         worldHeight = viewport.getWorldHeight();
         worldWidth = viewport.getWorldWidth();
-        constants = new Constants(worldWidth, worldHeight, batch, debugRenderer);
+        constants = new Constants(worldWidth, worldHeight, batch, debugRenderer, true);
         bulletHolder = new BulletHolder(constants);
         mainShip = new MainShip(4, 0, 2, 2, constants, bulletHolder);
         level1 = new Level1(constants, bulletHolder, mainShip);
@@ -78,13 +78,15 @@ public class Core extends ApplicationAdapter {
 
         batch.end();
 
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        if (constants.debugMode) {
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
 
-        mainShip.drawDebug();
-        currentLevel.drawDebug();
-        bulletHolder.drawDebug();
+            mainShip.drawDebug();
+            currentLevel.drawDebug();
+            bulletHolder.drawDebug();
 
-        shapeRenderer.end();
+            shapeRenderer.end();
+        }
 
     }
 

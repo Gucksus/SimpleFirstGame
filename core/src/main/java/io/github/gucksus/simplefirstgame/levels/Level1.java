@@ -2,6 +2,7 @@ package io.github.gucksus.simplefirstgame.levels;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Timer;
 import io.github.gucksus.simplefirstgame.Constants;
 import io.github.gucksus.simplefirstgame.entities.MainShip;
@@ -23,7 +24,7 @@ public class Level1 extends Level {
         popcornEnemyTexture = new Texture("Enemy/popcornEnemy.png");
         skullAnimationSheet = new Texture("Enemy/skull_animation.png");
         skullBulletTexture = new Texture("Bullet/skull_bullet_texture.png");
-        debugMode = false;
+        debugMode = true;
     }
 
     private void addNewWave(int totalEnemy, float interval, float startX, float startY) {
@@ -35,8 +36,8 @@ public class Level1 extends Level {
         for (Wave wave : waves) {
             for (int i = 0; i < wave.totalEnemies; i++) {
                 TextureRegion staticPopcornTexture = new TextureRegion(popcornEnemyTexture);
-                Enemy enemy = new PopcornEnemy(staticPopcornTexture, wave.startPoint.x,
-                        wave.startPoint.y, mainShip, wave);
+                Enemy enemy = new PopcornEnemy(staticPopcornTexture, wave.path.first().x,
+                        wave.path.first().y, mainShip, wave);
                 wave.addEnemy(enemy);
             }
         }
@@ -48,7 +49,7 @@ public class Level1 extends Level {
                 TextureRegion[][] temp = TextureRegion.split(skullAnimationSheet,
                         skullAnimationSheet.getWidth() / 11, skullAnimationSheet.getHeight() / 2);
                 Enemy enemy = new SkullShooterEnemy(temp[0][0], skullBulletTexture,
-                        wave.startPoint.x, wave.startPoint.y, mainShip, wave);
+                        wave.path.first().x, wave.path.first().y, mainShip, wave);
                 enemy.initializeShootAnimation(temp[0]);
                 enemy.initializeDeathAnimation(temp[1]);
                 wave.addEnemy(enemy);
@@ -67,8 +68,8 @@ public class Level1 extends Level {
         addPopcornEnemiesIntoWave(A2);
         A1.moveAllEnemyStraight(3, 1.5f, .5f);
         A2.moveAllEnemyStraight(5, 1.5f, .5f);
-        A1.moveAllEnemyStraight(A1.startPoint.x, 11, 2f);
-        A2.moveAllEnemyStraight(A2.startPoint.x, 11, 2f);
+        A1.moveAllEnemyStraight(A1.path.first().x, 11, 2f);
+        A2.moveAllEnemyStraight(A2.path.first().x, 11, 2f);
         
         Timer.schedule(new Timer.Task() {
             @Override
@@ -93,11 +94,16 @@ public class Level1 extends Level {
 
     @Override
     public void enemySpawnDebug() {
-        addNewWave(10, .2f, 1, 9.5f);
+        addNewWave(10, .2f, 1, 12);
         Wave A1 = waveArray.first();
-        addPopcornEnemiesIntoWave(A1);
-        A1.moveAllEnemyStraight(3, 1.5f, 2f);
-        A1.moveAllEnemyStraight(A1.startPoint.x, 11, 2f);
+        addSkullShooterIntoWave(A1);
+        A1.moveAllEnemyStraight(4, 4, 1);
+        A1.moveAllEnemyCurve(new Vector2[] {
+            new Vector2(6, 7),
+            new Vector2(5, 5),
+            new Vector2(7, 2)
+        }, 3);
+        A1.moveAllEnemyInCircle(new Vector2(2, 3), 10, 18, true);
     }
 
     public void dispose() {

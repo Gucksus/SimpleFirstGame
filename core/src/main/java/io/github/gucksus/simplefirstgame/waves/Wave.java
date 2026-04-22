@@ -1,6 +1,5 @@
 package io.github.gucksus.simplefirstgame.waves;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Timer;
@@ -15,10 +14,9 @@ public class Wave {
      * The interval between updating each enemy in the wave.
      */
     public float interval;
-    public Vector2 startPoint;
-    public Vector2 destination = new Vector2();
     public boolean isDone;
-    public Vector2 centerPoint = new Vector2();
+    public Array<Vector2> path = new Array<>();
+    public Vector2 centerPoint;
     Enemy centerEnemy;
     public float radius;
     public float previousDuration;
@@ -43,7 +41,8 @@ public class Wave {
         this.activeEnemyArray = activeEnemyArray;
         this.totalEnemies = totalEnemies;
         this.interval = interval;
-        startPoint = new Vector2(startX, startY);
+        path.add(new Vector2(startX, startY));
+        path.add(new Vector2());
         this.worldWidth = worldWidth;
         this.worldHeight = worldHeight;
         this.level = level;
@@ -83,11 +82,11 @@ public class Wave {
     public void moveAllEnemyStraight(float endX, float endY, float duration) {
         // Here the duration is the amount of time it takes for the first enemy to reach the
         // destination.
-        destination.set(endX, endY);
+        path.peek().set(endX, endY);
         for (Enemy enemy : waveEnemyArray) {
             enemy.moveStraight(duration);
         }
-        startPoint.set(destination);
+        path.first().set(path.peek());
         previousDuration += duration;
     }
 
@@ -100,7 +99,7 @@ public class Wave {
 
         centerPoint = center;
         this.revolutionNum = revolutionNum;
-        Vector2 firstEnemyToCenter = new Vector2(startPoint.x - center.x, startPoint.y - center.y);
+        Vector2 firstEnemyToCenter = new Vector2(path.first().x - center.x, path.first().y - center.y);
         radius = firstEnemyToCenter.len();
 
         for (Enemy enemy : waveEnemyArray) {
@@ -110,7 +109,7 @@ public class Wave {
         Timer.schedule(new Timer.Task() {
             @Override
             public void run() {
-                startPoint.set(waveEnemyArray.first().getCoordinate().x,
+                path.first().set(waveEnemyArray.first().getCoordinate().x,
                         waveEnemyArray.first().getCoordinate().y);
             }
         }, duration);
@@ -141,11 +140,26 @@ public class Wave {
         Timer.schedule(new Timer.Task() {
             @Override
             public void run() {
-                startPoint.set(waveEnemyArray.first().getCoordinate().x,
+                path.first().set(waveEnemyArray.first().getCoordinate().x,
                         waveEnemyArray.first().getCoordinate().y);
             }
         }, duration);
 
+
+        previousDuration += duration;
+    }
+
+    public void moveAllEnemyCurve(Vector2[] points, float duration) {
+        Vector2 tempStartPoint = path.first();
+        path.clear();
+        path.add(tempStartPoint);
+        for (Vector2 point: points) {
+            path.add(point);
+        }
+
+        for (Enemy enemy: waveEnemyArray) {
+            enemy.moveCurve(duration);
+        }
 
         previousDuration += duration;
     }

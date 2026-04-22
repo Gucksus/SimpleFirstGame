@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.CatmullRomSpline;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
@@ -32,18 +33,15 @@ import io.github.gucksus.simplefirstgame.waves.Wave;
 public abstract class Enemy {
     protected float health;
     protected Sprite sprite;
-    protected Array<BoxWithOffset> hitboxes = new Array<>();
-    protected Array<BoxWithOffset> hurtboxes = new Array<>();
-    protected float width;
-    protected float height;
-    protected Array<Vector2> shootPointsOffsets = new Array<>();
     protected Vector2 textureSize;
     protected Vector2 pixelLength;
-    Vector2 startPoint = new Vector2();
-    Vector2 destination = new Vector2();
-    float moveDuration;
-    protected float shootFrameInterval = 0.1f;
-    protected float deathFrameInterval = 0.1f;
+    protected float width;
+    protected float height;
+
+    protected Array<BoxWithOffset> hitboxes = new Array<>();
+    protected Array<BoxWithOffset> hurtboxes = new Array<>();
+    protected Array<Vector2> shootPointsOffsets = new Array<>();
+
     protected boolean isDead = false;
     public boolean isMoving;
     protected boolean isInvulnerable;
@@ -52,14 +50,26 @@ public abstract class Enemy {
     protected boolean shootInThisAnimation;
     protected Texture bulletTexture;
 
+    Array<Vector2> path = new Array<>();
+    CatmullRomSpline<Vector2> catmullRomSpline;
+    float moveDuration;
     float moveTimer;
     float nextFrameAngleDifference;
     float angle;
+    movingType currentMovingType = movingType.Straight;
+
+    enum movingType {
+        Straight, Circle, Curve
+    }
+
+    public Array<Timer.Task> tasks = new Array<>();
 
     protected Animation<TextureRegion> shootAnimation;
     protected Animation<TextureRegion> deathAnimation;
     protected int shootAnimationFrameNum;
     protected int shootSpriteIndex;
+    protected float shootFrameInterval = 0.1f;
+    protected float deathFrameInterval = 0.1f;
     /**
      * The number of time that the enemy is allowed to shoot.
      */
@@ -82,13 +92,7 @@ public abstract class Enemy {
     MainShip mainShip;
     float worldWidth;
     float worldHeight;
-    public Array<Timer.Task> tasks = new Array<>();
     public Wave wave;
-    movingType currentMovingType = movingType.Straight;
-
-    enum movingType {
-        Straight, Circle
-    }
 
     Vector2 centerPoint;
     float radius;
@@ -112,6 +116,7 @@ public abstract class Enemy {
         this.worldHeight = constants.worldHeight;
         this.wave = wave;
         this.bulletHolder = wave.level.bulletHolder;
+        path.add(new Vector2(iniX, iniY));
     }
 
     public void initializeShootAnimation(TextureRegion[] shootAnimationFrames) {
@@ -129,7 +134,7 @@ public abstract class Enemy {
     public void update() {
         updateStatus();
         moveUpdate();
-        updateEnemyHitboxAndHurtboxWhenMoved();
+        updateEnemyHitboxAndHurtbox();
         hitboxCheck();
         hurtboxCheck();
     }
@@ -147,6 +152,9 @@ public abstract class Enemy {
                 break;
             case Circle:
                 moveCircleUpdate();
+                break;
+            case Curve:
+                moveCurveUpdate();
         }
     }
 
@@ -171,16 +179,32 @@ public abstract class Enemy {
     }
 
     public void moveStraight(float duration) {
-        Vector2 tempStartPoint = new Vector2(wave.startPoint);
-        Vector2 tempDestination = new Vector2(wave.destination);
+        Array<Vector2> tempPath = new Array<>();
+        for (Vector2 point : wave.path)
+            tempPath.add(point.cpy());
         Timer.Task task = new Timer.Task() {
             @Override
             public void run() {
                 isMoving = true;
                 moveTimer = 0;
                 currentMovingType = movingType.Straight;
-                startPoint = tempStartPoint;
-                destination = tempDestination;
+                path = tempPath;
+                moveDuration = duration;
+            }
+        };
+        addTask(task);
+    }
+
+    public void moveCurve(float duration) {
+        Vector2[] tempPath = new Vector2[wave.path.size];
+        for (int i = 0; i < wave.path.size; i++)
+            tempPath[i] = wave.path.get(i).cpy();
+        Timer.Task task = new Timer.Task() {
+            public void run() {
+                isMoving = true;
+                moveTimer = 0;
+                currentMovingType = movingType.Curve;
+                catmullRomSpline = new CatmullRomSpline<>(tempPath, true);
                 moveDuration = duration;
             }
         };
@@ -203,14 +227,33 @@ public abstract class Enemy {
     public void moveStraightUpdate() {
         float delta = Gdx.graphics.getDeltaTime();
         moveTimer += delta;
-        float nextX = startPoint.x + (destination.x - startPoint.x) / moveDuration * moveTimer;
-        float nextY = startPoint.y + (destination.y - startPoint.y) / moveDuration * moveTimer;
+        if (moveTimer >= moveDuration) {
+            isMoving = false;
+            return;
+        }
+        float nextX = path.first().x + (path.peek().x - path.first().x) / moveDuration * moveTimer;
+        float nextY = path.first().y + (path.peek().y - path.first().y) / moveDuration * moveTimer;
         if (isMoving) {
             sprite.setCenter(nextX, nextY);
         }
     }
 
-    public void updateEnemyHitboxAndHurtboxWhenMoved() {
+    void moveCurveUpdate() {
+        float delta = Gdx.graphics.getDeltaTime();
+        moveTimer += delta;
+        if (moveTimer >= moveDuration) {
+            isMoving = false;
+            return;
+        }
+        Vector2 nextPoint = new Vector2();
+        nextPoint = catmullRomSpline.valueAt(nextPoint, moveTimer / moveDuration);
+        System.out.println(nextPoint.x + " " + nextPoint.y);
+        if (isMoving) {
+            sprite.setCenter(nextPoint.x, nextPoint.y);
+        }
+    }
+
+    void updateEnemyHitboxAndHurtbox() {
         for (BoxWithOffset hitbox : hitboxes) {
             hitbox.update(sprite.getX(), sprite.getY());
         }

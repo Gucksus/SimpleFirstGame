@@ -15,8 +15,8 @@ public abstract class Level {
     protected boolean debugMode = false;
     protected float lvTimer = 0;
     public DebugRenderer debugRenderer;
-    protected Array<Enemy> activeEnemies;
-    protected Array<Wave> waveArray;
+    protected Array<Enemy> activeEnemies = new Array<>();
+    protected Array<Wave> waveArray = new Array<>();
     protected boolean isLevelStarted;
     protected float lastDelta;
     public float worldWidth;
@@ -28,8 +28,6 @@ public abstract class Level {
 
     public Level(Constants constants, BulletHolder bulletHolder, MainShip mainShip) {
         lastDelta = 67;
-        activeEnemies = new Array<>();
-        waveArray = new Array<>();
         this.worldWidth = constants.worldWidth;
         this.worldHeight = constants.worldHeight;
         this.batch = constants.batch;

@@ -2,12 +2,12 @@ package io.github.gucksus.simplefirstgame.levels;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Timer;
 import io.github.gucksus.simplefirstgame.Constants;
 import io.github.gucksus.simplefirstgame.entities.MainShip;
 import io.github.gucksus.simplefirstgame.entities.base.Enemy;
 import io.github.gucksus.simplefirstgame.entities.base.Level;
+import io.github.gucksus.simplefirstgame.entities.enemies.Carrier;
 import io.github.gucksus.simplefirstgame.entities.enemies.PopcornEnemy;
 import io.github.gucksus.simplefirstgame.entities.enemies.SkullShooterEnemy;
 import io.github.gucksus.simplefirstgame.tools.BulletHolder;
@@ -17,13 +17,13 @@ public class Level1 extends Level {
     Texture popcornEnemyTexture;
     Texture skullAnimationSheet;
     Texture skullBulletTexture;
-    PopcornEnemy examplePopcornEnemy;
+    Texture carrierTextureSheet;
 
     public Level1(Constants constants, BulletHolder bulletHolder, MainShip mainShip) {
         super(constants, bulletHolder, mainShip);
-        popcornEnemyTexture = new Texture("Enemy/popcornEnemy.png");
         skullAnimationSheet = new Texture("Enemy/skull_animation.png");
         skullBulletTexture = new Texture("Bullet/skull_bullet_texture.png");
+        carrierTextureSheet = new Texture("Mainship/PowerUp/PowerUpCarrier.png");
         debugMode = true;
     }
 
@@ -57,6 +57,17 @@ public class Level1 extends Level {
         }
     }
 
+    private void addCarrier(Wave... waves) {
+        for (Wave wave : waves) {
+            TextureRegion[][] temp = TextureRegion.split(carrierTextureSheet,
+                    carrierTextureSheet.getWidth() / 3, carrierTextureSheet.getHeight() / 3);
+            Carrier carrier = new Carrier(temp[0][0], worldWidth / 2, worldHeight + 1, mainShip, wave);
+            carrier.initializeIdleAnimation(temp[0]);
+            carrier.initializeDeathAnimation(temp[1]);
+            wave.addEnemy(carrier);
+        }
+    }
+
     @Override
     public void enemySpawn() {
 
@@ -70,7 +81,7 @@ public class Level1 extends Level {
         A2.moveAllEnemyStraight(5, 1.5f, .5f);
         A1.moveAllEnemyStraight(A1.path.first().x, 11, 2f);
         A2.moveAllEnemyStraight(A2.path.first().x, 11, 2f);
-        
+
         Timer.schedule(new Timer.Task() {
             @Override
             public void run() {
@@ -80,7 +91,7 @@ public class Level1 extends Level {
                 A3.moveAllEnemyStraight(1, -10, 15);
             }
         }, 5.5f);
-        
+
         Timer.schedule(new Timer.Task() {
             @Override
             public void run() {
@@ -94,20 +105,12 @@ public class Level1 extends Level {
 
     @Override
     public void enemySpawnDebug() {
-        addNewWave(10, .2f, 1, 12);
+        addNewWave(1, 0, 1, 8);
         Wave A1 = waveArray.first();
-        addSkullShooterIntoWave(A1);
-        A1.moveAllEnemyStraight(4, 4, 1);
-        A1.moveAllEnemyCurve(new Vector2[] {
-            new Vector2(6, 7),
-            new Vector2(5, 5),
-            new Vector2(7, 2)
-        }, 3);
-        A1.moveAllEnemyInCircle(new Vector2(2, 3), 10, 18, true);
+        addCarrier(A1);
     }
 
     public void dispose() {
-        popcornEnemyTexture.dispose();
         skullAnimationSheet.dispose();
         skullBulletTexture.dispose();
     }

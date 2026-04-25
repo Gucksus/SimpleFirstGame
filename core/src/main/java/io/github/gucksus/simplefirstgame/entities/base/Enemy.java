@@ -50,24 +50,28 @@ public abstract class Enemy {
     protected boolean shootInThisAnimation;
     protected Texture bulletTexture;
 
-    Array<Vector2> path = new Array<>();
-    CatmullRomSpline<Vector2> catmullRomSpline;
-    float moveDuration;
-    float moveTimer;
+    protected Array<Vector2> path = new Array<>();
+    protected CatmullRomSpline<Vector2> catmullRomSpline;
+    protected float moveDuration;
+    protected float moveTimer;
     float nextFrameAngleDifference;
     float angle;
-    movingType currentMovingType = movingType.Straight;
+    protected movingType currentMovingType = movingType.Straight;
 
-    enum movingType {
-        Straight, Circle, Curve
+    protected enum movingType {
+        Straight, Circle, Curve, Still
     }
 
     public Array<Timer.Task> tasks = new Array<>();
 
+    protected Animation<TextureRegion> idleAnimation;
     protected Animation<TextureRegion> shootAnimation;
     protected Animation<TextureRegion> deathAnimation;
+    protected int idleAnimationFrameNum;
     protected int shootAnimationFrameNum;
+    protected int deathAnimationFrameNum;
     protected int shootSpriteIndex;
+    protected float idleFrameInterval = 0.1f;
     protected float shootFrameInterval = 0.1f;
     protected float deathFrameInterval = 0.1f;
     /**
@@ -77,21 +81,20 @@ public abstract class Enemy {
     /**
      * Timer for counting the interval between animation.
      */
-    float animationIntervalTimer;
+    protected float animationIntervalTimer;
     protected float animationInterval;
-    protected int deathAnimationFrameNum;
     protected float stateTime;
 
-    enum AnimationType {
-        Static, Shoot, Death
+    protected enum AnimationType {
+        Idle, Shoot, Death
     }
 
-    AnimationType currentAnimationType = AnimationType.Static;
+    protected AnimationType currentAnimationType = AnimationType.Idle;
     public SpriteBatch batch;
-    DebugRenderer debugRenderer;
+    protected DebugRenderer debugRenderer;
     MainShip mainShip;
-    float worldWidth;
-    float worldHeight;
+    protected float worldWidth;
+    protected float worldHeight;
     public Wave wave;
 
     Vector2 centerPoint;
@@ -117,6 +120,12 @@ public abstract class Enemy {
         this.wave = wave;
         this.bulletHolder = wave.level.bulletHolder;
         path.add(new Vector2(iniX, iniY));
+    }
+
+    public void initializeIdleAnimation(TextureRegion[] idleAnimationFrames) {
+        idleAnimation = new Animation<>(idleFrameInterval, idleAnimationFrames);
+        idleAnimationFrameNum = idleAnimationFrames.length;
+        stateTime = 0;
     }
 
     public void initializeShootAnimation(TextureRegion[] shootAnimationFrames) {
@@ -145,7 +154,7 @@ public abstract class Enemy {
         tasks.add(task);
     }
 
-    void moveUpdate() {
+    protected void moveUpdate() {
         switch (currentMovingType) {
             case Straight:
                 moveStraightUpdate();
@@ -155,6 +164,9 @@ public abstract class Enemy {
                 break;
             case Curve:
                 moveCurveUpdate();
+                break;
+            case Still:
+                break;
         }
     }
 
@@ -247,7 +259,6 @@ public abstract class Enemy {
         }
         Vector2 nextPoint = new Vector2();
         nextPoint = catmullRomSpline.valueAt(nextPoint, moveTimer / moveDuration);
-        System.out.println(nextPoint.x + " " + nextPoint.y);
         if (isMoving) {
             sprite.setCenter(nextPoint.x, nextPoint.y);
         }
@@ -297,18 +308,30 @@ public abstract class Enemy {
     public void drawAnimation() {
         float delta = Gdx.graphics.getDeltaTime();
         switch (currentAnimationType) {
-            case Static:
-                sprite.draw(batch);
+            case Idle:
+                if (idleAnimationFrameNum == 0)
+                    sprite.draw(batch);
+                else {
+                    stateTime += delta;
+                    TextureRegion currentFrame = idleAnimation.getKeyFrame(stateTime);
+
+                    batch.draw(currentFrame, sprite.getX(), sprite.getY(), width, height);
+
+                    if (idleAnimation.isAnimationFinished(stateTime))
+                        stateTime = 0;
+                }
                 // If the number of times that the shoot animation needs to repeat is not 0 then it
                 // needs to keep track of intervals.
-                if (shootAnimationRepeat != 0 && animationIntervalTimer < animationInterval) {
-                    animationIntervalTimer += delta;
-                } else if (shootAnimationRepeat != 0
-                        && animationIntervalTimer >= animationInterval) {
-                    shootAnimationRepeat--;
-                    animationIntervalTimer = 0;
-                    shootInThisAnimation = false;
-                    triggerShootAnimation();
+                if (shootAnimationFrameNum != 0) {
+                    if (shootAnimationRepeat != 0 && animationIntervalTimer < animationInterval) {
+                        animationIntervalTimer += delta;
+                    } else if (shootAnimationRepeat != 0
+                            && animationIntervalTimer >= animationInterval) {
+                        shootAnimationRepeat--;
+                        animationIntervalTimer = 0;
+                        shootInThisAnimation = false;
+                        triggerShootAnimation();
+                    }
                 }
                 break;
             case Shoot:
@@ -321,8 +344,10 @@ public abstract class Enemy {
                         shoot(mainShip);
 
                     if (shootAnimation.isAnimationFinished(stateTime)) {
-                        currentAnimationType = AnimationType.Static;
+                        currentAnimationType = AnimationType.Idle;
+                        stateTime = 0;
                     }
+
                     batch.draw(currentFrame, sprite.getX(), sprite.getY(), width, height);
                 }
                 break;

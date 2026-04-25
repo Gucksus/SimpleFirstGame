@@ -20,8 +20,8 @@ public class Wave {
     Enemy centerEnemy;
     public float radius;
     public float previousDuration;
-    float worldWidth;
-    float worldHeight;
+    public float worldWidth;
+    public float worldHeight;
     public float revolutionNum;
     public float clockwiseMultiplier = -1;
     public Level level;
@@ -150,7 +150,7 @@ public class Wave {
     }
 
     public void moveAllEnemyCurve(Vector2[] points, float duration) {
-        Vector2 tempStartPoint = path.first();
+        Vector2 tempStartPoint = path.first(); 
         path.clear();
         path.add(tempStartPoint);
         for (Vector2 point: points) {

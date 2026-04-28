@@ -1,12 +1,15 @@
 package io.github.gucksus.simplefirstgame.entities.base;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Circle;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import io.github.gucksus.simplefirstgame.tools.BoxWithOffset;
 
 /**
  * <b>YOU HAVE TO DECLARE THESE VARIABLE IN SUBCLASSES:</b> <i>movingType, isCircle, circleHitBox
@@ -23,33 +26,69 @@ public class Bullet {
     protected float fireRate;
     protected int maxBulletOnScreen;
     protected Sprite sprite;
-    protected Rectangle rectangleHitbox;
-    protected Vector2 rectangleHitboxOffset = new Vector2();
+    protected BoxWithOffset rectangleHitbox;
     protected Circle circleHitbox;
     protected Vector2 circleHitboxOffset = new Vector2();
     private boolean isCircle;
+    protected Vector2 pixelLength;
+    Animation<TextureRegion> idleAnimation;
+    float idleFrameInterval = .1f;
+    int idleAnimationFrameNum;
+    float stateTime;
+
+    final float gravity = 9f;
+    protected float initialVelocity;
+    protected float initialAngle;
 
     protected enum MovingType {
-        Straight, Curve, Roundabout
+        Straight, Curve, Roundabout, Oblique
     }
 
     protected MovingType movingType = MovingType.Straight;
     protected Vector2 direction;
     SpriteBatch batch;
 
-    public Bullet(Texture texture, float iniX, float iniY, float width, float height, float dx,
-            float dy, SpriteBatch batch) {
+    public Bullet(TextureRegion[] idleAnimationFrames, float iniX, float iniY, float width,
+            float height, float dx, float dy, SpriteBatch batch) {
         this.width = width;
         this.height = height;
         this.iniX = iniX;
         this.iniY = iniY;
-        sprite = new Sprite(texture);
+        if (idleAnimationFrames.length == 1)
+            sprite = new Sprite(idleAnimationFrames[0]);
+        else
+            initializeIdleAnimation(idleAnimationFrames);
         sprite.setSize(width, height);
         sprite.setCenterX(iniX);
         sprite.setCenterY(iniY);
         direction = new Vector2();
         direction.set(dx, dy);
         this.batch = batch;
+        pixelLength = new Vector2(width / idleAnimationFrames[0].getRegionWidth(),
+                height / idleAnimationFrames[0].getRegionHeight());
+    }
+
+    public Bullet(TextureRegion[] idleAnimationFrames, float iniX, float iniY, float width,
+            float height, SpriteBatch batch) {
+        this.width = width;
+        this.height = height;
+        this.iniX = iniX;
+        this.iniY = iniY;
+        sprite = new Sprite(idleAnimationFrames[0]);
+        if (idleAnimationFrames.length != 1)
+            initializeIdleAnimation(idleAnimationFrames);
+        sprite.setSize(width, height);
+        sprite.setCenterX(iniX);
+        sprite.setCenterY(iniY);
+        this.batch = batch;
+        pixelLength = new Vector2(width / idleAnimationFrames[0].getRegionWidth(),
+                height / idleAnimationFrames[0].getRegionHeight());
+    }
+
+    public void initializeIdleAnimation(TextureRegion[] idleAnimationFrames) {
+        idleAnimation = new Animation<>(idleFrameInterval, idleAnimationFrames);
+        idleAnimationFrameNum = idleAnimationFrames.length;
+        stateTime = 0;
     }
 
     void updateHitbox() {
@@ -57,8 +96,7 @@ public class Bullet {
             circleHitbox.setPosition(sprite.getX() + circleHitboxOffset.x,
                     sprite.getY() + circleHitboxOffset.y);
         else
-            rectangleHitbox.setPosition(sprite.getX() + rectangleHitboxOffset.x,
-                    sprite.getY() + rectangleHitboxOffset.y);
+            rectangleHitbox.update(sprite.getX(), sprite.getY());
     }
 
     /**
@@ -73,6 +111,16 @@ public class Bullet {
         sprite.setCenterY(iniY + direction.y * distanceMultiplier * timer);
     }
 
+    public void updateOblique() {
+        float delta = Gdx.graphics.getDeltaTime();
+        timer += delta;
+        float velocityX = initialVelocity * MathUtils.cos(initialAngle);
+        float velocityY = initialVelocity * MathUtils.sin(initialAngle) - gravity * timer;
+
+        Vector2 nextPoint = new Vector2(iniX + velocityX * timer, iniY + velocityY * timer);
+        sprite.setCenter(nextPoint.x, nextPoint.y);
+    }
+
     public void update() {
         float delta = Gdx.graphics.getDeltaTime();
         switch (movingType) {
@@ -83,12 +131,26 @@ public class Bullet {
                 throw new Error("Unimplemented.");
             case Roundabout:
                 throw new Error("Unimplemented.");
+            case Oblique:
+                updateOblique();
+                break;
         }
         updateHitbox();
     }
 
     public void draw() {
-        sprite.draw(batch);
+        float delta = Gdx.graphics.getDeltaTime();
+        if (idleAnimationFrameNum == 0)
+            sprite.draw(batch);
+        else {
+            stateTime += delta;
+            TextureRegion currentFrame = idleAnimation.getKeyFrame(stateTime);
+
+            batch.draw(currentFrame, sprite.getX(), sprite.getY(), width, height);
+
+            if (idleAnimation.isAnimationFinished(stateTime))
+                stateTime = 0;
+        }
     }
 
     public float getDamage() {
@@ -108,7 +170,7 @@ public class Bullet {
     }
 
     public Rectangle getRectangleHitbox() {
-        return rectangleHitbox;
+        return rectangleHitbox.getBox();
     }
 
     public Circle getCircleHitbox() {

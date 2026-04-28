@@ -1,7 +1,6 @@
 package io.github.gucksus.simplefirstgame.entities.base;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -48,7 +47,7 @@ public abstract class Enemy {
     protected boolean isInvisible;
     protected boolean isHarmless;
     protected boolean shootInThisAnimation;
-    protected Texture bulletTexture;
+    protected TextureRegion[] bulletIdleFrames;
 
     protected Array<Vector2> path = new Array<>();
     protected CatmullRomSpline<Vector2> catmullRomSpline;
@@ -100,7 +99,7 @@ public abstract class Enemy {
     Vector2 centerPoint;
     float radius;
 
-    BulletHolder bulletHolder;
+    protected BulletHolder bulletHolder;
 
     public Enemy(TextureRegion staticTexture, float iniX, float iniY, float width, float height,
             MainShip mainShip, Wave wave) {
@@ -341,7 +340,7 @@ public abstract class Enemy {
                     TextureRegion currentFrame = shootAnimation.getKeyFrame(stateTime);
 
                     if (shootAnimation.getKeyFrameIndex(stateTime) == shootSpriteIndex)
-                        shoot(mainShip);
+                        shoot();
 
                     if (shootAnimation.isAnimationFinished(stateTime)) {
                         currentAnimationType = AnimationType.Idle;
@@ -387,11 +386,7 @@ public abstract class Enemy {
     protected abstract Bullet returnBulletType(float shootPointX, float shootPointY, float dx,
             float dy);
 
-    /**
-     *
-     * @param mainShip The ship that needs to be shot.
-     */
-    public void shoot(MainShip mainShip) {
+    public void shoot() {
         if (!shootInThisAnimation && !isDead && shootAnimationFrameNum != 0) {
             for (Vector2 shootPointOffset : shootPointsOffsets) {
                 shootInThisAnimation = true;
@@ -413,14 +408,20 @@ public abstract class Enemy {
         }
 
         for (Bullet enemyBullet : bulletHolder.enemyBullets) {
-            if (enemyBullet.isCircle()) {
-                if (Intersector.overlaps(enemyBullet.getCircleHitbox(), mainShip.shipHurtbox)) {
-                    mainShip.takeDamage();
+            if (enemyBullet.getDamage() != 0) {
+                if (enemyBullet.isCircle()) {
+                    if (Intersector.overlaps(enemyBullet.getCircleHitbox(), mainShip.shipHurtbox)) {
+                        mainShip.takeDamage();
+                    }
+                } else {
+                    if (Intersector.overlaps(mainShip.shipHurtbox,
+                            enemyBullet.getRectangleHitbox())) {
+                        mainShip.takeDamage();
+                    }
                 }
-            } else {
-                if (Intersector.overlaps(mainShip.shipHurtbox, enemyBullet.getRectangleHitbox())) {
-                    mainShip.takeDamage();
-                }
+            } else if (Intersector.overlaps(mainShip.shipHurtbox,
+                    enemyBullet.getRectangleHitbox())) {
+                bulletHolder.enemyBullets.removeValue(enemyBullet, true);
             }
         }
     }
@@ -429,14 +430,19 @@ public abstract class Enemy {
         for (BoxWithOffset hurtbox : hurtboxes) {
             for (int i = bulletHolder.shipBullets.size - 1; i >= 0; i--) {
                 Bullet bullet = bulletHolder.shipBullets.get(i);
-                if (Intersector.overlaps(bullet.rectangleHitbox, hurtbox.getBox())
+                if (Intersector.overlaps(bullet.rectangleHitbox.getBox(), hurtbox.getBox())
                         && !isInvulnerable) {
-                    health -= bullet.getDamage();
+                    takeDamage(bullet.getDamage());
                     bulletHolder.shipBullets.removeIndex(i);
                 }
             }
         }
     }
+
+    protected void takeDamage(float damage) {
+        health -= damage;
+    }
+
 
     void cancelAllTasks() {
         for (Timer.Task task : tasks)

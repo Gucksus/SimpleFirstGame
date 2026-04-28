@@ -14,7 +14,8 @@ import io.github.gucksus.simplefirstgame.tools.BulletHolder;
 import io.github.gucksus.simplefirstgame.tools.DebugRenderer;
 
 public class MainShip {
-    Texture basicBulletTexture;
+    Texture basicBulletIdleSheet;
+    TextureRegion[] basicBulletIdleFrames;
     public Circle shipHurtbox;
     float hurtboxOffsetY;
     Sprite shipSprite;
@@ -44,26 +45,31 @@ public class MainShip {
         this.height = height;
         hurtboxOffsetY = height / 2.5f * 1.01f;
         timerSinceLastDamage = invulnerableDuration;
-        basicBulletTexture = new Texture("Bullet/basicBullet.png");
+        basicBulletIdleSheet = new Texture("Bullet/basicBullet.png");
         spinAnimationSheet = new Texture("Mainship/ship_sprite_animation1.png");
 
         TextureRegion[][] temp = TextureRegion.split(spinAnimationSheet,
                 spinAnimationSheet.getWidth() / 11, spinAnimationSheet.getHeight());
 
         spinAnimation = new Animation<>(0.1f, temp[0]);
+        basicBulletIdleFrames = getBasicBulletIdleFrames();
 
         shipSprite = new Sprite(temp[0][0]);
         shipSprite.setSize(width, height);
         shipSprite.setCenterX(centerX);
         shipSprite.setY(iniY);
         shipHurtbox = new Circle(shipSprite.getX() + width / 2, iniY + hurtboxOffsetY, .1f);
-        currentBullet = new BasicBullet(basicBulletTexture, 69, 69, 67, 67, batch);
+        currentBullet = new BasicBullet(basicBulletIdleFrames, 69, 69, 67, 67, batch);
         directionDifferenceMultiplier = new Vector2();
         worldWidth = constants.worldWidth;
         worldHeight = constants.worldHeight;
         batch = constants.batch;
         debugRenderer = constants.debugRenderer;
         this.bulletHolder = bulletHolder;
+    }
+
+    TextureRegion[] getBasicBulletIdleFrames() {
+        return TextureRegion.split(basicBulletIdleSheet, 16, 16)[0];
     }
 
     public void update() {
@@ -107,7 +113,7 @@ public class MainShip {
                 float iniX = shipSprite.getX() + shipSprite.getWidth() / 2;
                 float iniY = shipSprite.getY() + shipSprite.getHeight() / 64 * 48;
                 bulletHolder.shipBullets
-                        .add(new BasicBullet(basicBulletTexture, iniX, iniY, 0, 1, batch));
+                        .add(new BasicBullet(basicBulletIdleFrames, iniX, iniY, 0, 1, batch));
                 timerSinceLastShot = 0;
             }
         }
@@ -152,7 +158,7 @@ public class MainShip {
     }
 
     public void dispose() {
-        basicBulletTexture.dispose();
+        basicBulletIdleSheet.dispose();
         spinAnimationSheet.dispose();
     }
 }

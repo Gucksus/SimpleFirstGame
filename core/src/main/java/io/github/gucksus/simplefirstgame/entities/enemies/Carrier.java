@@ -8,6 +8,7 @@ import com.badlogic.gdx.math.Vector2;
 import io.github.gucksus.simplefirstgame.entities.MainShip;
 import io.github.gucksus.simplefirstgame.entities.base.Bullet;
 import io.github.gucksus.simplefirstgame.entities.base.Enemy;
+import io.github.gucksus.simplefirstgame.entities.bullets.PowerUp;
 import io.github.gucksus.simplefirstgame.tools.BoxWithOffset;
 import io.github.gucksus.simplefirstgame.waves.Wave;
 
@@ -15,13 +16,14 @@ public class Carrier extends Enemy {
     float secondsOnScreen = 12;
     float amplitude = worldWidth / 2;
 
-    public Carrier(TextureRegion texture, float iniX, float iniY, MainShip mainShip, Wave wave) {
+    public Carrier(TextureRegion texture, TextureRegion[] idleFrames, float iniX, float iniY, MainShip mainShip, Wave wave) {
         super(texture, iniX, iniY, 1, 1, mainShip, wave);
         health = 4;
         moveDuration = 2;
         currentMovingType = movingType.Straight;
         currentAnimationType = AnimationType.Idle;
         hurtboxes.add(new BoxWithOffset(iniX, iniY, 16, 21, 8, 6, pixelLength.x, pixelLength.y));
+        bulletIdleFrames = idleFrames;
     }
 
     @Override
@@ -107,5 +109,11 @@ public class Carrier extends Enemy {
             case Still:
                 break;
         }
+    }
+
+    @Override
+    protected void takeDamage(float damage) {
+        health -= 1;
+        bulletHolder.enemyBullets.add(new PowerUp(bulletIdleFrames, sprite.getX(), sprite.getY(), 2, 1, batch));
     }
 }

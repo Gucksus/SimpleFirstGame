@@ -3,10 +3,10 @@ package io.github.gucksus.simplefirstgame.levels;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.utils.Timer;
-import io.github.gucksus.simplefirstgame.Constants;
 import io.github.gucksus.simplefirstgame.entities.MainShip;
 import io.github.gucksus.simplefirstgame.entities.base.Enemy;
 import io.github.gucksus.simplefirstgame.entities.base.Level;
+import io.github.gucksus.simplefirstgame.entities.enemies.ArchEnemy;
 import io.github.gucksus.simplefirstgame.entities.enemies.Carrier;
 import io.github.gucksus.simplefirstgame.entities.enemies.PopcornEnemy;
 import io.github.gucksus.simplefirstgame.entities.enemies.SkullShooterEnemy;
@@ -20,8 +20,8 @@ public class Level1 extends Level {
     Texture carrierTextureSheet;
     Texture powerUpTextureSheet;
 
-    public Level1(Constants constants, BulletHolder bulletHolder, MainShip mainShip) {
-        super(constants, bulletHolder, mainShip);
+    public Level1(BulletHolder bulletHolder, MainShip mainShip) {
+        super(bulletHolder, mainShip);
         skullAnimationSheet = new Texture("Enemy/skull_animation.png");
         skullBulletTexture = new Texture("Bullet/skull_bullet_texture.png");
         carrierTextureSheet = new Texture("Mainship/PowerUp/PowerUpCarrier.png");
@@ -43,6 +43,13 @@ public class Level1 extends Level {
                 wave.addEnemy(enemy);
             }
         }
+    }
+
+    private void addArch(Wave wave) {
+        TextureRegion staticPopcornTexture = new TextureRegion(skullBulletTexture);
+        Enemy enemy = new ArchEnemy(staticPopcornTexture, wave.path.first().x, wave.path.first().y,
+                mainShip, wave);
+        wave.addEnemy(enemy);
     }
 
     private void addSkullShooterIntoWave(Wave... waves) {
@@ -112,7 +119,15 @@ public class Level1 extends Level {
     public void enemySpawnDebug() {
         addNewWave(1, 0, 1, 8);
         Wave A1 = waveArray.first();
-        addCarrier(A1);
+        for (int i = 0; i < 10000; i++) {
+            final float time = i * 0.1f;
+            Timer.schedule(new Timer.Task() {
+                @Override
+                public void run() {
+                    addArch(A1);
+                }
+            }, time);
+        }
     }
 
     public void dispose() {

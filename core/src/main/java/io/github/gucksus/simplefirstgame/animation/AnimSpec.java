@@ -11,24 +11,24 @@ public class AnimSpec<T> {
         void execute(T value, float progress);
     }
 
-    private CallableMath<T> math;
-    private AnimationCallback<T> callback;
+    private final CallableMath<T> math;
+    private final AnimationCallback<T> callback;
 
-    private AtomicBoolean finished = new AtomicBoolean(false);
+    private final AtomicBoolean finished = new AtomicBoolean(false);
 
-    private AtomicFloat delaySec = new AtomicFloat(0);
-    private AtomicFloat animateSec = new AtomicFloat(0);
-    private AtomicFloat waitSec = new AtomicFloat(0);
-    private AtomicInteger repeat = new AtomicInteger(0);
+    private final AtomicFloat delaySec = new AtomicFloat(0);
+    private final AtomicFloat animateSec = new AtomicFloat(0);
+    private final AtomicFloat waitSec = new AtomicFloat(0);
+    private final AtomicInteger repeat = new AtomicInteger(0);
 
-    private AtomicFloat delayedSec = new AtomicFloat(0);
-    private AtomicFloat animatedSec = new AtomicFloat(0);
-    private AtomicFloat waitedSec = new AtomicFloat(0);
-    private AtomicInteger repeated = new AtomicInteger(0);
+    private final AtomicFloat delayedSec = new AtomicFloat(0);
+    private final AtomicFloat animatedSec = new AtomicFloat(0);
+    private final AtomicFloat waitedSec = new AtomicFloat(0);
+    private final AtomicInteger repeated = new AtomicInteger(0);
 
-    private AtomicFloat progress = new AtomicFloat(0);
+    private final AtomicFloat progress = new AtomicFloat(0);
 
-    private AtomicBoolean paused = new AtomicBoolean(false);
+    private final AtomicBoolean paused = new AtomicBoolean(false);
 
     /**
      * AnimSpec describes how an animaion plays in seconds format. The class allows manual frame
@@ -44,8 +44,8 @@ public class AnimSpec<T> {
      */
     public AnimSpec(CallableMath<T> math, AnimationCallback<T> callback, float delay, float animate,
             float wait, int repeat) {
-        this.setMath(math);
-        this.setCallback(callback);
+        this.math = math;
+        this.callback = callback;
 
         this.setDelay(delay);
         this.setAnimate(animate);
@@ -76,6 +76,10 @@ public class AnimSpec<T> {
         if (this.delayedSec.get() < this.delaySec.get()) {
             this.delayedSec.set(this.delayedSec.get() + delta);
             return true;
+        }
+
+        if (progress.get() == 0) {
+            this.callback.execute(this.math.get(0), 0);
         }
 
         this.animatedSec.set(this.animatedSec.get() + delta);
@@ -116,14 +120,6 @@ public class AnimSpec<T> {
         this.animatedSec.set(0);
         this.waitedSec.set(0);
         this.progress.set(0);
-    }
-
-    private void setMath(CallableMath<T> math) {
-        this.math = math;
-    }
-
-    private void setCallback(AnimationCallback<T> callback) {
-        this.callback = callback;
     }
 
     public void setDelay(float delay) {

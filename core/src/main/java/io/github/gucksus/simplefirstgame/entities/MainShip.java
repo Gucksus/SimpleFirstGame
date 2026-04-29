@@ -157,6 +157,10 @@ public class MainShip {
         return shipHurtbox.x + shipHurtbox.radius / 2;
     }
 
+    public Vector2 getCoordinate() {
+        return new Vector2(shipSprite.getX() + width / 2, shipSprite.getY() + height / 2);
+    }
+
     public void dispose() {
         basicBulletIdleSheet.dispose();
         spinAnimationSheet.dispose();

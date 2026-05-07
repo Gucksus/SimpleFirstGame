@@ -35,9 +35,11 @@ public class Level1 extends Level {
         debugMode = true;
     }
 
-    private void addNewWave(int totalEnemy, float interval, float startX, float startY) {
-        waveArray.add(new Wave(activeEnemies, totalEnemy, interval, startX, startY, worldWidth,
-                worldHeight, this));
+    Wave addNewWave(int totalEnemy, float interval, float startX, float startY) {
+        Wave wave = new Wave(activeEnemies, totalEnemy, interval, startX, startY, worldWidth,
+                worldHeight, this);
+        waveArray.add(wave);
+        return wave;
     }
 
     private void addPopcornEnemiesIntoWave(Wave... waves) {
@@ -73,41 +75,38 @@ public class Level1 extends Level {
         }
     }
 
-    private void addCarrier(Wave... waves) {
-        for (Wave wave : waves) {
-            TextureRegion[][] temp = TextureRegion.split(carrierTextureSheet,
-                    carrierTextureSheet.getWidth() / 3, carrierTextureSheet.getHeight() / 3);
-            Carrier carrier =
-                    new Carrier(temp[0][0], TextureRegion.split(powerUpTextureSheet, 32, 32)[0],
-                            worldWidth / 2, worldHeight + 1, mainShip, wave);
-            carrier.initializeIdleAnimation(temp[0]);
-            carrier.initializeDeathAnimation(temp[1]);
-            wave.addEnemy(carrier);
-        }
+    private void addCarrier() {
+        Wave wave = addNewWave(1, 0, 67, 67);
+        TextureRegion[][] temp = TextureRegion.split(carrierTextureSheet,
+                carrierTextureSheet.getWidth() / 3, carrierTextureSheet.getHeight() / 3);
+        Carrier carrier =
+                new Carrier(temp[0][0], TextureRegion.split(powerUpTextureSheet, 32, 32)[0],
+                        worldWidth / 2, worldHeight + 1, mainShip, wave);
+        carrier.initializeIdleAnimation(temp[0]);
+        carrier.initializeDeathAnimation(temp[1]);
+        wave.addEnemy(carrier);
     }
 
     @Override
     public void enemySpawn() {
 
-        addNewWave(10, .2f, -3, 9.5f);
-        addNewWave(10, .2f, -1, 9.5f);
-        Wave A1 = waveArray.first();
-        Wave A2 = waveArray.peek();
+        Wave A1 = addNewWave(10, .2f, -3, 9.5f);
+        Wave A2 = addNewWave(10, .2f, -1, 9.5f);
         addPopcornEnemiesIntoWave(A1);
         addPopcornEnemiesIntoWave(A2);
     }
 
     @Override
     public void enemySpawnDebug() {
-        addNewWave(5, .1f, 1, 8);
-        addNewWave(5, .1f, 0, 8);
-        Wave A1 = waveArray.first();
-        Wave A2 = waveArray.peek();
+        Wave A1 = addNewWave(5, .1f, 1, 8);
+        Wave A2 = addNewWave(5, .1f, 0, 8);
+        addCarrier();
         addPopcornEnemiesIntoWave(A1);
         addPopcornEnemiesIntoWave(A2);
+
         A1.moveAllEnemyStraight(new Vector2[] {v(1, 8), v(4, 4), v(7, 8)}, 0, 1, 0, 0);
-        A2.moveAllEnemyStraight(new Vector2[] {v(0, 8), v(6, 7), v(5, 0)}, 0, 1, 0, 0);
-        A2.moveAllEnemyInCircle(v(5, 0), v(3, 3), 3, 2, 0, 0);
+        A2.moveAllEnemyStraight(new Vector2[] {v(0, 8), v(6, 7), v(5, 1)}, 0, 1, 0, 0);
+        A2.moveAllEnemyInCircle(v(5, 1), v(3, 3), 1, 4, 0, 0, 2);
     }
 
     public void dispose() {

@@ -1,0 +1,28 @@
+package io.github.gucksus.simplefirstgame.maths;
+
+import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Vector2;
+import io.github.gucksus.simplefirstgame.animation.CallableMath;
+
+public class Circular implements CallableMath<Vector2> {
+    Vector2 startPoint;
+    Vector2 center;
+    float startAngle;
+    float radius;
+
+    public Circular(Vector2 startPoint, Vector2 center) {
+        this.startPoint = startPoint;
+        this.center = center;
+        radius = Vector2.len(startPoint.x - center.x, startPoint.y - center.y);
+        startAngle = Vector2.angleRad(startPoint.x - center.x, startPoint.y - center.y);
+    }
+
+    @Override
+    public Vector2 get(float progress) {
+        if (progress == 0 || progress == 1)
+            return startPoint;
+        float angle = startAngle + progress * MathUtils.PI2;
+        return new Vector2(center.x + radius * MathUtils.cos(angle),
+                center.y + radius * MathUtils.sin(angle));
+    }
+}

@@ -7,6 +7,7 @@ import io.github.gucksus.simplefirstgame.Constants;
 import io.github.gucksus.simplefirstgame.animation.AnimSpec;
 import io.github.gucksus.simplefirstgame.entities.base.Enemy;
 import io.github.gucksus.simplefirstgame.entities.base.Level;
+import io.github.gucksus.simplefirstgame.maths.Circular;
 import io.github.gucksus.simplefirstgame.maths.PathLerp;
 
 public class Wave {
@@ -91,74 +92,21 @@ public class Wave {
             Enemy enemy = waveEnemyArray.get(i);
             AnimSpec<Vector2> moveStraightAnim = new AnimSpec<>(moveStraight, (value, progress) -> {
                 enemy.setPosition(value);
-            }, delay, animate, wait, repeat);
-
-            Timer.schedule(new Timer.Task() {
-                public void run() {
-                    Constants.pathLerpAnimScheduler.play(enemy.getId() + "moveStraight", moveStraightAnim);
-                }
-            }, i * interval);
+            }, delay + i * interval, animate, wait, repeat);
+            Constants.pathLerpAnimScheduler.play(enemy.getId() + "moveStraight", moveStraightAnim);
         }
     }
 
-    public void moveAllEnemyInCircle(Vector2 center, float revolutionNum, float duration,
-            boolean counterClockwise) {
-        if (counterClockwise)
-            clockwiseMultiplier = 1;
-        else
-            clockwiseMultiplier = -1;
-
-        centerPoint = center;
-        this.revolutionNum = revolutionNum;
-        Vector2 firstEnemyToCenter =
-                new Vector2(path.first().x - center.x, path.first().y - center.y);
-        radius = firstEnemyToCenter.len();
-
-        for (Enemy enemy : waveEnemyArray) {
-            enemy.moveCircle(duration);
+    public void moveAllEnemyInCircle(Vector2 startPoint, Vector2 center, float delay, float animate, float wait,
+            int repeat){
+        Circular moveCircular = new Circular(startPoint, center);
+        for (int i = 0; i < waveEnemyArray.size; i++) {
+            Enemy enemy = waveEnemyArray.get(i);
+            AnimSpec<Vector2> moveCircularAnim = new AnimSpec<>(moveCircular, (value, progress) -> {
+                enemy.setPosition(value);
+            }, delay + i * interval, animate, wait, 2);
+            Constants.circularAnimScheduler.play(enemy.getId() + "moveCircular", moveCircularAnim);
         }
-
-        Timer.schedule(new Timer.Task() {
-            @Override
-            public void run() {
-                path.first().set(waveEnemyArray.first().getCoordinate().x,
-                        waveEnemyArray.first().getCoordinate().y);
-            }
-        }, duration);
-
-
-        previousDuration += duration;
-    }
-
-    public void moveAllEnemyInCircle(Enemy center, float revolutionNum, float duration,
-            boolean counterClockwise) {
-        if (counterClockwise)
-            clockwiseMultiplier = 1;
-        else
-            clockwiseMultiplier = -1;
-
-        centerEnemy = center;
-        centerPoint.set(center.getCoordinate().x, center.getCoordinate().y);
-        this.revolutionNum = revolutionNum;
-        Enemy firstEnemy = waveEnemyArray.first();
-        Vector2 firstEnemyToCenter = new Vector2(firstEnemy.getCoordinate().x - centerPoint.x,
-                firstEnemy.getCoordinate().y - centerPoint.y);
-        radius = firstEnemyToCenter.len();
-
-        for (Enemy enemy : waveEnemyArray) {
-            enemy.moveCircle(duration);
-        }
-
-        Timer.schedule(new Timer.Task() {
-            @Override
-            public void run() {
-                path.first().set(waveEnemyArray.first().getCoordinate().x,
-                        waveEnemyArray.first().getCoordinate().y);
-            }
-        }, duration);
-
-
-        previousDuration += duration;
     }
 
     public void moveAllEnemyCurve(Vector2[] points, float duration) {

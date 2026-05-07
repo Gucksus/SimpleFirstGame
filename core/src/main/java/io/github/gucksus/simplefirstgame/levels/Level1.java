@@ -99,10 +99,15 @@ public class Level1 extends Level {
 
     @Override
     public void enemySpawnDebug() {
-        addNewWave(15000, .001f, 1, 8);
+        addNewWave(5, .1f, 1, 8);
+        addNewWave(5, .1f, 0, 8);
         Wave A1 = waveArray.first();
+        Wave A2 = waveArray.peek();
         addPopcornEnemiesIntoWave(A1);
-        A1.moveAllEnemyStraight(new Vector2[] {v(1, 8), v(4, 4), v(7, 8)}, 0, 1, 0, 1);
+        addPopcornEnemiesIntoWave(A2);
+        A1.moveAllEnemyStraight(new Vector2[] {v(1, 8), v(4, 4), v(7, 8)}, 0, 1, 0, 0);
+        A2.moveAllEnemyStraight(new Vector2[] {v(0, 8), v(6, 7), v(5, 0)}, 0, 1, 0, 0);
+        A2.moveAllEnemyInCircle(v(5, 0), v(3, 3), 3, 2, 0, 0);
     }
 
     public void dispose() {

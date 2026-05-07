@@ -20,13 +20,10 @@ public class Wave {
     public float interval;
     public boolean isDone;
     public Array<Vector2> path = new Array<>();
-    public Vector2 centerPoint;
     Enemy centerEnemy;
-    public float radius;
-    public float previousDuration;
+    public Vector2 centerPoint;
     public float worldWidth;
     public float worldHeight;
-    public float revolutionNum;
     public float clockwiseMultiplier = -1;
     public Level level;
 
@@ -97,30 +94,15 @@ public class Wave {
         }
     }
 
-    public void moveAllEnemyInCircle(Vector2 startPoint, Vector2 center, float delay, float animate, float wait,
-            int repeat){
-        Circular moveCircular = new Circular(startPoint, center);
+    public void moveAllEnemyInCircle(Vector2 startPoint, Vector2 center, float delay, float animate,
+            float wait, int repeat, int revolutionNum) {
+        Circular moveCircular = new Circular(startPoint, center, revolutionNum);
         for (int i = 0; i < waveEnemyArray.size; i++) {
             Enemy enemy = waveEnemyArray.get(i);
             AnimSpec<Vector2> moveCircularAnim = new AnimSpec<>(moveCircular, (value, progress) -> {
                 enemy.setPosition(value);
-            }, delay + i * interval, animate, wait, 2);
+            }, delay + i * interval, animate, wait, repeat);
             Constants.circularAnimScheduler.play(enemy.getId() + "moveCircular", moveCircularAnim);
         }
-    }
-
-    public void moveAllEnemyCurve(Vector2[] points, float duration) {
-        Vector2 tempStartPoint = path.first();
-        path.clear();
-        path.add(tempStartPoint);
-        for (Vector2 point : points) {
-            path.add(point);
-        }
-
-        for (Enemy enemy : waveEnemyArray) {
-            enemy.moveCurve(duration);
-        }
-
-        previousDuration += duration;
     }
 }

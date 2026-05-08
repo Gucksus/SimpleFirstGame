@@ -23,7 +23,7 @@ public class Carrier extends Enemy {
     protected movingType currentMovingType = movingType.Straight;
 
     protected enum movingType {
-        Straight, Circle, Curve, Still
+        Straight, Curve
     }
 
     protected float stateTime;
@@ -96,8 +96,6 @@ public class Carrier extends Enemy {
                 break;
             case Curve:
                 moveTimer += delta;
-                if (moveTimer >= moveDuration)
-                    currentMovingType = movingType.Still;
                 Vector2 nextPoint1 = new Vector2();
                 catmullRomSpline.valueAt(nextPoint1, moveTimer / moveDuration);
                 sprite.setCenter(nextPoint1.x, nextPoint1.y);

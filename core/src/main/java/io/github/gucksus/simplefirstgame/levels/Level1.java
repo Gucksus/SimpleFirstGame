@@ -1,10 +1,8 @@
 package io.github.gucksus.simplefirstgame.levels;
 
-import java.nio.file.WatchEvent;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.utils.Timer;
 import io.github.gucksus.simplefirstgame.entities.MainShip;
 import io.github.gucksus.simplefirstgame.entities.base.Enemy;
 import io.github.gucksus.simplefirstgame.entities.base.Level;
@@ -102,14 +100,14 @@ public class Level1 extends Level {
 
     @Override
     public void enemySpawnDebug() {
-        Wave A1 = addNewWave(3, 0, 4, 8);
-        Wave A2 = addNewWave(1, 0, 5, 8);
-        Wave A3 = addNewWave(1, 0, 6, 8);
-        addSkullShooterIntoWave(A1, A2, A3);
+        // Wave A1 = addNewWave(3, 0, 4, 8);
+        // Wave A2 = addNewWave(1, 0, 5, 8);
+        // Wave A3 = addNewWave(1, 0, 6, 8);
+        // addSkullShooterIntoWave(A1, A2, A3);
 
-        // A1.moveAllEnemyStraight(new Vector2[] {v(1, 8), v(4, 4), v(7, 8)}, 0, 1, 0, 0);
-        // A2.moveAllEnemyStraight(new Vector2[] {v(0, 8), v(6, 7), v(5, 1)}, 0, 1, 0, 0);
-        A2.moveAllEnemyInCircle(v(5, 1), v(3, 3), 1, 4, 0, 0, 2);
+        // // A1.moveAllEnemyStraight(new Vector2[] {v(1, 8), v(4, 4), v(7, 8)}, 0, 1, 0, 0);
+        // // A2.moveAllEnemyStraight(new Vector2[] {v(0, 8), v(6, 7), v(5, 1)}, 0, 1, 0, 0);
+        // A2.moveAllEnemyInCircle(v(5, 1), v(3, 3), 1, 4, 0, 0, 2);
     }
 
     public void dispose() {

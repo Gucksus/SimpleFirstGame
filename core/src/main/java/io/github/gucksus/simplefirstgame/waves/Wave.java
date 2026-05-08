@@ -2,7 +2,6 @@ package io.github.gucksus.simplefirstgame.waves;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.Timer;
 import io.github.gucksus.simplefirstgame.Constants;
 import io.github.gucksus.simplefirstgame.animation.AnimSpec;
 import io.github.gucksus.simplefirstgame.entities.base.Enemy;

@@ -13,7 +13,9 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Timer;
 import io.github.gucksus.simplefirstgame.Constants;
+import io.github.gucksus.simplefirstgame.animation.AnimSpec;
 import io.github.gucksus.simplefirstgame.entities.MainShip;
+import io.github.gucksus.simplefirstgame.maths.AnimationTexture;
 import io.github.gucksus.simplefirstgame.tools.BoxWithOffset;
 import io.github.gucksus.simplefirstgame.tools.BulletHolder;
 import io.github.gucksus.simplefirstgame.tools.DebugRenderer;
@@ -48,19 +50,6 @@ public abstract class Enemy {
     protected boolean isInvisible;
     protected boolean isHarmless;
     protected boolean shootInThisAnimation;
-    protected TextureRegion[] bulletIdleFrames;
-
-    protected Array<Vector2> path = new Array<>();
-    protected CatmullRomSpline<Vector2> catmullRomSpline;
-    protected float moveDuration;
-    protected float moveTimer;
-    float nextFrameAngleDifference;
-    float angle;
-    protected movingType currentMovingType = movingType.Straight;
-
-    protected enum movingType {
-        Straight, Circle, Curve, Still
-    }
 
     public Array<Timer.Task> tasks = new Array<>();
 
@@ -68,30 +57,17 @@ public abstract class Enemy {
 
     protected Animation<TextureRegion> idleAnimation;
     protected Animation<TextureRegion> shootAnimation;
+    AnimSpec<TextureRegion> shootAnimSpec;
     protected Animation<TextureRegion> deathAnimation;
-    protected int idleAnimationFrameNum;
-    protected int shootAnimationFrameNum;
-    protected int deathAnimationFrameNum;
+    AnimSpec<TextureRegion> deathAnimSpec;
     protected int shootSpriteIndex;
     protected float idleFrameInterval = 0.1f;
     protected float shootFrameInterval = 0.1f;
     protected float deathFrameInterval = 0.1f;
-    /**
-     * The number of time that the enemy is allowed to shoot.
-     */
-    protected int shootAnimationRepeat;
-    /**
-     * Timer for counting the interval between animation.
-     */
-    protected float animationIntervalTimer;
     protected float animationInterval;
-    protected float stateTime;
+    protected float deathAnimationTimer;
+    protected TextureRegion[] bulletIdleFrames;
 
-    protected enum AnimationType {
-        Idle, Shoot, Death
-    }
-
-    protected AnimationType currentAnimationType = AnimationType.Idle;
     public SpriteBatch batch;
     protected DebugRenderer debugRenderer;
     protected MainShip mainShip;
@@ -103,6 +79,8 @@ public abstract class Enemy {
     float radius;
 
     protected BulletHolder bulletHolder;
+
+    public boolean shootAnimationActivated;
 
     public Enemy(TextureRegion staticTexture, float iniX, float iniY, float width, float height,
             MainShip mainShip, Wave wave) {
@@ -120,29 +98,104 @@ public abstract class Enemy {
         this.worldHeight = Constants.worldHeight;
         this.wave = wave;
         this.bulletHolder = wave.level.bulletHolder;
-        path.add(new Vector2(iniX, iniY));
     }
 
     public void initializeIdleAnimation(TextureRegion[] idleAnimationFrames) {
         idleAnimation = new Animation<>(idleFrameInterval, idleAnimationFrames);
-        idleAnimationFrameNum = idleAnimationFrames.length;
-        stateTime = 0;
+        AnimationTexture idle = new AnimationTexture(idleAnimation);
+        AnimSpec<TextureRegion> idleAnimSpec = new AnimSpec<>(idle, (value, progress) -> {
+            this.sprite.setRegion(value);
+        }, 0, idleAnimation.getAnimationDuration(), 0, 999);
+        Constants.textureAnimScheduler.play(id + "Idle", idleAnimSpec);
     }
 
     public void initializeShootAnimation(TextureRegion[] shootAnimationFrames) {
         shootAnimation = new Animation<>(shootFrameInterval, shootAnimationFrames);
-        this.shootAnimationFrameNum = shootAnimationFrames.length;
-        stateTime = 0;
+        AnimationTexture shoot = new AnimationTexture(shootAnimation);
+        shootAnimSpec = new AnimSpec<>(shoot, (value, progress) -> {
+            this.shootUpdate(progress);
+            this.sprite.setRegion(value);
+        }, 1, shootAnimation.getAnimationDuration(), 0, 10);
+        Constants.textureAnimScheduler.play(id + "Shoot", shootAnimSpec);
+    }
+
+    void shootUpdate(float progress) {
+        if (shootAnimation.getKeyFrameIndex(
+                shootAnimation.getAnimationDuration() * progress) == shootSpriteIndex) {
+            shoot();
+            return;
+        }
+
+        if (shootAnimation.getKeyFrameIndex(
+                shootAnimation.getAnimationDuration() * progress) == shootSpriteIndex + 1) {
+            shootInThisAnimation = false;
+            return;
+        }
+
+        if (progress == 1) {
+            Constants.textureAnimScheduler.resume(id + "Idle");
+            return;
+        }
+
+        if (progress == 0)
+            Constants.textureAnimScheduler.pause(id + "Idle");
+    }
+
+    /**
+     *
+     * @param shootPointX The X coordinate of the shoot point.
+     * @param shootPointY The Y coordinate of the shoot point.
+     * @param dx The X direction of the vector.
+     * @param dy The Y direction of the vector.
+     * @return The bullet type of this enemy.
+     */
+    protected abstract Bullet returnBulletType(float shootPointX, float shootPointY, float dx,
+            float dy);
+
+    public void shoot() {
+        if (!shootInThisAnimation && !isDead) {
+            for (Vector2 shootPointOffset : shootPointsOffsets) {
+                shootInThisAnimation = true;
+                float shootPointX = sprite.getX() + shootPointOffset.x;
+                float shootPointY = sprite.getY() + shootPointOffset.y;
+                float dx = mainShip.getShipHurtboxCenterX() - shootPointX;
+                float dy = mainShip.getShipHurtboxCenterY() - shootPointY;
+
+                bulletHolder.enemyBullets.add(returnBulletType(shootPointX, shootPointY, dx, dy));
+            }
+        }
     }
 
     public void initializeDeathAnimation(TextureRegion[] deathAnimationFrames) {
         deathAnimation = new Animation<>(deathFrameInterval, deathAnimationFrames);
-        this.deathAnimationFrameNum = deathAnimationFrames.length;
-        stateTime = 0;
+        AnimationTexture death = new AnimationTexture(deathAnimation);
+        deathAnimSpec = new AnimSpec<>(death, (value, progress) -> {
+            this.sprite.setRegion(value);
+        }, 0, deathAnimation.getAnimationDuration(), 0, 99);
+    }
+
+    public void triggerDeathAnimation() {
+        Constants.textureAnimScheduler.stop(id + "Idle");
+        Constants.textureAnimScheduler.stop(id + "Shoot");
+        Constants.textureAnimScheduler.play(id + "Death", deathAnimSpec);
+    }
+
+    public boolean isDeathAnimationFinished() {
+        float delta = Gdx.graphics.getDeltaTime();
+        if (isDead)
+            deathAnimationTimer += delta;
+        return deathAnimationTimer >= deathAnimation.getAnimationDuration();
+    }
+
+    public void draw() {
+        sprite.draw(batch);
+    }
+
+    public void drawDebug() {
+        drawHitbox();
     }
 
     public void update() {
-        updateStatus();
         moveUpdate();
         updateEnemyHitboxAndHurtbox();
         hitboxCheck();
@@ -160,131 +213,12 @@ public abstract class Enemy {
         }
     }
 
-    public void updateStatus() {
-        if (health <= 0 && currentAnimationType != AnimationType.Death) {
-            isDead = true;
-            isInvulnerable = true;
-            isHarmless = true;
-            cancelAllTasks();
-            triggerDeathAnimation();
-        }
-    }
-
-    public void triggerShootAnimation() {
-        if (shootAnimationFrameNum != 0) {
-            currentAnimationType = AnimationType.Shoot;
-            stateTime = 0;
-        }
-    }
-
-    public void triggerDeathAnimation() {
-        if (deathAnimationFrameNum != 0) {
-            currentAnimationType = AnimationType.Death;
-            stateTime = 0;
-        }
-    }
-
-    public void draw() {
-        drawAnimation();
-    }
-
-    public void drawDebug() {
-        drawHitbox();
-    }
-
-    public void drawAnimation() {
-        float delta = Gdx.graphics.getDeltaTime();
-        switch (currentAnimationType) {
-            case Idle:
-                if (idleAnimationFrameNum == 0)
-                    sprite.draw(batch);
-                else {
-                    stateTime += delta;
-                    TextureRegion currentFrame = idleAnimation.getKeyFrame(stateTime);
-
-                    batch.draw(currentFrame, sprite.getX(), sprite.getY(), width, height);
-
-                    if (idleAnimation.isAnimationFinished(stateTime))
-                        stateTime = 0;
-                }
-                // If the number of times that the shoot animation needs to repeat is not 0 then it
-                // needs to keep track of intervals.
-                if (shootAnimationFrameNum != 0) {
-                    if (shootAnimationRepeat != 0 && animationIntervalTimer < animationInterval) {
-                        animationIntervalTimer += delta;
-                    } else if (shootAnimationRepeat != 0
-                            && animationIntervalTimer >= animationInterval) {
-                        shootAnimationRepeat--;
-                        animationIntervalTimer = 0;
-                        shootInThisAnimation = false;
-                        triggerShootAnimation();
-                    }
-                }
-                break;
-            case Shoot:
-                if (shootAnimationFrameNum != 0) {
-                    stateTime += delta;
-                    animationIntervalTimer = 0;
-                    TextureRegion currentFrame = shootAnimation.getKeyFrame(stateTime);
-
-                    if (shootAnimation.getKeyFrameIndex(stateTime) == shootSpriteIndex)
-                        shoot();
-
-                    if (shootAnimation.isAnimationFinished(stateTime)) {
-                        currentAnimationType = AnimationType.Idle;
-                        stateTime = 0;
-                    }
-
-                    batch.draw(currentFrame, sprite.getX(), sprite.getY(), width, height);
-                }
-                break;
-            case Death:
-                if (deathAnimationFrameNum != 0) {
-                    stateTime += delta;
-                    TextureRegion currentFrame = deathAnimation.getKeyFrame(stateTime);
-                    batch.draw(currentFrame, sprite.getX(), sprite.getY(), width, height);
-                }
-        }
-    }
-
     void drawHitbox() {
         for (BoxWithOffset hitbox : hitboxes) {
             debugRenderer.drawHitbox(hitbox.getBox());
         }
         for (BoxWithOffset hurtbox : hurtboxes) {
             debugRenderer.drawHurtbox(hurtbox.getBox());
-        }
-    }
-
-    public boolean isDeathAnimationFinished() {
-        if (deathAnimationFrameNum == 0)
-            return true;
-        else
-            return deathAnimation.isAnimationFinished(stateTime);
-    }
-
-    /**
-     *
-     * @param shootPointX The X coordinate of the shoot point.
-     * @param shootPointY The Y coordinate of the shoot point.
-     * @param dx The X direction of the vector.
-     * @param dy The Y direction of the vector.
-     * @return The bullet type of this enemy.
-     */
-    protected abstract Bullet returnBulletType(float shootPointX, float shootPointY, float dx,
-            float dy);
-
-    public void shoot() {
-        if (!shootInThisAnimation && !isDead && shootAnimationFrameNum != 0) {
-            for (Vector2 shootPointOffset : shootPointsOffsets) {
-                shootInThisAnimation = true;
-                float shootPointX = sprite.getX() + shootPointOffset.x;
-                float shootPointY = sprite.getY() + shootPointOffset.y;
-                float dx = mainShip.getShipHurtboxCenterX() - shootPointX;
-                float dy = mainShip.getShipHurtboxCenterY() - shootPointY;
-
-                bulletHolder.enemyBullets.add(returnBulletType(shootPointX, shootPointY, dx, dy));
-            }
         }
     }
 
@@ -329,13 +263,12 @@ public abstract class Enemy {
 
     protected void takeDamage(float damage) {
         health -= damage;
-    }
-
-
-    void cancelAllTasks() {
-        for (Timer.Task task : tasks)
-            if (task.isScheduled())
-                task.cancel();
+        if (health <= 0) {
+            isDead = true;
+            isInvulnerable = true;
+            isHarmless = true;
+            triggerDeathAnimation();
+        }
     }
 
     public boolean getIsDead() {

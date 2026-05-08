@@ -1,5 +1,6 @@
 package io.github.gucksus.simplefirstgame.entities;
 
+import java.util.UUID;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Texture;
@@ -7,9 +8,12 @@ import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Array;
 import io.github.gucksus.simplefirstgame.Constants;
+import io.github.gucksus.simplefirstgame.animation.AnimSpec;
 import io.github.gucksus.simplefirstgame.entities.base.Bullet;
 import io.github.gucksus.simplefirstgame.entities.bullets.BasicBullet;
+import io.github.gucksus.simplefirstgame.maths.AnimationTexture;
 import io.github.gucksus.simplefirstgame.tools.BulletHolder;
 import io.github.gucksus.simplefirstgame.tools.DebugRenderer;
 
@@ -30,7 +34,7 @@ public class MainShip {
     public boolean isDead = false;
     public boolean isInAnimation;
     Vector2 directionDifferenceMultiplier;
-    Animation<TextureRegion> spinAnimation;
+    Array<AnimationTexture> spinAnimations = new Array<>();
     Texture spinAnimationSheet;
     float stateTime;
     float worldWidth;
@@ -38,6 +42,9 @@ public class MainShip {
     SpriteBatch batch;
     DebugRenderer debugRenderer;
     BulletHolder bulletHolder;
+    int spinAnimIndex = 0;
+    float timerSinceLastSpin = 67;
+    float spinDuration;
 
     public MainShip(float centerX, float iniY, float width, float height,
             BulletHolder bulletHolder) {
@@ -48,13 +55,9 @@ public class MainShip {
         basicBulletIdleSheet = new Texture("Bullet/basicBullet.png");
         spinAnimationSheet = new Texture("Mainship/ship_sprite_animation1.png");
 
-        TextureRegion[][] temp = TextureRegion.split(spinAnimationSheet,
-                spinAnimationSheet.getWidth() / 11, spinAnimationSheet.getHeight());
-
-        spinAnimation = new Animation<>(0.1f, temp[0]);
+        initializeAnimation();
         basicBulletIdleFrames = getBasicBulletIdleFrames();
 
-        shipSprite = new Sprite(temp[0][0]);
         shipSprite.setSize(width, height);
         shipSprite.setCenterX(centerX);
         shipSprite.setY(iniY);
@@ -68,6 +71,36 @@ public class MainShip {
         this.bulletHolder = bulletHolder;
     }
 
+    void setSpriteTexture(TextureRegion value) {
+        shipSprite.setRegion(value);
+    }
+
+    void initializeAnimation() {
+        TextureRegion[][] temp = TextureRegion.split(spinAnimationSheet, 64, 64);
+
+        AnimationTexture toBlueRed = new AnimationTexture(new Animation<>(0.1f, temp[0]));
+        AnimationTexture toRedWhite = new AnimationTexture(new Animation<>(.1f, temp[1]));
+        AnimationTexture toWhiteBlue = new AnimationTexture(new Animation<>(0.1f, temp[2]));
+        spinDuration = toBlueRed.getDuration();
+
+        spinAnimations.add(toBlueRed);
+        spinAnimations.add(toRedWhite);
+        spinAnimations.add(toWhiteBlue);
+
+        shipSprite = new Sprite(temp[0][0]);
+    }
+
+    void triggerSpinAnim() {
+        if (timerSinceLastSpin < spinDuration)
+            return;
+        Constants.textureAnimScheduler.play("Spin",
+                new AnimSpec<>(spinAnimations.get(spinAnimIndex), (value, progress) -> {
+                    this.setSpriteTexture(value);
+                }, 0, spinDuration, 0, 0));
+        timerSinceLastSpin = 0;
+        spinAnimIndex = (spinAnimIndex + 1) % 3;
+    }
+
     TextureRegion[] getBasicBulletIdleFrames() {
         return TextureRegion.split(basicBulletIdleSheet, 16, 16)[0];
     }
@@ -76,6 +109,7 @@ public class MainShip {
         float delta = Gdx.graphics.getDeltaTime();
         timerSinceLastShot += delta;
         timerSinceLastDamage += delta;
+        timerSinceLastSpin += delta;
         input();
         // Update hurtbox position for the ship.
         shipHurtbox.setPosition(shipSprite.getX() + width / 2, shipSprite.getY() + hurtboxOffsetY);
@@ -118,8 +152,8 @@ public class MainShip {
             }
         }
 
-        if (Gdx.input.isKeyPressed(Input.Keys.L) && !isInAnimation) {
-            isInAnimation = true;
+        if (Gdx.input.isKeyPressed(Input.Keys.L)) {
+            triggerSpinAnim();
         }
     }
 
@@ -132,17 +166,7 @@ public class MainShip {
     }
 
     public void draw() {
-        float delta = Gdx.graphics.getDeltaTime();
-        if (!isDead && !isInAnimation) {
-            shipSprite.draw(batch);
-        }
-        if (!isDead && isInAnimation) {
-            stateTime += delta;
-
-            TextureRegion currentFrame = spinAnimation.getKeyFrame(stateTime, false);
-            batch.draw(currentFrame, shipSprite.getX(), shipSprite.getY(), width, height);
-
-        }
+        shipSprite.draw(batch);
     }
 
     public void drawDebug() {

@@ -66,18 +66,18 @@ public class Carrier extends Enemy {
             else
                 daausMultiplier = 1;
 
-            Vector2[] tempPath = {currentPos, nextPoint,
+            Vector2[] path = {currentPos, nextPoint,
                     new Vector2(currentPos.x + daausMultiplier * 3,
                             currentPos.y + (nextPoint.y - currentPos.y) * 2),
                     new Vector2(), new Vector2()};
             if (currentPos.x > worldWidth / 2) {
-                tempPath[3].set(-1, 20);
-                tempPath[4] = tempPath[3].cpy();
+                path[3].set(-1, 20);
+                path[4] = path[3].cpy();
             } else {
-                tempPath[3].set(12, 20);
-                tempPath[4] = tempPath[3].cpy();
+                path[3].set(12, 20);
+                path[4] = path[3].cpy();
             }
-            catmullRomSpline = new CatmullRomSpline<>(tempPath, false);
+            catmullRomSpline = new CatmullRomSpline<>(path, false);
             currentMovingType = movingType.Curve;
             moveTimer = 0;
         }

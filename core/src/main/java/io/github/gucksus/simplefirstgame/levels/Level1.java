@@ -63,15 +63,15 @@ public class Level1 extends Level {
     private void addSkullShooterIntoWave(Wave... waves) {
         for (Wave wave : waves) {
             for (int i = 0; i < wave.totalEnemies; i++) {
-                TextureRegion[][] temp = TextureRegion.split(skullAnimationSheet,
+                TextureRegion[][] splitSkullAnimSheet = TextureRegion.split(skullAnimationSheet,
                         skullAnimationSheet.getWidth() / 11, skullAnimationSheet.getHeight() / 2);
-                Enemy enemy = new SkullShooterEnemy(temp[0][0],
+                Enemy enemy = new SkullShooterEnemy(splitSkullAnimSheet[0][0],
                         TextureRegion.split(skullBulletTexture, 32, 32)[0], wave.path.first().x,
                         wave.path.first().y, mainShip, wave);
                 TextureRegion tmp = new TextureRegion(popcornEnemyTexture);
                 enemy.initializeIdleAnimation(new TextureRegion[] {tmp});
-                enemy.initializeShootAnimation(temp[0]);
-                enemy.initializeDeathAnimation(temp[1]);
+                enemy.initializeShootAnimation(splitSkullAnimSheet[0]);
+                enemy.initializeDeathAnimation(splitSkullAnimSheet[1]);
                 wave.addEnemy(enemy);
             }
         }
@@ -79,13 +79,13 @@ public class Level1 extends Level {
 
     private void addCarrier() {
         Wave wave = addNewWave(1, 0, 67, 67);
-        TextureRegion[][] temp = TextureRegion.split(carrierTextureSheet,
+        TextureRegion[][] splitCarrierSheet = TextureRegion.split(carrierTextureSheet,
                 carrierTextureSheet.getWidth() / 3, carrierTextureSheet.getHeight() / 3);
         Carrier carrier =
-                new Carrier(temp[0][0], TextureRegion.split(powerUpTextureSheet, 32, 32)[0],
+                new Carrier(splitCarrierSheet[0][0], TextureRegion.split(powerUpTextureSheet, 32, 32)[0],
                         worldWidth / 2, worldHeight + 1, mainShip, wave);
-        carrier.initializeIdleAnimation(temp[0]);
-        carrier.initializeDeathAnimation(temp[1]);
+        carrier.initializeIdleAnimation(splitCarrierSheet[0]);
+        carrier.initializeDeathAnimation(splitCarrierSheet[1]);
         wave.addEnemy(carrier);
     }
 

@@ -76,18 +76,18 @@ public class MainShip {
     }
 
     void initializeAnimation() {
-        TextureRegion[][] temp = TextureRegion.split(spinAnimationSheet, 64, 64);
+        TextureRegion[][] splitSpinAnimSheet = TextureRegion.split(spinAnimationSheet, 64, 64);
 
-        AnimationTexture toBlueRed = new AnimationTexture(new Animation<>(0.1f, temp[0]));
-        AnimationTexture toRedWhite = new AnimationTexture(new Animation<>(.1f, temp[1]));
-        AnimationTexture toWhiteBlue = new AnimationTexture(new Animation<>(0.1f, temp[2]));
+        AnimationTexture toBlueRed = new AnimationTexture(new Animation<>(0.1f, splitSpinAnimSheet[0]));
+        AnimationTexture toRedWhite = new AnimationTexture(new Animation<>(.1f, splitSpinAnimSheet[1]));
+        AnimationTexture toWhiteBlue = new AnimationTexture(new Animation<>(0.1f, splitSpinAnimSheet[2]));
         spinDuration = toBlueRed.getDuration();
 
         spinAnimations.add(toBlueRed);
         spinAnimations.add(toRedWhite);
         spinAnimations.add(toWhiteBlue);
 
-        shipSprite = new Sprite(temp[0][0]);
+        shipSprite = new Sprite(splitSpinAnimSheet[0][0]);
     }
 
     void triggerSpinAnim() {

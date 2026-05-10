@@ -1,6 +1,5 @@
 package io.github.gucksus.simplefirstgame.entities;
 
-import java.util.UUID;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Texture;
@@ -32,9 +31,9 @@ public class MainShip {
     public float timerSinceLastDamage;
     public float invulnerableDuration = 1f;
     public boolean isDead = false;
-    public boolean isInAnimation;
-    Vector2 directionDifferenceMultiplier;
+    Vector2 directionVector;
     Array<AnimationTexture> spinAnimations = new Array<>();
+    TextureRegion[][] turnAnimations = new TextureRegion[3][2];
     Texture spinAnimationSheet;
     float stateTime;
     float worldWidth;
@@ -45,6 +44,15 @@ public class MainShip {
     int spinAnimIndex = 0;
     float timerSinceLastSpin = 67;
     float spinDuration;
+
+    enum AnimationState {
+        Neutral, TurningLeft, TurningRight, Spinning
+    }
+
+    AnimationState currentAnimationState = AnimationState.Neutral;
+
+    float timerSinceKeyDown = 0;
+    Vector2 lastDirectionVector = new Vector2();
 
     public MainShip(float centerX, float iniY, float width, float height,
             BulletHolder bulletHolder) {
@@ -62,12 +70,12 @@ public class MainShip {
         shipSprite.setCenterX(centerX);
         shipSprite.setY(iniY);
         shipHurtbox = new Circle(shipSprite.getX() + width / 2, iniY + hurtboxOffsetY, .1f);
-        currentBullet = new BasicBullet(basicBulletIdleFrames, 69, 69, 67, 67, batch);
-        directionDifferenceMultiplier = new Vector2();
+        directionVector = new Vector2();
         worldWidth = Constants.worldWidth;
         worldHeight = Constants.worldHeight;
         batch = Constants.batch;
         debugRenderer = Constants.debugRenderer;
+        currentBullet = new BasicBullet(basicBulletIdleFrames, 69, 69, 67, 67, batch);
         this.bulletHolder = bulletHolder;
     }
 
@@ -78,14 +86,21 @@ public class MainShip {
     void initializeAnimation() {
         TextureRegion[][] splitSpinAnimSheet = TextureRegion.split(spinAnimationSheet, 64, 64);
 
-        AnimationTexture toBlueRed = new AnimationTexture(new Animation<>(0.1f, splitSpinAnimSheet[0]));
-        AnimationTexture toRedWhite = new AnimationTexture(new Animation<>(.1f, splitSpinAnimSheet[1]));
-        AnimationTexture toWhiteBlue = new AnimationTexture(new Animation<>(0.1f, splitSpinAnimSheet[2]));
+        AnimationTexture toBlueRed =
+                new AnimationTexture(new Animation<>(0.1f, splitSpinAnimSheet[0]));
+        AnimationTexture toRedWhite =
+                new AnimationTexture(new Animation<>(.1f, splitSpinAnimSheet[1]));
+        AnimationTexture toWhiteBlue =
+                new AnimationTexture(new Animation<>(0.1f, splitSpinAnimSheet[2]));
         spinDuration = toBlueRed.getDuration();
 
         spinAnimations.add(toBlueRed);
         spinAnimations.add(toRedWhite);
         spinAnimations.add(toWhiteBlue);
+
+        turnAnimations[0] = splitSpinAnimSheet[3];
+        turnAnimations[1] = splitSpinAnimSheet[4];
+        turnAnimations[2] = splitSpinAnimSheet[5];
 
         shipSprite = new Sprite(splitSpinAnimSheet[0][0]);
     }
@@ -93,6 +108,7 @@ public class MainShip {
     void triggerSpinAnim() {
         if (timerSinceLastSpin < spinDuration)
             return;
+        currentAnimationState = AnimationState.Spinning;
         Constants.textureAnimScheduler.play("Spin",
                 new AnimSpec<>(spinAnimations.get(spinAnimIndex), (value, progress) -> {
                     this.setSpriteTexture(value);
@@ -111,8 +127,15 @@ public class MainShip {
         timerSinceLastDamage += delta;
         timerSinceLastSpin += delta;
         input();
+        animationStateUpdate();
         // Update hurtbox position for the ship.
         shipHurtbox.setPosition(shipSprite.getX() + width / 2, shipSprite.getY() + hurtboxOffsetY);
+    }
+
+    void returnAnimationToNeutral() {
+        timerSinceKeyDown = 0;
+        currentAnimationState = AnimationState.Neutral;
+        shipSprite.setRegion(spinAnimations.get(spinAnimIndex).getFirstFrame());
     }
 
     private void input() {
@@ -120,19 +143,26 @@ public class MainShip {
         float dx = 0;
         float dy = 0;
 
-        if (Gdx.input.isKeyPressed(Input.Keys.A))
+        if (Gdx.input.isKeyPressed(Input.Keys.A)) {
             dx -= 1;
-        if (Gdx.input.isKeyPressed(Input.Keys.D))
+            if (lastDirectionVector.x < 0)
+                timerSinceKeyDown += delta;
+        }
+        if (Gdx.input.isKeyPressed(Input.Keys.D)) {
             dx += 1;
+            if (lastDirectionVector.x > 0)
+                timerSinceKeyDown += delta;
+        }
         if (Gdx.input.isKeyPressed(Input.Keys.W))
             dy += 1;
         if (Gdx.input.isKeyPressed(Input.Keys.S))
             dy -= 1;
 
-        directionDifferenceMultiplier.set(dx, dy).nor();
+        directionVector.set(dx, dy).nor();
+        lastDirectionVector.set(directionVector);
 
-        shipSprite.translateX(directionDifferenceMultiplier.x * shipSpeed * delta);
-        shipSprite.translateY(directionDifferenceMultiplier.y * shipSpeed * delta);
+        shipSprite.translateX(directionVector.x * shipSpeed * delta);
+        shipSprite.translateY(directionVector.y * shipSpeed * delta);
 
         // Here I set so that the ship can go off-screen a quarter of its width.
         shipSprite.setX(MathUtils.clamp(shipSprite.getX(), -(shipSprite.getWidth() / 4),
@@ -151,14 +181,44 @@ public class MainShip {
                 timerSinceLastShot = 0;
             }
         }
+    }
 
-        if (Gdx.input.isKeyPressed(Input.Keys.L)) {
-            triggerSpinAnim();
+    void animationStateUpdate() {
+        switch (currentAnimationState) {
+            case Spinning:
+                if (timerSinceLastSpin >= spinDuration)
+                    currentAnimationState = AnimationState.Neutral;
+                break;
+            case TurningLeft:
+                shipSprite.setRegion(turnAnimations[spinAnimIndex][0]);
+                if (lastDirectionVector.x >= 0)
+                    returnAnimationToNeutral();
+                break;
+            case TurningRight:
+                shipSprite.setRegion(turnAnimations[spinAnimIndex][1]);
+                if (lastDirectionVector.x <= 0)
+                    returnAnimationToNeutral();
+                break;
+            case Neutral:
+                if (Gdx.input.isKeyPressed(Input.Keys.L)) {
+                    triggerSpinAnim();
+                    break;
+                }
+
+                shipSprite.setRegion(spinAnimations.get(spinAnimIndex).getFirstFrame());
+                if (timerSinceKeyDown >= .1f) {
+                    if (lastDirectionVector.x < 0)
+                        currentAnimationState = AnimationState.TurningLeft;
+                    else
+                        currentAnimationState = AnimationState.TurningRight;
+                }
+                break;
         }
     }
 
     public void takeDamage() {
         lives -= 1;
+        System.out.println(1);
         if (lives == 0) {
             isDead = true;
         }
@@ -166,7 +226,8 @@ public class MainShip {
     }
 
     public void draw() {
-        shipSprite.draw(batch);
+        if (!isDead)
+            shipSprite.draw(batch);
     }
 
     public void drawDebug() {

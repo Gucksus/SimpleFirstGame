@@ -21,4 +21,8 @@ public class AnimationTexture implements CallableMath<TextureRegion> {
     public float getDuration() {
         return animationDuration;
     }
+
+    public TextureRegion getFirstFrame() {
+        return animation.getKeyFrame(0);
+    }
 }

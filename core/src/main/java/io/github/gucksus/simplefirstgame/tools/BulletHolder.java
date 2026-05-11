@@ -4,10 +4,12 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.utils.Array;
 import io.github.gucksus.simplefirstgame.Constants;
 import io.github.gucksus.simplefirstgame.entities.base.Bullet;
+import io.github.gucksus.simplefirstgame.entities.bullets.AquaShield;
 
 public class BulletHolder {
     public Array<Bullet> enemyBullets = new Array<>();
     public Array<Bullet> shipBullets = new Array<>();
+    public Array<Bullet> shipPower = new Array<>();
     DebugRenderer debugRenderer;
     float worldHeight;
 
@@ -27,6 +29,9 @@ public class BulletHolder {
         }
         for (Bullet bullet : shipBullets)
             bullet.draw();
+        for (Bullet bullet : shipPower) {
+            bullet.draw();
+        }
     }
 
     public void drawDebug() {
@@ -40,6 +45,10 @@ public class BulletHolder {
         for (Bullet bullet : shipBullets) {
             debugRenderer.drawHitbox(bullet.getRectangleHitbox());
         }
+
+        for (Bullet bullet : shipPower) {
+            debugRenderer.drawHitbox(bullet.getRectangleHitbox());
+        }
     }
 
     /**
@@ -47,11 +56,11 @@ public class BulletHolder {
      * bullet that does.
      */
     private void bulletUpdate() {
-        for (int i = shipBullets.size - 1; i >= 0; i--) {
+        for (int i = shipBullets.size - 1; i >= 0; i--)
             shipBullets.get(i).update();
-        }
-
         for (Bullet bullet : enemyBullets)
+            bullet.update();
+        for (Bullet bullet : shipPower)
             bullet.update();
     }
 

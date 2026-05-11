@@ -113,7 +113,7 @@ public abstract class Enemy {
         shootAnimSpec = new AnimSpec<>(shoot, (value, progress) -> {
             this.shootUpdate(progress);
             this.sprite.setRegion(value);
-        }, 1, shootAnimation.getAnimationDuration(), 0, 10);
+        }, 1, shootAnimation.getAnimationDuration(), 0, 100);
         Constants.textureAnimScheduler.play(id + "Shoot", shootAnimSpec);
     }
 

@@ -105,9 +105,10 @@ public class Level1 extends Level {
         // Wave A3 = addNewWave(1, 0, 6, 8);
         // addSkullShooterIntoWave(A1, A2, A3);
 
-        // // A1.moveAllEnemyStraight(new Vector2[] {v(1, 8), v(4, 4), v(7, 8)}, 0, 1, 0, 0);
-        // // A2.moveAllEnemyStraight(new Vector2[] {v(0, 8), v(6, 7), v(5, 1)}, 0, 1, 0, 0);
+        // A1.moveAllEnemyStraight(new Vector2[] {v(1, 8), v(4, 4), v(7, 8)}, 0, 1, 0, 0);
+        // A2.moveAllEnemyStraight(new Vector2[] {v(0, 8), v(6, 7), v(5, 1)}, 0, 1, 0, 0);
         // A2.moveAllEnemyInCircle(v(5, 1), v(3, 3), 1, 4, 0, 0, 2);
+        addCarrier();
     }
 
     public void dispose() {

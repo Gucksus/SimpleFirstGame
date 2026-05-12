@@ -17,7 +17,6 @@ public abstract class Level {
     public DebugRenderer debugRenderer;
     protected Array<Enemy> activeEnemies = new Array<>();
     protected Array<Wave> waveArray = new Array<>();
-    protected boolean isLevelStarted;
     protected float lastDelta;
     public float worldWidth;
     public float worldHeight;
@@ -84,21 +83,5 @@ public abstract class Level {
 
     public void updateDelta() {
         lastDelta = Gdx.graphics.getDeltaTime();
-    }
-
-    /**
-     * This method is used to trigger start the level only when libGdx is fully stable.
-     */
-    public void startLevelIfHaveNotStarted() {
-        float delta = Gdx.graphics.getDeltaTime();
-        if (!this.isLevelStarted && Math.abs(lastDelta - delta) <= .0001f) {
-            if (!debugMode) {
-                this.enemySpawn();
-            } else {
-                this.enemySpawnDebug();
-            }
-            this.isLevelStarted = true;
-            System.out.println(delta);
-        }
     }
 }

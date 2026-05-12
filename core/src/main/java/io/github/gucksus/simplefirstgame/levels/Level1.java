@@ -32,6 +32,12 @@ public class Level1 extends Level {
         carrierTextureSheet = new Texture("Mainship/PowerUp/PowerUpCarrier.png");
         powerUpTextureSheet = new Texture("Mainship/PowerUp/PowerUp.png");
         debugMode = true;
+
+        if (!debugMode) {
+            this.enemySpawn();
+        } else {
+            this.enemySpawnDebug();
+        }
     }
 
     Wave addNewWave(int totalEnemy, float interval, float startX, float startY) {
@@ -81,9 +87,9 @@ public class Level1 extends Level {
         Wave wave = addNewWave(1, 0, 67, 67);
         TextureRegion[][] splitCarrierSheet = TextureRegion.split(carrierTextureSheet,
                 carrierTextureSheet.getWidth() / 3, carrierTextureSheet.getHeight() / 3);
-        Carrier carrier =
-                new Carrier(splitCarrierSheet[0][0], TextureRegion.split(powerUpTextureSheet, 32, 32)[0],
-                        worldWidth / 2, worldHeight + 1, mainShip, wave);
+        Carrier carrier = new Carrier(splitCarrierSheet[0][0],
+                TextureRegion.split(powerUpTextureSheet, 32, 32)[0], worldWidth / 2,
+                worldHeight + 1, mainShip, wave);
         carrier.initializeIdleAnimation(splitCarrierSheet[0]);
         carrier.initializeDeathAnimation(splitCarrierSheet[1]);
         wave.addEnemy(carrier);

@@ -20,15 +20,17 @@ public class AquaShield extends Bullet {
 
     public AquaShield(TextureRegion[] idleAnimationFrames, float width, float height, float iniX,
             float iniY, SpriteBatch batch, MainShip mainShip) {
-        super(idleAnimationFrames, iniX, iniY, 1, 1, batch);
+        super(idleAnimationFrames, iniX, iniY, 1.5f, 1.5f, batch);
         this.mainShip = mainShip;
         sprite.setOriginCenter();
-        rectangleHitbox = new BoxWithOffset(iniX, iniY, 10, 13, 10, 9, pixelLength.x, pixelLength.y);
+        rectangleHitbox = new BoxWithOffset(iniX, iniY, 12, 12, 10, 9, pixelLength.x, pixelLength.y);
+        damage = 1;
     }
 
     @Override
     public void update() {
         circular.setCenter(mainShip.getPastPositions().first());
+        updateHitbox();
     }
 
     @Override
@@ -37,7 +39,7 @@ public class AquaShield extends Bullet {
         circularAnimSpec = new AnimSpec<>(circular, (value, progess) -> {
             this.setPosition(value.x, value.y);
             this.setRotation(circular.getAngle());
-        }, 0, 200, 0, 0);
+        }, 0, 99, 0, 0);
         Constants.circularAnimScheduler.play(id + "Circular", circularAnimSpec);
     }
 

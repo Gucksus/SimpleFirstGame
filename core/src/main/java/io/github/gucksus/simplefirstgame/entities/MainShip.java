@@ -98,7 +98,7 @@ public class MainShip {
             bulletHolder.shipPower.add(aquaShield);
         }
 
-        Vector2 shipPoint = new Vector2(getCoordinate());
+        Vector2 shipPoint = pastPositions.first();
         Vector2 basePoint = new Vector2(shipPoint.x + 1, shipPoint.y + 1);
         float radius = basePoint.sub(shipPoint).len();
         float baseAngle = basePoint.sub(shipPoint).angleRad();

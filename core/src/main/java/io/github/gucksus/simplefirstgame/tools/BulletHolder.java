@@ -4,7 +4,6 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.utils.Array;
 import io.github.gucksus.simplefirstgame.Constants;
 import io.github.gucksus.simplefirstgame.entities.base.Bullet;
-import io.github.gucksus.simplefirstgame.entities.bullets.AquaShield;
 
 public class BulletHolder {
     public Array<Bullet> enemyBullets = new Array<>();

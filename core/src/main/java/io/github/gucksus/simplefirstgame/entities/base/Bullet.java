@@ -92,7 +92,7 @@ public class Bullet {
         stateTime = 0;
     }
 
-    void updateHitbox() {
+    protected void updateHitbox() {
         if (isCircle())
             circleHitbox.setPosition(sprite.getX() + circleHitboxOffset.x,
                     sprite.getY() + circleHitboxOffset.y);

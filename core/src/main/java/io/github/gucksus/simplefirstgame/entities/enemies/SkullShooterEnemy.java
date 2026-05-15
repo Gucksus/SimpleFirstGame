@@ -13,7 +13,7 @@ public class SkullShooterEnemy extends Enemy {
     public SkullShooterEnemy(TextureRegion staticTexture, TextureRegion[] bulletIdleAnimationFrames,
             float iniX, float iniY, MainShip mainShip, Wave wave) {
         super(staticTexture, iniX, iniY, 4, 4, mainShip, wave);
-        health = 6f;
+        health = 99f;
         shootPointsOffsets.add(new Vector2(pixelLength.x * 32, pixelLength.y * 22));
         hitboxes.add(new BoxWithOffset(iniX, iniY, 10, 19, 27, 23, pixelLength.x, pixelLength.y));
         hurtboxes.add(new BoxWithOffset(iniX, iniY, 18, 10, 23, 33, pixelLength.x, pixelLength.y));

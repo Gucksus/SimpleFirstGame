@@ -11,10 +11,10 @@ public class BasicBullet extends Bullet {
         super(idleAnimationFrames, iniX, iniY, .5f, .5f, dx, dy, batch);
         speed = 17f;
         damage = 1f;
-        fireRate = .2f;
+        fireRate = .01f;
         rectangleHitbox = new BoxWithOffset(sprite.getX(), sprite.getY(), 4, 9, 5, 0, pixelLength.x,
                 pixelLength.y);
-        maxBulletOnScreen = 5;
+        maxBulletOnScreen = 99;
         movingType = MovingType.Straight;
     }
 }

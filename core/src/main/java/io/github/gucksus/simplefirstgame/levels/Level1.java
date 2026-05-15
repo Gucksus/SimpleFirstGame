@@ -74,8 +74,7 @@ public class Level1 extends Level {
                 Enemy enemy = new SkullShooterEnemy(splitSkullAnimSheet[0][0],
                         TextureRegion.split(skullBulletTexture, 32, 32)[0], wave.path.first().x,
                         wave.path.first().y, mainShip, wave);
-                TextureRegion tmp = new TextureRegion(popcornEnemyTexture);
-                enemy.initializeIdleAnimation(new TextureRegion[] {tmp});
+                enemy.initializeIdleAnimation(new TextureRegion[] {splitSkullAnimSheet[0][0]});
                 enemy.initializeShootAnimation(splitSkullAnimSheet[0]);
                 enemy.initializeDeathAnimation(splitSkullAnimSheet[1]);
                 wave.addEnemy(enemy);
@@ -106,10 +105,10 @@ public class Level1 extends Level {
 
     @Override
     public void enemySpawnDebug() {
-        // Wave A1 = addNewWave(3, 0, 4, 8);
-        // Wave A2 = addNewWave(1, 0, 5, 8);
-        // Wave A3 = addNewWave(1, 0, 6, 8);
-        // addSkullShooterIntoWave(A1, A2, A3);
+        Wave A1 = addNewWave(1, 0, 4, 8);
+        Wave A2 = addNewWave(1, 0, 5, 8);
+        Wave A3 = addNewWave(1, 0, 6, 8);
+        addSkullShooterIntoWave(A1, A2, A3);
 
         // A1.moveAllEnemyStraight(new Vector2[] {v(1, 8), v(4, 4), v(7, 8)}, 0, 1, 0, 0);
         // A2.moveAllEnemyStraight(new Vector2[] {v(0, 8), v(6, 7), v(5, 1)}, 0, 1, 0, 0);

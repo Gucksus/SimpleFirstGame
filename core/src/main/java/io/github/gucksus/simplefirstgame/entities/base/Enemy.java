@@ -69,9 +69,6 @@ public abstract class Enemy {
     protected float animationInterval;
     protected float deathAnimationTimer;
     protected TextureRegion[] bulletIdleFrames;
-    String vertexShader = Gdx.files.internal("Shader/defaultVertex.vert").readString();
-    String fragmentShader = Gdx.files.internal("Shader/hitFlashFragment.frag").readString();
-    ShaderProgram hitFlashShader = new ShaderProgram(vertexShader, fragmentShader);
     Color averageColor;
 
     public SpriteBatch batch;
@@ -89,6 +86,7 @@ public abstract class Enemy {
     public boolean shootAnimationActivated;
 
     protected float takeDamageTimer = 67;
+
     protected float takeDamageInterval = .1f;
 
     public Enemy(TextureRegion staticTexture, float iniX, float iniY, float width, float height,
@@ -230,14 +228,7 @@ public abstract class Enemy {
     }
 
     public void draw() {
-        if (takeDamageTimer != 0)
-            sprite.draw(batch);
-        else {
-            batch.setShader(hitFlashShader);
-
-            sprite.draw(batch);
-            batch.setShader(null);
-        }
+        sprite.draw(batch);
     }
 
     public void drawDebug() {
@@ -348,10 +339,6 @@ public abstract class Enemy {
         }
     }
 
-    public void dispose() {
-        hitFlashShader.dispose();
-    }
-
     public boolean getIsDead() {
         return isDead;
     }
@@ -374,5 +361,9 @@ public abstract class Enemy {
 
     public String getId() {
         return id;
+    }
+
+    public float getTakeDamageTimer() {
+        return takeDamageTimer;
     }
 }

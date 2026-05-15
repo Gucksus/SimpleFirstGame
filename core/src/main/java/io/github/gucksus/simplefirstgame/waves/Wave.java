@@ -62,7 +62,6 @@ public class Wave {
             Enemy enemy = waveEnemyArray.get(i);
             // If the enemy is dead and finished death animation.
             if (enemy.getIsDead() && enemy.isDeathAnimationFinished()) {
-                enemy.dispose();
                 activeEnemyArray.removeValue(enemy, true);
                 waveEnemyArray.removeIndex(i);
             }

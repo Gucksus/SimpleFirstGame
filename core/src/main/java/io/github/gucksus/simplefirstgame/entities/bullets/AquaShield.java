@@ -1,7 +1,6 @@
 package io.github.gucksus.simplefirstgame.entities.bullets;
 
 import java.util.UUID;
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
@@ -17,7 +16,6 @@ public class AquaShield extends Bullet {
     Circular circular;
     AnimSpec<Vector2> circularAnimSpec;
     String id = UUID.randomUUID().toString();
-    protected float rotateTimer = 0;
 
     public AquaShield(TextureRegion[] idleAnimationFrames, float width, float height, float iniX,
             float iniY, SpriteBatch batch, MainShip mainShip) {
@@ -31,8 +29,6 @@ public class AquaShield extends Bullet {
 
     @Override
     public void update() {
-        float delta = Gdx.graphics.getDeltaTime();
-        rotateTimer += delta;
         circular.setCenter(mainShip.getPastPositions().first());
         updateHitbox();
     }
@@ -40,10 +36,10 @@ public class AquaShield extends Bullet {
     @Override
     public void playAnimation() {
         circular = new Circular(getCoordinate(), mainShip.getPastPositions().first(), 3000);
-        float spinMultiplier = 4;
+        float spinMultiplier = 3000;
         circularAnimSpec = new AnimSpec<>(circular, (value, progess) -> {
             this.setPosition(value.x, value.y);
-            this.setRotation(circular.getAngle() + rotateTimer * spinMultiplier);
+            this.setRotation(circular.getAngle() + progess * spinMultiplier);
         }, 0, 1000, 0, 0);
         Constants.circularAnimScheduler.play(id + "Circular", circularAnimSpec);
     }

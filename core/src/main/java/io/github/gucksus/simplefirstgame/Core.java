@@ -1,10 +1,8 @@
 package io.github.gucksus.simplefirstgame;
 
 import com.badlogic.gdx.ApplicationAdapter;
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import io.github.gucksus.simplefirstgame.entities.MainShip;
 import io.github.gucksus.simplefirstgame.entities.base.Level;

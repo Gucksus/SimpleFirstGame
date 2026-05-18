@@ -23,10 +23,12 @@ public class MainShip {
     float powerDelay = .05f;
 
     Texture basicBulletIdleSheet;
+    Texture thrusterFire;
     TextureRegion[] basicBulletIdleFrames;
     public Circle shipHurtbox;
     float hurtboxOffsetY;
     Sprite shipSprite;
+    Sprite thruster;
     float width;
     float height;
     float shipSpeed = 6f;
@@ -37,15 +39,18 @@ public class MainShip {
     public float invulnerableDuration = 1f;
     public boolean isDead = false;
     Vector2 directionVector;
-    Array<AnimationTexture> spinAnimations = new Array<>();
-    TextureRegion[][] turnAnimations = new TextureRegion[3][2];
-    Texture spinAnimationSheet;
+
     float stateTime;
     float worldWidth;
     float worldHeight;
     SpriteBatch batch;
     DebugRenderer debugRenderer;
     BulletHolder bulletHolder;
+
+    Array<AnimationTexture> spinAnimations = new Array<>();
+    AnimationTexture thrusterAnimation;
+    TextureRegion[][] turnAnimations = new TextureRegion[3][2];
+    Texture spinAnimationSheet;
     int spinAnimIndex = 0;
     float timerSinceLastSpin = 67;
     float spinDuration;
@@ -68,12 +73,16 @@ public class MainShip {
         basicBulletIdleSheet = new Texture("Bullet/basicBullet.png");
         spinAnimationSheet = new Texture("Mainship/ship_sprite_animation1.png");
         aquaShieldTexture = new Texture("Mainship/PowerUp/AquaShield.png");
+        thrusterFire = new Texture("MainShip/thrusterFire.png");
 
-        initializeAnimation();
+        initializeSpinAnimation();
+        initializeThrusterFireAnimation();
         basicBulletIdleFrames = getBasicBulletIdleFrames();
 
         shipSprite.setSize(width, height);
         shipSprite.setCenter(centerX, centerY);
+        thruster.set(shipSprite);
+
         shipHurtbox = new Circle(shipSprite.getX() + width / 2, centerY + hurtboxOffsetY, .1f);
         directionVector = new Vector2();
         worldWidth = Constants.worldWidth;
@@ -113,11 +122,7 @@ public class MainShip {
         }
     }
 
-    void setSpriteTexture(TextureRegion value) {
-        shipSprite.setRegion(value);
-    }
-
-    void initializeAnimation() {
+    void initializeSpinAnimation() {
         TextureRegion[][] splitSpinAnimSheet = TextureRegion.split(spinAnimationSheet, 64, 64);
 
         AnimationTexture toBlueRed =
@@ -137,20 +142,39 @@ public class MainShip {
         turnAnimations[2] = splitSpinAnimSheet[5];
 
         shipSprite = new Sprite(splitSpinAnimSheet[0][0]);
+        thruster = new Sprite();
     }
 
     void triggerSpinAnim() {
         if (timerSinceLastSpin < spinDuration)
             return;
+
+        Constants.textureAnimScheduler.stop("Thruster");
+        thruster.setAlpha(0);
         bulletHolder.shipPower.clear();
         bulletHolder.bulletTerminators.clear();
         currentAnimationState = AnimationState.Spinning;
+
         Constants.textureAnimScheduler.play("Spin",
                 new AnimSpec<>(spinAnimations.get(spinAnimIndex), (value, progress) -> {
-                    this.setSpriteTexture(value);
+                    this.shipSprite.setRegion(value);
                 }, 0, spinDuration, 0, 0));
         timerSinceLastSpin = 0;
         spinAnimIndex = (spinAnimIndex + 1) % 3;
+    }
+
+    void initializeThrusterFireAnimation() {
+        TextureRegion[][] thrusterFrames = TextureRegion.split(thrusterFire, 64, 64);
+        thrusterAnimation = new AnimationTexture(new Animation<>(0.1f, thrusterFrames[0]));
+        triggerThrusterAnim();
+    }
+
+    void triggerThrusterAnim() {
+        thruster.setAlpha(1);
+        Constants.textureAnimScheduler.play("Thruster",
+                new AnimSpec<>(thrusterAnimation, (value, progress) -> {
+                    this.thruster.setRegion(value);
+                }, 0, thrusterAnimation.getDuration(), 0, 9999));
     }
 
     TextureRegion[] getBasicBulletIdleFrames() {
@@ -169,6 +193,7 @@ public class MainShip {
         input();
         animationStateUpdate();
         // Update hurtbox position for the ship.
+        thruster.setCenter(getCoordinate().x, getCoordinate().y);
         shipHurtbox.setPosition(shipSprite.getX() + width / 2, shipSprite.getY() + hurtboxOffsetY);
     }
 
@@ -228,6 +253,7 @@ public class MainShip {
             case Spinning:
                 if (timerSinceLastSpin >= spinDuration) {
                     currentAnimationState = AnimationState.Neutral;
+                    triggerThrusterAnim();
                     if (spinAnimIndex == 0) {
                         activateAquaShield();
                         break;
@@ -270,8 +296,10 @@ public class MainShip {
     }
 
     public void draw() {
-        if (!isDead)
+        if (!isDead) {
             shipSprite.draw(batch);
+            thruster.draw(batch);
+        }
     }
 
     public void drawDebug() {
@@ -297,5 +325,6 @@ public class MainShip {
     public void dispose() {
         basicBulletIdleSheet.dispose();
         spinAnimationSheet.dispose();
+        thrusterFire.dispose();
     }
 }

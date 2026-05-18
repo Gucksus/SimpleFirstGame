@@ -114,10 +114,10 @@ public abstract class Enemy {
             this.sprite.setRegion(value);
         }, 0, idleAnimation.getAnimationDuration(), 0, 999);
         Constants.textureAnimScheduler.play(id + "Idle", idleAnimSpec);
-        averageColor = computeAvarageColor(idleAnimationFrames[0]);
+        averageColor = computeAverageColor(idleAnimationFrames[0]);
     }
 
-    public Color computeAvarageColor(TextureRegion firstFrame) {
+    public Color computeAverageColor(TextureRegion firstFrame) {
         TextureData data = firstFrame.getTexture().getTextureData();
         if (!data.isPrepared())
             data.prepare();

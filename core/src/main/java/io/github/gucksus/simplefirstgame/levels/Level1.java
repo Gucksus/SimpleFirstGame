@@ -85,7 +85,7 @@ public class Level1 extends Level {
     private void addCarrier() {
         Wave wave = addNewWave(1, 0, 67, 67);
         TextureRegion[][] splitCarrierSheet = TextureRegion.split(carrierTextureSheet,
-                carrierTextureSheet.getWidth() / 3, carrierTextureSheet.getHeight() / 3);
+                carrierTextureSheet.getWidth() / 3, carrierTextureSheet.getHeight() / 2);
         Carrier carrier = new Carrier(splitCarrierSheet[0][0],
                 TextureRegion.split(powerUpTextureSheet, 32, 32)[0], worldWidth / 2,
                 worldHeight + 1, mainShip, wave);

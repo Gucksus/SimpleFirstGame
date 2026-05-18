@@ -48,18 +48,23 @@ public class MainShip {
     BulletHolder bulletHolder;
 
     Array<AnimationTexture> spinAnimations = new Array<>();
-    AnimationTexture thrusterAnimation;
+    AnimationTexture[][] thrusterAnimation = new AnimationTexture[3][2];
     TextureRegion[][] turnAnimations = new TextureRegion[3][2];
     Texture spinAnimationSheet;
     int spinAnimIndex = 0;
     float timerSinceLastSpin = 67;
     float spinDuration;
 
-    enum AnimationState {
+    enum ShipAnimationState {
         Neutral, TurningLeft, TurningRight, Spinning
     }
 
-    AnimationState currentAnimationState = AnimationState.Neutral;
+    enum ThrusterAnimationState {
+        Forward, Backward
+    }
+
+    ThrusterAnimationState currentThrusterAnimationState = ThrusterAnimationState.Backward;
+    ShipAnimationState currentShipAnimationState = ShipAnimationState.Neutral;
 
     float timerSinceKeyDown = 0;
     Vector2 lastDirectionVector = new Vector2();
@@ -153,7 +158,7 @@ public class MainShip {
         thruster.setAlpha(0);
         bulletHolder.shipPower.clear();
         bulletHolder.bulletTerminators.clear();
-        currentAnimationState = AnimationState.Spinning;
+        currentShipAnimationState = ShipAnimationState.Spinning;
 
         Constants.textureAnimScheduler.play("Spin",
                 new AnimSpec<>(spinAnimations.get(spinAnimIndex), (value, progress) -> {
@@ -164,17 +169,61 @@ public class MainShip {
     }
 
     void initializeThrusterFireAnimation() {
-        TextureRegion[][] thrusterFrames = TextureRegion.split(thrusterFire, 64, 64);
-        thrusterAnimation = new AnimationTexture(new Animation<>(0.1f, thrusterFrames[0]));
-        triggerThrusterAnim();
+        TextureRegion[][] thrusterForwardFrames = TextureRegion.split(thrusterFire, 64, 64);
+
+        for (int i = 0; i < 3; i++) {
+            thrusterAnimation[i][0] =
+                    new AnimationTexture(new Animation<>(0.1f, thrusterForwardFrames[i]));
+
+            TextureRegion[] thrusterBackwardFrames =
+                    {thrusterForwardFrames[i][2], thrusterForwardFrames[i][3]};
+            thrusterAnimation[i][1] =
+                    new AnimationTexture(new Animation<>(0.1f, thrusterBackwardFrames));
+        }
+
+        triggerThrusterAnim(0, 1);
     }
 
-    void triggerThrusterAnim() {
-        thruster.setAlpha(1);
-        Constants.textureAnimScheduler.play("Thruster",
-                new AnimSpec<>(thrusterAnimation, (value, progress) -> {
+    void triggerThrusterAnim(int shipStateIndex) {
+        Constants.textureAnimScheduler.stop("Thruster");
+        int directionIndex = 0;
+        switch (currentThrusterAnimationState) {
+            case Forward:
+                directionIndex = 0;
+                break;
+            case Backward:
+                directionIndex = 1;
+                break;
+        }
+        Constants.textureAnimScheduler.play("Thruster", new AnimSpec<>(
+                thrusterAnimation[shipStateIndex][directionIndex], (value, progress) -> {
                     this.thruster.setRegion(value);
-                }, 0, thrusterAnimation.getDuration(), 0, 9999));
+                }, 0, thrusterAnimation[shipStateIndex][directionIndex].getDuration(), 0, 9999));
+    }
+
+    void triggerThrusterAnim(int shipStateIndex, int directionIndex) {
+        Constants.textureAnimScheduler.stop("Thruster");
+        Constants.textureAnimScheduler.play("Thruster", new AnimSpec<>(
+                thrusterAnimation[shipStateIndex][directionIndex], (value, progress) -> {
+                    this.thruster.setRegion(value);
+                }, 0, thrusterAnimation[shipStateIndex][directionIndex].getDuration(), 0, 9999));
+    }
+
+    void checkThrusterState(int shipStateIndex) {
+        switch (currentThrusterAnimationState) {
+            case Backward:
+                if (lastDirectionVector.y > 0) {
+                    triggerThrusterAnim(shipStateIndex, 0);
+                    currentThrusterAnimationState = ThrusterAnimationState.Forward;
+                }
+                break;
+            case Forward:
+                if (lastDirectionVector.y < 0) {
+                    triggerThrusterAnim(shipStateIndex, 1);
+                    currentThrusterAnimationState = ThrusterAnimationState.Backward;
+                }
+                break;
+        }
     }
 
     TextureRegion[] getBasicBulletIdleFrames() {
@@ -199,7 +248,8 @@ public class MainShip {
 
     void returnAnimationToNeutral() {
         timerSinceKeyDown = 0;
-        currentAnimationState = AnimationState.Neutral;
+        currentShipAnimationState = ShipAnimationState.Neutral;
+        triggerThrusterAnim(0);
         shipSprite.setRegion(spinAnimations.get(spinAnimIndex).getFirstFrame());
     }
 
@@ -249,11 +299,13 @@ public class MainShip {
     }
 
     void animationStateUpdate() {
-        switch (currentAnimationState) {
+        switch (currentShipAnimationState) {
             case Spinning:
                 if (timerSinceLastSpin >= spinDuration) {
-                    currentAnimationState = AnimationState.Neutral;
-                    triggerThrusterAnim();
+                    currentShipAnimationState = ShipAnimationState.Neutral;
+                    currentThrusterAnimationState = ThrusterAnimationState.Backward;
+                    thruster.setAlpha(1);
+                    triggerThrusterAnim(0, 1);
                     if (spinAnimIndex == 0) {
                         activateAquaShield();
                         break;
@@ -261,12 +313,12 @@ public class MainShip {
                 }
                 break;
             case TurningLeft:
-                shipSprite.setRegion(turnAnimations[spinAnimIndex][0]);
+                checkThrusterState(1);
                 if (lastDirectionVector.x >= 0)
                     returnAnimationToNeutral();
                 break;
             case TurningRight:
-                shipSprite.setRegion(turnAnimations[spinAnimIndex][1]);
+                checkThrusterState(2);
                 if (lastDirectionVector.x <= 0)
                     returnAnimationToNeutral();
                 break;
@@ -276,12 +328,18 @@ public class MainShip {
                     break;
                 }
 
-                shipSprite.setRegion(spinAnimations.get(spinAnimIndex).getFirstFrame());
+                checkThrusterState(0);
+
                 if (timerSinceKeyDown >= .1f) {
-                    if (lastDirectionVector.x < 0)
-                        currentAnimationState = AnimationState.TurningLeft;
-                    else
-                        currentAnimationState = AnimationState.TurningRight;
+                    if (lastDirectionVector.x < 0) {
+                        shipSprite.setRegion(turnAnimations[spinAnimIndex][0]);
+                        triggerThrusterAnim(1);
+                        currentShipAnimationState = ShipAnimationState.TurningLeft;
+                    } else {
+                        shipSprite.setRegion(turnAnimations[spinAnimIndex][1]);
+                        triggerThrusterAnim(2);
+                        currentShipAnimationState = ShipAnimationState.TurningRight;
+                    }
                 }
                 break;
         }
